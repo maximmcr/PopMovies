@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    MovieInfoAdapter movieInfoAdapter = null;
+    MovieInfoAdapter movieInfoAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +32,20 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
         FetchMovieInfo task = new FetchMovieInfo();
         movieInfoAdapter = new MovieInfoAdapter(new ArrayList<MovieInfo>());
+        Log.i("postexecute", String.valueOf(movieInfoAdapter.getItemCount()));
         task.execute("top_rated");
+        Log.i("main", String.valueOf(movieInfoAdapter.getItemCount()));
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        view.setLayoutManager(llm);
         view.setAdapter(movieInfoAdapter);
+        Log.i("main", "work is done");
     }
 
     public class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
         @Override
         protected ArrayList<MovieInfo> doInBackground(String... params) {
 
-            final String API_KEY = "bf9bf395590685ddee545dfac0fac978";
+            final String API_KEY = BuildConfig.API_KEY;
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -77,14 +83,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+            ArrayList<MovieInfo> result = null;
             if (jsonMovieInfo != null) {
                 try {
-                    return getMovieInfoFromJson(jsonMovieInfo);
+                    Log.i("doInBackground", "movie info is starting transferring");
+                    result = getMovieInfoFromJson(jsonMovieInfo);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-            return null;
+            return result;
         }
         private ArrayList<MovieInfo> getMovieInfoFromJson(String jsonStr) throws JSONException {
             ArrayList<MovieInfo> moviesInfo = new ArrayList<>();
@@ -116,7 +124,10 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<MovieInfo> moviesInfo) {
             super.onPostExecute(moviesInfo);
             movieInfoAdapter.clear();
+            Log.i("onPostExecute", "adapter is cleared");
             movieInfoAdapter.addAll(moviesInfo);
+            Log.i("onPostExecute", "moviesInfo is inserted");
+            Log.i("postexecute", String.valueOf(movieInfoAdapter.getItemCount()));
         }
 
 

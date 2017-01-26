@@ -1,5 +1,6 @@
 package com.example.android.popmovies;
 
+import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -37,6 +40,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         }
     }
 
+    Context context;
     ArrayList<MovieInfo> moviesInfo;
     public MovieInfoAdapter(ArrayList<MovieInfo> moviesInfo) {
         this.moviesInfo = moviesInfo;
@@ -49,7 +53,8 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
 
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_film, viewGroup, false);
+        context = viewGroup.getContext();
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_film, viewGroup, false);
         MovieViewHolder viewHolder = new MovieViewHolder(view);
         return viewHolder;
     }
@@ -60,8 +65,9 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         viewHolder.title.setText(movie.title);
         viewHolder.releaseDate.setText(movie.releaseDate);
         viewHolder.overview.setText(movie.overview);
-        viewHolder.rating.setText(String.valueOf(movie.rating));
-        viewHolder.popularity.setText(String.valueOf(movie.popularity));
+        viewHolder.rating.setText("Rating: " + String.valueOf(movie.rating));
+        viewHolder.popularity.setText("Users' popularity: " + String.valueOf(movie.popularity));
+        Picasso.with(context).load("http://image.tmdb.org/t/p/w342" + String.valueOf(movie.posterId)).into(viewHolder.poster);
     }
 
     public void clear() {

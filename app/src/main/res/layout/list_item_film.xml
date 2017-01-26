@@ -3,14 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/list_item_card">
+    android:layout_height="wrap_content"
+    android:id="@+id/list_item_card"
+    android:layout_marginBottom="16dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="16dp">
+        android:padding="16dp">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -32,25 +33,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_release"
-            android:layout_toRightOf="@id/list_item_poster" />
+            android:layout_toRightOf="@id/list_item_poster"
+            android:layout_below="@id/list_item_title"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_rating"
-            android:layout_toRightOf="@id/list_item_poster" />
+            android:layout_toRightOf="@id/list_item_poster"
+            android:layout_below="@id/list_item_release"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_popularity"
-            android:layout_toRightOf="@id/list_item_poster" />
+            android:layout_toRightOf="@id/list_item_poster"
+            android:layout_below="@id/list_item_rating"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_overview"
-            android:layout_toRightOf="@id/list_item_poster" />
+            android:layout_below="@id/list_item_poster"/>
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
