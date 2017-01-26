@@ -1,39 +1,80 @@
 package com.example.android.popmovies;
 
-import android.app.Activity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by Frei on 24.01.2017.
  */
 
-public class MovieInfoAdapter extends ArrayAdapter<MovieInfo> {
+public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.MovieViewHolder> {
 
-    public MovieInfoAdapter(Activity context, List<MovieInfo> movieInfo) {
-        super(context, 0, movieInfo);
+    public static class MovieViewHolder extends RecyclerView.ViewHolder {
+        CardView cardView;
+        ImageView poster;
+        TextView title;
+        TextView rating;
+        TextView releaseDate;
+        TextView overview;
+        TextView popularity;
+
+        public MovieViewHolder(View itemView) {
+            super(itemView);
+            cardView = (CardView) itemView.findViewById(R.id.list_item_card);
+            poster = (ImageView) itemView.findViewById(R.id.list_item_poster);
+            title = (TextView) itemView.findViewById(R.id.list_item_title);
+            rating = (TextView) itemView.findViewById(R.id.list_item_rating);
+            releaseDate = (TextView) itemView.findViewById(R.id.list_item_release);
+            overview = (TextView) itemView.findViewById(R.id.list_item_overview);
+            popularity = (TextView) itemView.findViewById(R.id.list_item_popularity);
+        }
+    }
+
+    ArrayList<MovieInfo> moviesInfo;
+    public MovieInfoAdapter(ArrayList<MovieInfo> moviesInfo) {
+        this.moviesInfo = moviesInfo;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        MovieInfo mInfo = getItem(position);
+    public int getItemCount() {
+        return moviesInfo.size();
+    }
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_film, parent, false);
+    @Override
+    public MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_film, viewGroup, false);
+        MovieViewHolder viewHolder = new MovieViewHolder(view);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(MovieViewHolder viewHolder, int i) {
+        MovieInfo movie = moviesInfo.get(i);
+        viewHolder.title.setText(movie.title);
+        viewHolder.releaseDate.setText(movie.releaseDate);
+        viewHolder.overview.setText(movie.overview);
+        viewHolder.rating.setText(String.valueOf(movie.rating));
+        viewHolder.popularity.setText(String.valueOf(movie.popularity));
+    }
+
+    public void clear() {
+        if (moviesInfo.size() > 0) {
+            this.moviesInfo.clear();
         }
+        this.notifyItemRangeRemoved(0, moviesInfo.size());
+    }
 
-        ImageView poster = (ImageView) convertView.findViewById(R.id.list_item_poster);
-        poster.setImageResource(mInfo.mPosterId);
-
-        TextView movieName = (TextView) convertView.findViewById(R.id.list_item_name);
-        movieName.setText(mInfo.mName);
-
-        return convertView;
+    public void addAll(ArrayList<MovieInfo> movies) {
+        for (int i = 0; i < movies.size(); i++) {
+            moviesInfo.add(movies.get(i));
+        }
+        this.notifyItemRangeInserted(0, moviesInfo.size() - 1);
     }
 }
