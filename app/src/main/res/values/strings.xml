@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Pop Movies</string>
+    <string name="label_settings_activity">Settings</string>
+
+    <string name="pref_list_title">Sorting</string>
+    <string name="pref_list_key">Sorting</string>
+    <string name="pref_list_default">top_rated</string>
+    <string-array name="userVal">
+        <item>by rating</item>
+        <item>by users\' popularity</item>
+    </string-array>
+    <string-array name="sysVal">
+        <item>top_rated</item>
+        <item>popular</item>
+    </string-array>
+
+    <string name="action_settings">Settings</string>
 </resources>

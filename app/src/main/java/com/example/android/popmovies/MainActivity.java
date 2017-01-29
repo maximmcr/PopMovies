@@ -1,12 +1,16 @@
 package com.example.android.popmovies;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,13 +36,27 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
         FetchMovieInfo task = new FetchMovieInfo();
         movieInfoAdapter = new MovieInfoAdapter(new ArrayList<MovieInfo>());
-        Log.i("postexecute", String.valueOf(movieInfoAdapter.getItemCount()));
-        task.execute("top_rated");
-        Log.i("main", String.valueOf(movieInfoAdapter.getItemCount()));
+        String option = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+        task.execute(option);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         view.setLayoutManager(llm);
         view.setAdapter(movieInfoAdapter);
-        Log.i("main", "work is done");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+        }
+        return true;
     }
 
     public class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
