@@ -1,5 +1,6 @@
 package com.example.android.popmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -39,17 +40,16 @@ public class MainActivity extends AppCompatActivity {
         String option = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-        task.execute(option);
+        //task.execute(option);
         //updateMovieInfo();
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        view.setLayoutManager(llm);
+        view.setLayoutManager(new LLMWrapper(this));
         view.setAdapter(movieInfoAdapter);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        //updateMovieInfo();
+        updateMovieInfo();
     }
 
     public void updateMovieInfo() {
@@ -163,5 +163,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    public class LLMWrapper extends LinearLayoutManager {
+
+        public LLMWrapper(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            try {
+                super.onLayoutChildren(recycler, state);
+            } catch (IndexOutOfBoundsException e) {
+                Log.e("probe", "meet a IOOBE in RecyclerView");
+            }
+        }
     }
 }

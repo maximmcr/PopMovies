@@ -81,6 +81,6 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         for (int i = 0; i < movies.size(); i++) {
             moviesInfo.add(movies.get(i));
         }
-        this.notifyItemRangeInserted(0, moviesInfo.size() - 1);
+        this.notifyItemRangeInserted(0, moviesInfo.size());
     }
 }
