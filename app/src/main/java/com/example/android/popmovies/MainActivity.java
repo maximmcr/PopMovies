@@ -40,9 +40,23 @@ public class MainActivity extends AppCompatActivity {
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
         task.execute(option);
+        //updateMovieInfo();
         LinearLayoutManager llm = new LinearLayoutManager(this);
         view.setLayoutManager(llm);
         view.setAdapter(movieInfoAdapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //updateMovieInfo();
+    }
+
+    public void updateMovieInfo() {
+        String option = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+        new FetchMovieInfo().execute(option);
     }
 
     @Override
