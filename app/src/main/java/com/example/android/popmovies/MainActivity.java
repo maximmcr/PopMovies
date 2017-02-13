@@ -2,12 +2,15 @@ package com.example.android.popmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
@@ -28,35 +31,35 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     MovieInfoAdapter movieInfoAdapter;
+    ArrayList<MovieInfo> movies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
+            movies = new ArrayList<>();
+            updateMovieInfo();
+        } else {
+            movies = savedInstanceState.getParcelableArrayList("movies");
+        }
 
         RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
-        FetchMovieInfo task = new FetchMovieInfo();
-        movieInfoAdapter = new MovieInfoAdapter(new ArrayList<MovieInfo>());
-        String option = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-        //task.execute(option);
-        //updateMovieInfo();
-        view.setLayoutManager(new LLMWrapper(this));
+        movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
+        view.setLayoutManager(new LLMWrapper(this, 1));
         view.setAdapter(movieInfoAdapter);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        updateMovieInfo();
+        //updateMovieInfo();
     }
 
-    public void updateMovieInfo() {
-        String option = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-        new FetchMovieInfo().execute(option);
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("movies", movies);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -73,6 +76,25 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public void updateMovieInfo() {
+        if (isOnline()) {
+            String option = PreferenceManager
+                    .getDefaultSharedPreferences(getApplicationContext())
+                    .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+            new FetchMovieInfo().execute(option);
+        } else {
+            Snackbar.make(findViewById(R.id.activity_main), "There is no internet connection!", Snackbar.LENGTH_LONG)
+                    .show();
+        }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager)
+                getSystemService(getApplicationContext().CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
     public class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
         @Override
         protected ArrayList<MovieInfo> doInBackground(String... params) {
@@ -84,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             String jsonMovieInfo = null;
 
             try {
-                Uri TMDBrequest = Uri.parse("http://api.themoviedb.org/3/movie/").buildUpon()
+                Uri TMDBrequest = Uri.parse(getString(R.string.tmdb_address)).buildUpon()
                         .appendPath(params[0])
                         .appendQueryParameter("api_key", API_KEY)
                         .build();
@@ -99,11 +121,9 @@ public class MainActivity extends AppCompatActivity {
                 reader = new BufferedReader(new InputStreamReader(stream));
                 jsonMovieInfo = reader.readLine();
 
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 Log.e("FetchMovieInfo", "Class haven't get info", e);
-            }
-            finally {
+            } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
@@ -126,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return result;
         }
+
         private ArrayList<MovieInfo> getMovieInfoFromJson(String jsonStr) throws JSONException {
             ArrayList<MovieInfo> moviesInfo = new ArrayList<>();
             try {
@@ -137,16 +158,15 @@ public class MainActivity extends AppCompatActivity {
                     String title = jsonMovie.getString("title");
                     String posterId = jsonMovie.getString("poster_path");
                     String releaseDate = jsonMovie.getString("release_date");
-                    double popularity = jsonMovie.getDouble("popularity");
+                    double popularity = Math.round(jsonMovie.getDouble("popularity") * 100d) / 100d;
                     double rating = jsonMovie.getDouble("vote_average");
                     int id = jsonMovie.getInt("id");
 
-                    MovieInfo movie = new MovieInfo(title,posterId,releaseDate,
-                            overview,rating,popularity,id);
+                    MovieInfo movie = new MovieInfo(title, posterId, releaseDate,
+                            overview, rating, popularity, id);
                     moviesInfo.add(movie);
                 }
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 Log.e("JSON Formatter", "Json string from asynctask not formatted", e);
             }
             return moviesInfo;
@@ -155,20 +175,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<MovieInfo> moviesInfo) {
             super.onPostExecute(moviesInfo);
-            movieInfoAdapter.clear();
-            Log.i("onPostExecute", "adapter is cleared");
+            if (movieInfoAdapter.getItemCount() > 0) {
+                movieInfoAdapter.clear();
+            }
             movieInfoAdapter.addAll(moviesInfo);
-            Log.i("onPostExecute", "moviesInfo is inserted");
-            Log.i("postexecute", String.valueOf(movieInfoAdapter.getItemCount()));
         }
-
 
     }
 
-    public class LLMWrapper extends LinearLayoutManager {
+    public class LLMWrapper extends GridLayoutManager {
 
-        public LLMWrapper(Context context) {
-            super(context);
+        public LLMWrapper(Context context, int spanCount) {
+            super(context, spanCount);
         }
 
         @Override

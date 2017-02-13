@@ -1,6 +1,13 @@
 package com.example.android.popmovies;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,7 +26,7 @@ import java.util.ArrayList;
 
 public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.MovieViewHolder> {
 
-    public static class MovieViewHolder extends RecyclerView.ViewHolder {
+    public class MovieViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
         ImageView poster;
         TextView title;
@@ -28,7 +35,8 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         TextView overview;
         TextView popularity;
 
-        public MovieViewHolder(View itemView) {
+
+        public MovieViewHolder(final View itemView) {
             super(itemView);
             cardView = (CardView) itemView.findViewById(R.id.list_item_card);
             poster = (ImageView) itemView.findViewById(R.id.list_item_poster);
@@ -42,8 +50,11 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
 
     Context context;
     ArrayList<MovieInfo> moviesInfo;
-    public MovieInfoAdapter(ArrayList<MovieInfo> moviesInfo) {
+    Activity main;
+
+    public MovieInfoAdapter(ArrayList<MovieInfo> moviesInfo, Activity activity) {
         this.moviesInfo = moviesInfo;
+        main = activity;
     }
 
     @Override
@@ -52,22 +63,53 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
     }
 
     @Override
-    public MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public MovieViewHolder onCreateViewHolder(final ViewGroup viewGroup, int i) {
         context = viewGroup.getContext();
         View view = LayoutInflater.from(context).inflate(R.layout.list_item_film, viewGroup, false);
-        MovieViewHolder viewHolder = new MovieViewHolder(view);
-        return viewHolder;
+        return new MovieViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(MovieViewHolder viewHolder, int i) {
-        MovieInfo movie = moviesInfo.get(i);
+    public void onBindViewHolder(final MovieViewHolder viewHolder, final int position) {
+        final MovieInfo movie = moviesInfo.get(position);
         viewHolder.title.setText(movie.title);
         viewHolder.releaseDate.setText(movie.releaseDate);
         viewHolder.overview.setText(movie.overview);
         viewHolder.rating.setText("Rating: " + String.valueOf(movie.rating));
         viewHolder.popularity.setText("Users' popularity: " + String.valueOf(movie.popularity));
-        Picasso.with(context).load("http://image.tmdb.org/t/p/w342" + String.valueOf(movie.posterId)).into(viewHolder.poster);
+        Picasso.with(context)
+                .load("http://image.tmdb.org/t/p/w342" + String.valueOf(movie.posterId))
+                .error(R.drawable.image_not_loaded)
+                .placeholder(R.drawable.progress_animation)
+                .into(viewHolder.poster);
+
+        viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOnline()) {
+                    Intent intent = new Intent(context, DetailedActivity.class);
+                    intent.putExtra("id", String.valueOf(moviesInfo.get(position).id));
+                    intent.putExtra("rating", movie.rating);
+                    intent.putExtra("popularity", movie.popularity);
+
+                    Pair<View, String> pairImg = Pair.create(
+                            (View) viewHolder.poster, context.getText(R.string.transition_poster).toString());
+                    Pair<View, String> pairTitle = Pair.create(
+                            (View) viewHolder.title, context.getText(R.string.transition_title).toString());
+                    Pair<View, String> pairOverview = Pair.create(
+                            (View) viewHolder.overview, context.getText(R.string.transition_overview).toString());
+
+                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            main, pairImg);
+
+                    context.startActivity(intent, options.toBundle());
+                }
+                else {
+                    Snackbar.make(v, "There is no internet connection!", Snackbar.LENGTH_LONG)
+                            .show();
+                }
+            }
+        });
     }
 
     public void clear() {
@@ -82,5 +124,12 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
             moviesInfo.add(movies.get(i));
         }
         this.notifyItemRangeInserted(0, moviesInfo.size());
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager)
+                context.getSystemService(context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 }
