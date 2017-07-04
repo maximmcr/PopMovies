@@ -3,6 +3,8 @@
     android:id="@+id/list_item_poster"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:transitionName="@string/transition_poster">
+    android:transitionName="@string/transition_poster"
+    android:scaleType="fitCenter"
+    android:adjustViewBounds="true">
 
 </ImageView>

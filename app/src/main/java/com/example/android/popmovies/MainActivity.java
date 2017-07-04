@@ -235,20 +235,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static class Decorator extends RecyclerView.ItemDecoration {
-        private final int margin;
+        private final int space;
 
-        public Decorator(int margin) {
-            this.margin = margin;
+        public Decorator(int space) {
+            this.space = space;
         }
 
         @Override
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
                                    RecyclerView.State state) {
-            super.getItemOffsets(outRect, view, parent, state);
-            outRect.left = margin;
-            outRect.right = margin;
-            outRect.bottom = margin;
-            outRect.top = margin;
+            //super.getItemOffsets(outRect, view, parent, state);
+            outRect.left = space;
+            outRect.right = space;
+            outRect.bottom = space;
+            outRect.top = space;
+
+            view.setPadding(space,space,space,space);
         }
     }
 }
