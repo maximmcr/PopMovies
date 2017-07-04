@@ -75,8 +75,10 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         viewHolder.title.setText(movie.title);
         viewHolder.releaseDate.setText(movie.releaseDate);
         viewHolder.overview.setText(movie.overview);
-        viewHolder.rating.setText("Rating: " + String.valueOf(movie.rating));
-        viewHolder.popularity.setText("Users' popularity: " + String.valueOf(movie.popularity));
+        String rating = "Rating: " + String.valueOf(movie.rating);
+        viewHolder.rating.setText(rating);
+        String popularity = "Users' popularity: " + String.valueOf(movie.popularity);
+        viewHolder.popularity.setText(popularity);
         Picasso.with(context)
                 .load("http://image.tmdb.org/t/p/w342" + String.valueOf(movie.posterId))
                 .error(R.drawable.image_not_loaded)
@@ -103,8 +105,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
                             main, pairImg);
 
                     context.startActivity(intent, options.toBundle());
-                }
-                else {
+                } else {
                     Snackbar.make(v, "There is no internet connection!", Snackbar.LENGTH_LONG)
                             .show();
                 }

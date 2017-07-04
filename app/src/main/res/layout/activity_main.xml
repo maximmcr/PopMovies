@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    tools:context="com.example.android.popmovies.MainActivity">
+    tools:context="com.example.android.popmovies.MainActivity"
+    android:background="@color/colorPrimaryLight">
 
 </android.support.v7.widget.RecyclerView>

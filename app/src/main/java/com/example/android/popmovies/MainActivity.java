@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     MovieInfoAdapter movieInfoAdapter;
     ArrayList<MovieInfo> movies;
+    public final String CLASS_TAG = MainActivity.class.getSimpleName();
+    private String mSortingType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +48,44 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
         movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
-        view.setLayoutManager(new LLMWrapper(this, 1));
+        view.setLayoutManager(new LLMWrapper(this, 2));
         view.setAdapter(movieInfoAdapter);
+
+        mSortingType = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.i(CLASS_TAG, "onStart");
         //updateMovieInfo();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String currentSorting = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+        if (mSortingType != currentSorting) {
+            mSortingType = currentSorting;
+            updateMovieInfo();
+        }
+        Log.i(CLASS_TAG, "onResume");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.i(CLASS_TAG, "onStop");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.i(CLASS_TAG, "onPause");
     }
 
     @Override

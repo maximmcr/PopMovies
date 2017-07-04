@@ -53,6 +53,7 @@ public class DetailedActivity extends AppCompatActivity {
 
         TextView tagline = (TextView) findViewById(R.id.detail_tagline);
         tagline.setText(movieInfo.tagline);
+        Log.i("update info", movieInfo.tagline);
 
         TextView adult = (TextView) findViewById(R.id.detail_adult);
         adult.setText(movieInfo.adult);
@@ -61,10 +62,12 @@ public class DetailedActivity extends AppCompatActivity {
         overview.setText(movieInfo.overview);
 
         TextView popularity = (TextView) findViewById(R.id.detail_popularity);
-        popularity.setText(getIntent().getStringExtra("popularity"));
+        //popularity.setText(getIntent().getStringExtra("popularity"));
+        popularity.setText(String.valueOf(movieInfo.popularity));
 
         TextView rating = (TextView) findViewById(R.id.detail_rating);
-        rating.setText(getIntent().getStringExtra("rating"));
+        //rating.setText(getIntent().getStringExtra("rating"));
+        rating.setText(String.valueOf(movieInfo.rating));
     }
 
     @Override
@@ -115,13 +118,17 @@ public class DetailedActivity extends AppCompatActivity {
             try {
                 JSONObject movie = new JSONObject(s);
 
-                movieInfo = new MovieInfo(movie.getString("title"),
+                movieInfo = new MovieInfo(
+                        movie.getString("title"),
                         movie.getString("poster_path"),
                         "For adults only: " + movie.getString("adult") == "false" ? "No" : "18+",
                         movie.getString("tagline"),
                         movie.getString("overview"),
                         getIntent().getDoubleExtra("rating", 0.0d),
-                        getIntent().getDoubleExtra("popularity", 0.0d));
+                        getIntent().getDoubleExtra("popularity", 0.0d)
+                        //movie.getDouble("popularity")
+                );
+                Log.i("onPostExecute", movie.getString("tagline"));
                 updateInfo();
 
             } catch (JSONException e) {
