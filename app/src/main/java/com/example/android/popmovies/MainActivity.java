@@ -2,6 +2,7 @@ package com.example.android.popmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
         movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
         view.setLayoutManager(new LLMWrapper(this, 2));
+        view.addItemDecoration(new Decorator(0));
         view.setAdapter(movieInfoAdapter);
 
         mSortingType = PreferenceManager
@@ -228,6 +231,24 @@ public class MainActivity extends AppCompatActivity {
             } catch (IndexOutOfBoundsException e) {
                 Log.e("probe", "meet a IOOBE in RecyclerView");
             }
+        }
+    }
+
+    private static class Decorator extends RecyclerView.ItemDecoration {
+        private final int margin;
+
+        public Decorator(int margin) {
+            this.margin = margin;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                                   RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            outRect.left = margin;
+            outRect.right = margin;
+            outRect.bottom = margin;
+            outRect.top = margin;
         }
     }
 }
