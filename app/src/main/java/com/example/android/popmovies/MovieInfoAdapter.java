@@ -3,8 +3,6 @@ package com.example.android.popmovies;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -67,11 +65,9 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         viewHolder.poster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isOnline()) {
+                if (Utility.isOnline(context)) {
                     Intent intent = new Intent(context, DetailedActivity.class);
                     intent.putExtra("id", String.valueOf(moviesInfo.get(position).id));
-                    intent.putExtra("rating", movie.rating);
-                    intent.putExtra("popularity", movie.popularity);
 
                     Pair<View, String> pairImg = Pair.create(
                             (View) viewHolder.poster, context.getText(R.string.transition_poster).toString());
@@ -100,12 +96,5 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
             moviesInfo.add(movies.get(i));
         }
         this.notifyItemRangeInserted(0, moviesInfo.size());
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager)
-                context.getSystemService(context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 }

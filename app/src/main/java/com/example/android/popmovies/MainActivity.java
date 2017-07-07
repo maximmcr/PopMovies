@@ -3,8 +3,6 @@ package com.example.android.popmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -80,18 +78,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        Log.i(CLASS_TAG, "onStop");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.i(CLASS_TAG, "onPause");
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList("movies", movies);
         super.onSaveInstanceState(outState);
@@ -112,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateMovieInfo() {
-        if (isOnline()) {
+        if (Utility.isOnline(getApplicationContext())) {
             String option = PreferenceManager
                     .getDefaultSharedPreferences(getApplicationContext())
                     .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
@@ -121,13 +107,6 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.activity_main), "There is no internet connection!", Snackbar.LENGTH_LONG)
                     .show();
         }
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager)
-                getSystemService(getApplicationContext().CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
     public class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
@@ -141,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             String jsonMovieInfo = null;
 
             try {
-                Uri TMDBrequest = Uri.parse(getString(R.string.tmdb_address)).buildUpon()
+                Uri TMDBrequest = Uri.parse(getString(R.string.tmdb_request_adress)).buildUpon()
                         .appendPath(params[0])
                         .appendQueryParameter("api_key", API_KEY)
                         .build();

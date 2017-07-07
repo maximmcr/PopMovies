@@ -2,6 +2,7 @@
     <string name="app_name">Pop Movies</string>
     <string name="label_settings_activity">Settings</string>
 
+    <!-- Settings' strings -->
     <string name="pref_list_title">Sorting</string>
     <string name="pref_list_key">Sorting</string>
     <string name="pref_list_default">top_rated</string>
@@ -13,11 +14,10 @@
         <item>top_rated</item>
         <item>popular</item>
     </string-array>
-
     <string name="action_settings">Settings</string>
-    <string name="tmdb_address">http://api.themoviedb.org/3/movie/</string>
 
-    <string name="transition_poster">poster</string>
-    <string name="transition_title">title</string>
-    <string name="transition_overview">overview</string>
+    <string name="tmdb_request_adress">http://api.themoviedb.org/3/movie/</string>
+
+    <string name="transition_poster" translatable="false">poster</string>
+
 </resources>

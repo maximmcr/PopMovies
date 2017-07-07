@@ -3,6 +3,8 @@ package com.example.android.popmovies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 /**
  * Created by Frei on 24.01.2017.
  */
@@ -17,6 +19,8 @@ public class MovieInfo implements Parcelable {
     double rating;
     double popularity;
     int id;
+
+    ArrayList<Comment> comments = new ArrayList<>();
 
     public MovieInfo(String title, String posterId, String adult, String tagline,
                      String overview, double rating, double popularity) {
@@ -57,8 +61,12 @@ public class MovieInfo implements Parcelable {
 
         this.tagline = in.readString();
         this.adult = in.readString();
+        in.readTypedList(comments, Comment.CREATOR);
     }
 
+    public void setComments(ArrayList<Comment> comments) {
+        this.comments = comments;
+    }
     @Override
     public int describeContents() {
         return 0;
@@ -76,6 +84,8 @@ public class MovieInfo implements Parcelable {
 
         dest.writeString(tagline);
         dest.writeString(adult);
+
+        dest.writeTypedList(comments);
     }
 
     public static final Parcelable.Creator<MovieInfo> CREATOR =
@@ -92,4 +102,46 @@ public class MovieInfo implements Parcelable {
                 }
             };
 
+    public static class Comment implements Parcelable {
+
+        String mAuthor;
+        String mContent;
+        String mUrl;
+
+        public Comment(String author, String content, String url) {
+            mAuthor = author;
+            mContent = content;
+            mUrl = url;
+        }
+
+        protected Comment(Parcel in) {
+            mAuthor = in.readString();
+            mContent = in.readString();
+            mUrl = in.readString();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mAuthor);
+            dest.writeString(mContent);
+            dest.writeString(mUrl);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<Comment> CREATOR = new Creator<Comment>() {
+            @Override
+            public Comment createFromParcel(Parcel in) {
+                return new Comment(in);
+            }
+
+            @Override
+            public Comment[] newArray(int size) {
+                return new Comment[size];
+            }
+        };
+    }
 }

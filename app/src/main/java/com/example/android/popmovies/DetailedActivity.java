@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,16 +21,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class DetailedActivity extends AppCompatActivity {
 
     MovieInfo movieInfo;
+    ListView layoutComments;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
+        layoutComments = (ListView) findViewById(R.id.detail_comment);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movie")) {
-            String id = getIntent().getCharSequenceExtra("id").toString();
+            String id = getIntent().getStringExtra("id");
             new FetchDetailedMovieInfo().execute(id);
         }
         else {
@@ -53,10 +58,6 @@ public class DetailedActivity extends AppCompatActivity {
 
         TextView tagline = (TextView) findViewById(R.id.detail_tagline);
         tagline.setText(movieInfo.tagline);
-        Log.i("update info", movieInfo.tagline);
-
-        TextView adult = (TextView) findViewById(R.id.detail_adult);
-        adult.setText(movieInfo.adult);
 
         TextView overview = (TextView) findViewById(R.id.detail_overview);
         overview.setText(movieInfo.overview);
@@ -68,6 +69,10 @@ public class DetailedActivity extends AppCompatActivity {
         TextView rating = (TextView) findViewById(R.id.detail_rating);
         //rating.setText(getIntent().getStringExtra("rating"));
         rating.setText(String.valueOf(movieInfo.rating));
+
+        CommentAdapter commentAdapter = new CommentAdapter(
+                getApplicationContext(), movieInfo.comments);
+        layoutComments.setAdapter(commentAdapter);
     }
 
     @Override
@@ -76,35 +81,64 @@ public class DetailedActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    public class FetchDetailedMovieInfo extends AsyncTask<String, Void, String> {
+    public class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
 
         @Override
-        protected String doInBackground(String... params) {
+        protected String[] doInBackground(String... params) {
             final String API_KEY = BuildConfig.API_KEY;
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String jsonData = null;
+            HttpURLConnection urlConnectionBody = null;
+            HttpURLConnection urlConnectionComment = null;
+            BufferedReader readerBody = null;
+            BufferedReader readerComment = null;
+            String[] jsonData = null;
             try {
-                Uri request = Uri.parse(getString(R.string.tmdb_address)).buildUpon()
+                Uri request = Uri.parse(getString(R.string.tmdb_request_adress)).buildUpon()
                         .appendPath(params[0])
                         .appendQueryParameter("api_key", API_KEY)
                         .build();
                 URL url = new URL(request.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                urlConnectionBody = (HttpURLConnection) url.openConnection();
+                urlConnectionBody.setRequestMethod("GET");
+                urlConnectionBody.connect();
 
-                InputStream stream = urlConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-                jsonData = reader.readLine();
+                InputStream stream = urlConnectionBody.getInputStream();
+                readerBody = new BufferedReader(new InputStreamReader(stream));
+                jsonData = new String[2];
+                jsonData[0] = new String();
+                jsonData[0] = readerBody.readLine();
+
+
+
+                request = Uri.parse(getString(R.string.tmdb_request_adress)).buildUpon()
+                        .appendPath(params[0])
+                        .appendPath("reviews")
+                        .appendQueryParameter("api_key", API_KEY)
+                        .build();
+                url = new URL(request.toString());
+
+                urlConnectionComment = (HttpURLConnection) url.openConnection();
+                urlConnectionComment.setRequestMethod("GET");
+                urlConnectionComment.connect();
+                stream = urlConnectionComment.getInputStream();
+                readerComment = new BufferedReader(new InputStreamReader(stream));
+
+                jsonData[1] = readerComment.readLine();
             } catch (IOException e) {
                 Log.e(DetailedActivity.class.getSimpleName(), "Class haven't get info", e);
             } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
+                if (urlConnectionBody != null) {
+                    urlConnectionBody.disconnect();
+                }
+                if (urlConnectionComment != null) {
+                    urlConnectionComment.disconnect();
                 }
                 try {
-                    reader.close();
+                    readerBody.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    readerComment.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -113,10 +147,10 @@ public class DetailedActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(String s[]) {
             super.onPostExecute(s);
             try {
-                JSONObject movie = new JSONObject(s);
+                JSONObject movie = new JSONObject(s[0]);
 
                 movieInfo = new MovieInfo(
                         movie.getString("title"),
@@ -128,6 +162,20 @@ public class DetailedActivity extends AppCompatActivity {
                         getIntent().getDoubleExtra("popularity", 0.0d)
                         //movie.getDouble("popularity")
                 );
+
+                JSONArray jComments = new JSONObject(s[1]).getJSONArray("results");
+                ArrayList<MovieInfo.Comment> comments = new ArrayList<>();
+                for (int i = 0; i < jComments.length(); i++) {
+                    JSONObject obj = jComments.getJSONObject(i);
+                    MovieInfo.Comment comment = new MovieInfo.Comment(
+                            obj.getString("author"),
+                            obj.getString("content"),
+                            obj.getString("url")
+                    );
+                    comments.add(comment);
+                }
+                movieInfo.setComments(comments);
+
                 Log.i("onPostExecute", movie.getString("tagline"));
                 updateInfo();
 
