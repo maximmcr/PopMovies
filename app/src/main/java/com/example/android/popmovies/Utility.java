@@ -10,11 +10,14 @@ import android.net.NetworkInfo;
 
 public class Utility {
     public static String getShortComment(String comment) {
-        comment = comment.substring(0, 100);
-        if (comment.endsWith(" ")) {
-            comment = comment.substring(0, comment.length() - 2);
+        if (comment.length() > 400) {
+            comment = comment.substring(0, 200);
+            if (comment.endsWith(" ")) {
+                comment = comment.substring(0, comment.length() - 2);
+            }
+            comment = comment + "...";
         }
-        comment = comment + "...";
+
         return comment;
     }
 

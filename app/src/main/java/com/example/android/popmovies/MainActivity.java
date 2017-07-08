@@ -168,17 +168,10 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < movieList.length(); i++) {
                     JSONObject jsonMovie = movieList.getJSONObject(i);
 
-                    String overview = jsonMovie.getString("overview");
-                    String title = jsonMovie.getString("title");
                     String posterId = jsonMovie.getString("poster_path");
-                    String releaseDate = jsonMovie.getString("release_date");
-                    double popularity = Math.round(jsonMovie.getDouble("popularity") * 100d) / 100d;
-                    double rating = jsonMovie.getDouble("vote_average");
                     int id = jsonMovie.getInt("id");
 
-                    MovieInfo movie = new MovieInfo(title, posterId, releaseDate,
-                            overview, rating, popularity, id);
-                    moviesInfo.add(movie);
+                    moviesInfo.add(new MovieInfo(posterId, id));
                 }
             } catch (JSONException e) {
                 Log.e("JSON Formatter", "Json string from asynctask not formatted", e);

@@ -36,18 +36,9 @@ public class MovieInfo implements Parcelable {
         releaseDate = "";
     }
 
-    public MovieInfo(String title, String posterId, String releaseDate,
-                     String overview, double rating, double popularity, int id) {
-        this.overview = overview;
+    public MovieInfo(String posterId, int id) {
         this.posterId = posterId;
-        this.rating = rating;
-        this.releaseDate = releaseDate;
-        this.title = title;
-        this.popularity = popularity;
         this.id = id;
-
-        adult = "";
-        tagline = "";
     }
 
     private MovieInfo(Parcel in) {

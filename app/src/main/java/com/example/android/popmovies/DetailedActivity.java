@@ -3,10 +3,10 @@ package com.example.android.popmovies;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -26,12 +26,10 @@ import java.util.ArrayList;
 public class DetailedActivity extends AppCompatActivity {
 
     MovieInfo movieInfo;
-    ListView layoutComments;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
-        layoutComments = (ListView) findViewById(R.id.detail_comment);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movie")) {
             String id = getIntent().getStringExtra("id");
             new FetchDetailedMovieInfo().execute(id);
@@ -70,9 +68,10 @@ public class DetailedActivity extends AppCompatActivity {
         //rating.setText(getIntent().getStringExtra("rating"));
         rating.setText(String.valueOf(movieInfo.rating));
 
-        CommentAdapter commentAdapter = new CommentAdapter(
-                getApplicationContext(), movieInfo.comments);
-        layoutComments.setAdapter(commentAdapter);
+        ViewPager vp = (ViewPager) findViewById(R.id.viewpager);
+        CommentVPAdapter vpAdapter =
+                new CommentVPAdapter(getApplicationContext(), movieInfo.comments);
+        vp.setAdapter(vpAdapter);
     }
 
     @Override
