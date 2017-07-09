@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected ArrayList<MovieInfo> doInBackground(String... params) {
 
-            final String API_KEY = BuildConfig.API_KEY;
+            final String API_KEY = BuildConfig.API_KEY_TMDB;
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;

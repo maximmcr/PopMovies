@@ -84,7 +84,7 @@ public class DetailedActivity extends AppCompatActivity {
 
         @Override
         protected String[] doInBackground(String... params) {
-            final String API_KEY = BuildConfig.API_KEY;
+            final String API_KEY = BuildConfig.API_KEY_TMDB;
             HttpURLConnection urlConnectionBody = null;
             HttpURLConnection urlConnectionComment = null;
             BufferedReader readerBody = null;
