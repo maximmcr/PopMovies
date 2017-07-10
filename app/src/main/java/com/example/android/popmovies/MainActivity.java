@@ -110,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
+
+        private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
         @Override
         protected ArrayList<MovieInfo> doInBackground(String... params) {
 
@@ -120,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             String jsonMovieInfo = null;
 
             try {
-                Uri TMDBrequest = Uri.parse(getString(R.string.tmdb_request_adress)).buildUpon()
+                Uri TMDBrequest = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
                         .appendPath(params[0])
                         .appendQueryParameter("api_key", API_KEY)
                         .build();

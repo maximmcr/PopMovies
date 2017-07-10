@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -78,6 +79,11 @@ public class DetailedActivity extends AppCompatActivity {
         CommentVPAdapter vpAdapter =
                 new CommentVPAdapter(getApplicationContext(), movieInfo.mComments);
         vp.setAdapter(vpAdapter);
+
+        ListView lv = (ListView) findViewById(R.id.detail_video_listview);
+        VideoAdapter videoAdapter =
+                new VideoAdapter(getApplicationContext(), movieInfo.mYoutubeAdresses);
+        lv.setAdapter(videoAdapter);
     }
 
     @Override
@@ -88,60 +94,83 @@ public class DetailedActivity extends AppCompatActivity {
 
     public class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
 
+        private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
         @Override
         protected String[] doInBackground(String... params) {
             final String API_KEY = BuildConfig.API_KEY_TMDB;
-            HttpURLConnection urlConnectionBody = null;
-            HttpURLConnection urlConnectionComment = null;
-            BufferedReader readerBody = null;
-            BufferedReader readerComment = null;
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
             String[] jsonData = null;
             try {
-                Uri request = Uri.parse(getString(R.string.tmdb_request_adress)).buildUpon()
+                jsonData = new String[3];
+
+                //Request for movie's details
+                Uri request = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
                         .appendPath(params[0])
                         .appendQueryParameter("api_key", API_KEY)
                         .build();
                 URL url = new URL(request.toString());
-                urlConnectionBody = (HttpURLConnection) url.openConnection();
-                urlConnectionBody.setRequestMethod("GET");
-                urlConnectionBody.connect();
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                InputStream stream = urlConnection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
 
-                InputStream stream = urlConnectionBody.getInputStream();
-                readerBody = new BufferedReader(new InputStreamReader(stream));
-                jsonData = new String[2];
-                jsonData[0] = new String();
-                jsonData[0] = readerBody.readLine();
+                jsonData[0] = reader.readLine();
 
-                request = Uri.parse(getString(R.string.tmdb_request_adress)).buildUpon()
+                urlConnection.disconnect();
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                //Request for movie's reviews
+                request = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
                         .appendPath(params[0])
                         .appendPath("reviews")
                         .appendQueryParameter("api_key", API_KEY)
                         .build();
                 url = new URL(request.toString());
 
-                urlConnectionComment = (HttpURLConnection) url.openConnection();
-                urlConnectionComment.setRequestMethod("GET");
-                urlConnectionComment.connect();
-                stream = urlConnectionComment.getInputStream();
-                readerComment = new BufferedReader(new InputStreamReader(stream));
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                stream = urlConnection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
 
-                jsonData[1] = readerComment.readLine();
-            } catch (IOException e) {
-                Log.e(DetailedActivity.class.getSimpleName(), "Class haven't get info", e);
-            } finally {
-                if (urlConnectionBody != null) {
-                    urlConnectionBody.disconnect();
-                }
-                if (urlConnectionComment != null) {
-                    urlConnectionComment.disconnect();
-                }
+                jsonData[1] = reader.readLine();
+
+                urlConnection.disconnect();
                 try {
-                    readerBody.close();
+                    reader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                //Request for movie's video materials(trailers, teasers etc.)
+                request = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
+                        .appendPath(params[0])
+                        .appendPath("videos")
+                        .appendQueryParameter("api_key", API_KEY)
+                        .build();
+                url = new URL(request.toString());
+
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                stream = urlConnection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                jsonData[2] = reader.readLine();
+            } catch (IOException e) {
+                Log.e(DetailedActivity.class.getSimpleName(), "Class haven't get info", e);
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
                 try {
-                    readerComment.close();
+                    reader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -168,7 +197,17 @@ public class DetailedActivity extends AppCompatActivity {
                 }
 
                 // TODO fetch @youtubeAdresses
-                ArrayList<String> youtubeAdresses = new ArrayList<>();
+                ArrayList<MovieInfo.Video> youtubeAdresses = new ArrayList<>();
+                JSONArray jVideos = new JSONObject(s[2]).getJSONArray("results");
+                for (int i = 0; i < jVideos.length(); i++) {
+                    JSONObject obj = jVideos.getJSONObject(i);
+                    MovieInfo.Video video = new MovieInfo.Video(
+                            obj.getString("key"),
+                            obj.getString("name"),
+                            obj.getString("type")
+                    );
+                    youtubeAdresses.add(video);
+                }
 
                 movieInfo = new MovieInfo(
                         movie.getInt("id"),

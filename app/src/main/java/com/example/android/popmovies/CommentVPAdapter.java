@@ -44,8 +44,9 @@ public class CommentVPAdapter extends PagerAdapter {
             @Override
             public void onClick(View v) {
                 if (isOnline(mContext)) {
-                    Intent openComment = new Intent(Intent.ACTION_VIEW);
-                    openComment.setData(Uri.parse(mComments.get(position).mUrl));
+                    Uri uri = Uri.parse(mComments.get(position).mUrl);
+                    Intent openComment = new Intent(Intent.ACTION_VIEW, uri);
+                    openComment.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(openComment);
                 } else {
                     Snackbar.make(v, "There is no internet connection!", Snackbar.LENGTH_LONG)
@@ -53,7 +54,6 @@ public class CommentVPAdapter extends PagerAdapter {
                 }
             }
         });
-
         container.addView(layout);
         return layout;
     }

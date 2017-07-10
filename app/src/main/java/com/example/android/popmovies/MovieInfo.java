@@ -21,11 +21,11 @@ public class MovieInfo implements Parcelable {
     String mOverview;
 
     ArrayList<Comment> mComments;
-    ArrayList<String> mYoutubeAdresses;
+    ArrayList<Video> mYoutubeAdresses;
 
     public MovieInfo(int id, String title, String tagline, String poster, String releaseDate,
                      int runtime, double rating, double popularity, String overview,
-                     ArrayList<Comment> comments, ArrayList<String> youtubeAdresses) {
+                     ArrayList<Comment> comments, ArrayList<Video> youtubeAdresses) {
         mId = id;
         mTitle = title;
         mTagline = tagline;
@@ -57,7 +57,7 @@ public class MovieInfo implements Parcelable {
         mOverview = in.readString();
 
         in.readTypedList(mComments, Comment.CREATOR);
-        in.readStringList(mYoutubeAdresses);
+        in.readTypedList(mYoutubeAdresses, Video.CREATOR);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class MovieInfo implements Parcelable {
         dest.writeString(mOverview);
 
         dest.writeTypedList(mComments);
-        dest.writeStringList(mYoutubeAdresses);
+        dest.writeTypedList(mYoutubeAdresses);
     }
 
     public static final Parcelable.Creator<MovieInfo> CREATOR =
@@ -136,5 +136,48 @@ public class MovieInfo implements Parcelable {
                 return new Comment[size];
             }
         };
+    }
+
+    public static class Video implements Parcelable {
+
+        String mPath;
+        String mName;
+        String mType;
+
+        public Video(String path, String name, String type) {
+            mName = name;
+            mPath = path;
+            mType = type;
+        }
+
+        protected Video(Parcel in) {
+            mPath = in.readString();
+            mName = in.readString();
+            mType = in.readString();
+        }
+
+        public static final Creator<Video> CREATOR = new Creator<Video>() {
+            @Override
+            public Video createFromParcel(Parcel in) {
+                return new Video(in);
+            }
+
+            @Override
+            public Video[] newArray(int size) {
+                return new Video[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mPath);
+            dest.writeString(mName);
+            dest.writeString(mType);
+        }
     }
 }

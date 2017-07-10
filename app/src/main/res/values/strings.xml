@@ -16,8 +16,6 @@
     </string-array>
     <string name="action_settings">Settings</string>
 
-    <string name="tmdb_request_adress">http://api.themoviedb.org/3/movie/</string>
-
     <string name="transition_poster" translatable="false">poster</string>
 
     <string name="format_popular">Users\' popularity: <xliff:g id="popularity">%1.0f</xliff:g>
