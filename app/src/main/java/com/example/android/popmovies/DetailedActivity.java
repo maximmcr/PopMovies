@@ -48,29 +48,35 @@ public class DetailedActivity extends AppCompatActivity {
     public void updateInfo() {
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         Picasso.with(getApplicationContext())
-                .load("http://image.tmdb.org/t/p/w342/" + movieInfo.posterId)
+                .load("http://image.tmdb.org/t/p/w342/" + movieInfo.mPoster)
                 .into(img);
 
         TextView title = (TextView) findViewById(R.id.detail_title);
-        title.setText(movieInfo.title);
+        title.setText(movieInfo.mTitle);
 
         TextView tagline = (TextView) findViewById(R.id.detail_tagline);
-        tagline.setText(movieInfo.tagline);
+        tagline.setText(movieInfo.mTagline);
 
-        TextView overview = (TextView) findViewById(R.id.detail_overview);
-        overview.setText(movieInfo.overview);
+        TextView releaseDate = (TextView) findViewById(R.id.detail_date);
+        releaseDate.setText(getString(
+                R.string.format_release_date,
+                Utility.formatDate(movieInfo.mReleaseDate)));
+
+        TextView runtime = (TextView) findViewById(R.id.detail_runtime);
+        runtime.setText(getString(R.string.format_runtime, movieInfo.mRuntime));
 
         TextView popularity = (TextView) findViewById(R.id.detail_popularity);
-        //popularity.setText(getIntent().getStringExtra("popularity"));
-        popularity.setText(String.valueOf(movieInfo.popularity));
+        popularity.setText(getString(R.string.format_popular, movieInfo.mPopularity));
 
         TextView rating = (TextView) findViewById(R.id.detail_rating);
-        //rating.setText(getIntent().getStringExtra("rating"));
-        rating.setText(String.valueOf(movieInfo.rating));
+        rating.setText(getString(R.string.format_rating, movieInfo.mRating));
 
-        ViewPager vp = (ViewPager) findViewById(R.id.viewpager);
+        TextView overview = (TextView) findViewById(R.id.detail_overview);
+        overview.setText(movieInfo.mOverview);
+
+        ViewPager vp = (ViewPager) findViewById(R.id.detail_comment_viewpager);
         CommentVPAdapter vpAdapter =
-                new CommentVPAdapter(getApplicationContext(), movieInfo.comments);
+                new CommentVPAdapter(getApplicationContext(), movieInfo.mComments);
         vp.setAdapter(vpAdapter);
     }
 
@@ -105,8 +111,6 @@ public class DetailedActivity extends AppCompatActivity {
                 jsonData = new String[2];
                 jsonData[0] = new String();
                 jsonData[0] = readerBody.readLine();
-
-
 
                 request = Uri.parse(getString(R.string.tmdb_request_adress)).buildUpon()
                         .appendPath(params[0])
@@ -151,17 +155,6 @@ public class DetailedActivity extends AppCompatActivity {
             try {
                 JSONObject movie = new JSONObject(s[0]);
 
-                movieInfo = new MovieInfo(
-                        movie.getString("title"),
-                        movie.getString("poster_path"),
-                        "For adults only: " + movie.getString("adult") == "false" ? "No" : "18+",
-                        movie.getString("tagline"),
-                        movie.getString("overview"),
-                        getIntent().getDoubleExtra("rating", 0.0d),
-                        getIntent().getDoubleExtra("popularity", 0.0d)
-                        //movie.getDouble("popularity")
-                );
-
                 JSONArray jComments = new JSONObject(s[1]).getJSONArray("results");
                 ArrayList<MovieInfo.Comment> comments = new ArrayList<>();
                 for (int i = 0; i < jComments.length(); i++) {
@@ -173,7 +166,23 @@ public class DetailedActivity extends AppCompatActivity {
                     );
                     comments.add(comment);
                 }
-                movieInfo.setComments(comments);
+
+                // TODO fetch @youtubeAdresses
+                ArrayList<String> youtubeAdresses = new ArrayList<>();
+
+                movieInfo = new MovieInfo(
+                        movie.getInt("id"),
+                        movie.getString("title"),
+                        movie.getString("tagline"),
+                        movie.getString("poster_path"),
+                        movie.getString("release_date"),
+                        movie.getInt("runtime"),
+                        movie.getDouble("vote_average"),
+                        movie.getDouble("popularity"),
+                        movie.getString("overview"),
+                        comments,
+                        youtubeAdresses
+                        );
 
                 Log.i("onPostExecute", movie.getString("tagline"));
                 updateInfo();

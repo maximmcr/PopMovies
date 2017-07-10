@@ -10,54 +10,56 @@ import java.util.ArrayList;
  */
 
 public class MovieInfo implements Parcelable {
-    String posterId;
-    String title;
-    String releaseDate;
-    String overview;
-    String adult;
-    String tagline;
-    double rating;
-    double popularity;
-    int id;
+    int mId;
+    String mTitle;
+    String mTagline;
+    String mPoster;
+    String mReleaseDate;
+    int mRuntime;
+    double mRating;
+    double mPopularity;
+    String mOverview;
 
-    ArrayList<Comment> comments = new ArrayList<>();
+    ArrayList<Comment> mComments;
+    ArrayList<String> mYoutubeAdresses;
 
-    public MovieInfo(String title, String posterId, String adult, String tagline,
-                     String overview, double rating, double popularity) {
-        this.overview = overview;
-        this.posterId = posterId;
-        this.rating = rating;
-        this.adult = adult;
-        this.title = title;
-        this.popularity = popularity;
-        this.tagline = tagline;
+    public MovieInfo(int id, String title, String tagline, String poster, String releaseDate,
+                     int runtime, double rating, double popularity, String overview,
+                     ArrayList<Comment> comments, ArrayList<String> youtubeAdresses) {
+        mId = id;
+        mTitle = title;
+        mTagline = tagline;
+        mPoster = poster;
+        mReleaseDate = releaseDate;
+        mRuntime = runtime;
+        mRating = rating;
+        mPopularity = popularity;
+        mOverview = overview;
 
-        id = 0;
-        releaseDate = "";
+        mComments = comments;
+        mYoutubeAdresses = youtubeAdresses;
     }
 
     public MovieInfo(String posterId, int id) {
-        this.posterId = posterId;
-        this.id = id;
+        this.mPoster = posterId;
+        this.mId = id;
     }
 
     private MovieInfo(Parcel in) {
-        this.overview = in.readString();
-        this.posterId = in.readString();
-        this.releaseDate = in.readString();
-        this.title = in.readString();
-        this.rating = in.readDouble();
-        this.popularity = in.readDouble();
-        this.id = in.readInt();
+        mId = in.readInt();
+        mTitle = in.readString();
+        mTagline = in.readString();
+        mPoster = in.readString();
+        mReleaseDate = in.readString();
+        mRuntime = in.readInt();
+        mRating = in.readDouble();
+        mPopularity = in.readDouble();
+        mOverview = in.readString();
 
-        this.tagline = in.readString();
-        this.adult = in.readString();
-        in.readTypedList(comments, Comment.CREATOR);
+        in.readTypedList(mComments, Comment.CREATOR);
+        in.readStringList(mYoutubeAdresses);
     }
 
-    public void setComments(ArrayList<Comment> comments) {
-        this.comments = comments;
-    }
     @Override
     public int describeContents() {
         return 0;
@@ -65,18 +67,18 @@ public class MovieInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(posterId);
-        dest.writeString(title);
-        dest.writeString(releaseDate);
-        dest.writeString(overview);
-        dest.writeDouble(rating);
-        dest.writeDouble(popularity);
-        dest.writeInt(id);
+        dest.writeInt(mId);
+        dest.writeString(mTitle);
+        dest.writeString(mTagline);
+        dest.writeString(mPoster);
+        dest.writeString(mReleaseDate);
+        dest.writeInt(mRuntime);
+        dest.writeDouble(mRating);
+        dest.writeDouble(mPopularity);
+        dest.writeString(mOverview);
 
-        dest.writeString(tagline);
-        dest.writeString(adult);
-
-        dest.writeTypedList(comments);
+        dest.writeTypedList(mComments);
+        dest.writeStringList(mYoutubeAdresses);
     }
 
     public static final Parcelable.Creator<MovieInfo> CREATOR =

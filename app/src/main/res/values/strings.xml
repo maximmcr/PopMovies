@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
     <string name="app_name">Pop Movies</string>
     <string name="label_settings_activity">Settings</string>
 
@@ -19,5 +19,13 @@
     <string name="tmdb_request_adress">http://api.themoviedb.org/3/movie/</string>
 
     <string name="transition_poster" translatable="false">poster</string>
+
+    <string name="format_popular">Users\' popularity: <xliff:g id="popularity">%1.0f</xliff:g>
+    </string>
+    <string name="format_rating">Rating: <xliff:g id="rating">%1.0f</xliff:g>/10
+    </string>
+    <string name="format_runtime">Runtime: <xliff:g id="runtime">%1d</xliff:g>min
+    </string>
+    <string name="format_release_date">Release date: <xliff:g id="date">%1s</xliff:g></string>
 
 </resources>
