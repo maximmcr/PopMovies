@@ -196,7 +196,6 @@ public class DetailedActivity extends AppCompatActivity {
                     comments.add(comment);
                 }
 
-                // TODO fetch @youtubeAdresses
                 ArrayList<MovieInfo.Video> youtubeAdresses = new ArrayList<>();
                 JSONArray jVideos = new JSONObject(s[2]).getJSONArray("results");
                 for (int i = 0; i < jVideos.length(); i++) {
