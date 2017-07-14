@@ -1,9 +1,13 @@
 package com.example.android.popmovies;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Base64;
 
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -42,5 +46,24 @@ public class Utility {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static String byteArrayToString(byte[] b) {
+        return Base64.encodeToString(b, Base64.DEFAULT);
+    }
+    public static Bitmap stringToBitmap(String s) {
+        try {
+            byte [] encodeByte=Base64.decode(s,Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+    public static byte[] bitmapToByteArray(Bitmap b) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        b.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return baos.toByteArray();
     }
 }

@@ -46,6 +46,10 @@ public class DetailedActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    // TODO - button functionality (add to favorites)
+    // TODO - button functionality (remove from favorites)
+    // TODO - check if movie in favorites
+    // TODO - show movie from favorites
     public void updateInfo() {
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         Picasso.with(getApplicationContext())

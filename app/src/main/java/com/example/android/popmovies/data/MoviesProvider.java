@@ -73,10 +73,11 @@ public class MoviesProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         final int match = sUriMatcher.match(uri);
+        Cursor result;
 
         switch (match) {
             case (MOVIES): {
-                return sMovieWithDataQueryBuilder.query(
+                result = sMovieWithDataQueryBuilder.query(
                         mOpenHelper.getReadableDatabase(),
                         projection,
                         selection,
@@ -85,23 +86,27 @@ public class MoviesProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
+                break;
             }
             case (MOVIE_WITH_DATA): {
                 String[] selArgs = new String[1];
                 selArgs[0] = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
 
-                return sMovieWithDataQueryBuilder.query(
+                result = sMovieWithDataQueryBuilder.query(
                         mOpenHelper.getReadableDatabase(),
-                        null,
+                        projection,
                         MoviesContract.MovieEntry._ID + " = ? ",
                         selArgs,
                         null,
                         null,
                         sortOrder
                 );
+                break;
             }
             default: throw new UnsupportedOperationException(LOG_TAG + " - query exception:" + uri);
         }
+        result.setNotificationUri(getContext().getContentResolver(), uri);
+        return result;
     }
 
     @Nullable

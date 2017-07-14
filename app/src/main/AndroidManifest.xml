@@ -40,7 +40,8 @@
         
         <provider
             android:authorities="com.example.android.popmovies"
-            android:name=".data.MoviesProvider" />
+            android:name=".data.MoviesProvider"
+            android:exported="false"/>
 
     </application>
 

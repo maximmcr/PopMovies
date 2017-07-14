@@ -3,16 +3,18 @@
     <string name="label_settings_activity">Settings</string>
 
     <!-- Settings' strings -->
-    <string name="pref_list_title">Sorting</string>
+    <string name="pref_list_title">Display movies</string>
     <string name="pref_list_key">Sorting</string>
     <string name="pref_list_default">top_rated</string>
     <string-array name="userVal">
-        <item>by rating</item>
-        <item>by users\' popularity</item>
+        <item>sorted by rating</item>
+        <item>sorted by users\' popularity</item>
+        <item>saved by you</item>
     </string-array>
     <string-array name="sysVal">
         <item>top_rated</item>
         <item>popular</item>
+        <item>saved</item>
     </string-array>
     <string name="action_settings">Settings</string>
 
@@ -25,5 +27,8 @@
     <string name="format_runtime">Runtime: <xliff:g id="runtime">%1d</xliff:g>min
     </string>
     <string name="format_release_date">Release date: <xliff:g id="date">%1s</xliff:g></string>
+
+    <string name="btn_favourites">Add to favourites</string>
+    <string name="btn_favourites_added">Added to favourites</string>
 
 </resources>

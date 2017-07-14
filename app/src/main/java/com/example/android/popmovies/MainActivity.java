@@ -2,6 +2,7 @@ package com.example.android.popmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.android.popmovies.data.MoviesContract;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,11 +32,20 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     MovieInfoAdapter movieInfoAdapter;
     ArrayList<MovieInfo> movies;
     public final String CLASS_TAG = MainActivity.class.getSimpleName();
     private String mSortingType;
+
+    private static final String[] MOVIE_COLUMNS = {
+            MoviesContract.MovieEntry.TABLE_NAME + "." + MoviesContract.MovieEntry._ID,
+            MoviesContract.MovieEntry.COLUMN_POSTER
+    };
+    private static final int COLUMN_ID = 0;
+    private static final int COLUMN_POSTER = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,15 +109,45 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private ArrayList<MovieInfo> getMovieListFromDB() {
+        Log.d(LOG_TAG, "query to db started");
+
+        Cursor c = getContentResolver().query(
+                MoviesContract.MovieEntry.CONTENT_URI,
+                MOVIE_COLUMNS,
+                null,
+                null,
+                null
+        );
+        
+        ArrayList<MovieInfo> result = new ArrayList<>();
+        for (int i = 0; i < c.getCount(); i++) {
+            int id = c.getInt(COLUMN_ID);
+            String poster = Utility.byteArrayToString(c.getBlob(COLUMN_POSTER));
+            result.add(new MovieInfo(poster, id));
+        }
+
+        Log.d(LOG_TAG, "query to db ended");
+        return result;
+    }
+
     public void updateMovieInfo() {
-        if (Utility.isOnline(getApplicationContext())) {
-            String option = PreferenceManager
-                    .getDefaultSharedPreferences(getApplicationContext())
-                    .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-            new FetchMovieInfo().execute(option);
+        String option = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+        String saved = getResources().getStringArray(R.array.sysVal)[2];
+        if (option.equals(saved)) {
+            if (movieInfoAdapter.getItemCount() > 0) {
+                movieInfoAdapter.clear();
+            }
+            movieInfoAdapter.addAll(getMovieListFromDB());
         } else {
-            Snackbar.make(findViewById(R.id.activity_main), "There is no internet connection!", Snackbar.LENGTH_LONG)
-                    .show();
+            if (Utility.isOnline(getApplicationContext())) {
+                new FetchMovieInfo().execute(option);
+            } else {
+                Snackbar.make(findViewById(R.id.activity_main), "There is no internet connection!", Snackbar.LENGTH_LONG)
+                        .show();
+            }
         }
     }
 

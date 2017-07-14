@@ -46,7 +46,8 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
                 CommentEntry.COLUMN_URL + " TEXT, " +
 
                 "FOREIGN KEY ( " + CommentEntry.COLUMN_MOVIE_KEY + " ) REFERENCES " +
-                MovieEntry.TABLE_NAME + " ( " + MovieEntry._ID + " )";
+                MovieEntry.TABLE_NAME + " ( " + MovieEntry._ID + " ) " +
+                " ) ";
 
         db.execSQL(SQL_CREATE_COMMENT_TABLE);
 
@@ -58,7 +59,8 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
                 VideoEntry.COLUMN_PATH + " TEXT NOT NULL, " +
 
                 "FOREIGN KEY ( " + VideoEntry.COLUMN_MOVIE_KEY + " ) REFERENCES " +
-                MovieEntry.TABLE_NAME + " ( " + MovieEntry._ID + " )";
+                MovieEntry.TABLE_NAME + " ( " + MovieEntry._ID + " ) " +
+                " ) ";
 
         db.execSQL(SQL_CREATE_VIDEO_TABLE);
     }
