@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by Frei on 12.07.2017.
@@ -28,7 +29,6 @@ public class MoviesProvider extends ContentProvider {
     static final int VIDEOS = 300;
 
     private static final SQLiteQueryBuilder sMovieWithDataQueryBuilder;
-
     static {
         sMovieWithDataQueryBuilder = new SQLiteQueryBuilder();
 
@@ -56,8 +56,8 @@ public class MoviesProvider extends ContentProvider {
 
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIES);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_WITH_DATA);
-        matcher.addURI(authority, MoviesContract.PATH_COMMENTS, COMMENTS);
-        matcher.addURI(authority, MoviesContract.PATH_VIDEOS, VIDEOS);
+        matcher.addURI(authority, MoviesContract.PATH_COMMENTS + "/#", COMMENTS);
+        matcher.addURI(authority, MoviesContract.PATH_VIDEOS + "/#", VIDEOS);
 
         return matcher;
     }
@@ -77,8 +77,8 @@ public class MoviesProvider extends ContentProvider {
 
         switch (match) {
             case (MOVIES): {
-                result = sMovieWithDataQueryBuilder.query(
-                        mOpenHelper.getReadableDatabase(),
+                result = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.MovieEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -86,17 +86,45 @@ public class MoviesProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
+                Log.d(LOG_TAG, result.toString());
                 break;
             }
             case (MOVIE_WITH_DATA): {
-                String[] selArgs = new String[1];
-                selArgs[0] = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
+                String id = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
 
-                result = sMovieWithDataQueryBuilder.query(
-                        mOpenHelper.getReadableDatabase(),
-                        projection,
-                        MoviesContract.MovieEntry._ID + " = ? ",
-                        selArgs,
+                result = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.MovieEntry.TABLE_NAME,
+                        null,
+                        MoviesContract.MovieEntry._ID + " = " + id,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            case (COMMENTS): {
+                String id = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
+
+                result = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.CommentEntry.TABLE_NAME,
+                        null,
+                        MoviesContract.CommentEntry.COLUMN_MOVIE_KEY + " = " + id,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            case (VIDEOS): {
+                String id = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
+
+                result = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.VideoEntry.TABLE_NAME,
+                        null,
+                        MoviesContract.VideoEntry.COLUMN_MOVIE_KEY + " = " + id,
+                        null,
                         null,
                         null,
                         sortOrder
@@ -135,6 +163,7 @@ public class MoviesProvider extends ContentProvider {
                 id = db.insert(MoviesContract.MovieEntry.TABLE_NAME, null, values);
                 if (id > 0) {
                     returnUri = MoviesContract.MovieEntry.buildMovieUri(id);
+                    Log.d(LOG_TAG, returnUri.toString());
                 } else
                     throw new SQLException("Failed to insert row (movie) into " + uri);
                 break;
@@ -168,20 +197,22 @@ public class MoviesProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int result = 0;
         final int match = sUriMatcher.match(uri);
+        String id = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
 
         switch (match) {
-            case MOVIES: {
-                result = db.delete(MoviesContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            }
-
-            case COMMENTS: {
-                result = db.delete(MoviesContract.CommentEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            }
-
-            case VIDEOS: {
-                result = db.delete(MoviesContract.VideoEntry.TABLE_NAME, selection, selectionArgs);
+            case MOVIE_WITH_DATA: {
+                result += db.delete(
+                        MoviesContract.CommentEntry.TABLE_NAME,
+                        MoviesContract.CommentEntry.COLUMN_MOVIE_KEY + " = " + id,
+                        null);
+                result += db.delete(
+                        MoviesContract.VideoEntry.TABLE_NAME,
+                        MoviesContract.VideoEntry.COLUMN_MOVIE_KEY + " = " + id,
+                        null);
+                result += db.delete(
+                        MoviesContract.MovieEntry.TABLE_NAME,
+                        MoviesContract.MovieEntry._ID + " = " + id,
+                        null);
                 break;
             }
             default: throw new UnsupportedOperationException(LOG_TAG + " - delete exception:" + uri);
@@ -197,5 +228,46 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         return 0;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case COMMENTS: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long id = db.insert(MoviesContract.CommentEntry.TABLE_NAME, null, value);
+                        if (id != -1) returnCount++;
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return  returnCount;
+            }
+            case VIDEOS: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long id = db.insert(MoviesContract.VideoEntry.TABLE_NAME, null, value);
+                        if (id != -1) returnCount++;
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return  returnCount;
+            }
+            default: {
+                return super.bulkInsert(uri, values);
+            }
+        }
     }
 }

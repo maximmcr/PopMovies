@@ -121,10 +121,12 @@ public class MainActivity extends AppCompatActivity {
         );
         
         ArrayList<MovieInfo> result = new ArrayList<>();
+        c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
             int id = c.getInt(COLUMN_ID);
             String poster = Utility.byteArrayToString(c.getBlob(COLUMN_POSTER));
             result.add(new MovieInfo(poster, id));
+            c.moveToNext();
         }
 
         Log.d(LOG_TAG, "query to db ended");
@@ -135,12 +137,12 @@ public class MainActivity extends AppCompatActivity {
         String option = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-        String saved = getResources().getStringArray(R.array.sysVal)[2];
-        if (option.equals(saved)) {
-            if (movieInfoAdapter.getItemCount() > 0) {
+        if (Utility.isSeeSaved(getApplicationContext())) {
+            movies.addAll(getMovieListFromDB());
+            if (movieInfoAdapter != null) {
                 movieInfoAdapter.clear();
+                movieInfoAdapter.addAll(movies);
             }
-            movieInfoAdapter.addAll(getMovieListFromDB());
         } else {
             if (Utility.isOnline(getApplicationContext())) {
                 new FetchMovieInfo().execute(option);
@@ -226,9 +228,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<MovieInfo> moviesInfo) {
             super.onPostExecute(moviesInfo);
-            if (movieInfoAdapter.getItemCount() > 0) {
-                movieInfoAdapter.clear();
-            }
+//            if (movieInfoAdapter.getItemCount() > 0) {
+//                movieInfoAdapter.clear();
+//            }
             movieInfoAdapter.addAll(moviesInfo);
         }
 

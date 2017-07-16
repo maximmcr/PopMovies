@@ -56,11 +56,15 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
     @Override
     public void onBindViewHolder(final MovieViewHolder viewHolder, final int position) {
         final MovieInfo movie = moviesInfo.get(position);
-        Picasso.with(context)
-               .load("http://image.tmdb.org/t/p/w185" + String.valueOf(movie.mPoster))
-               .error(R.drawable.image_not_loaded)
-               .placeholder(R.drawable.progress_animation)
-               .into(viewHolder.poster);
+        if (Utility.isSeeSaved(context)) {
+            viewHolder.poster.setImageBitmap(Utility.stringToBitmap(movie.mPoster));
+        } else {
+            Picasso.with(context)
+                    .load("http://image.tmdb.org/t/p/w185" + String.valueOf(movie.mPoster))
+                    .error(R.drawable.image_not_loaded)
+                    .placeholder(R.drawable.progress_animation)
+                    .into(viewHolder.poster);
+        }
 
         viewHolder.poster.setOnClickListener(new View.OnClickListener() {
             @Override

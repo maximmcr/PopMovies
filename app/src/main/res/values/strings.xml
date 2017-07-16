@@ -28,7 +28,7 @@
     </string>
     <string name="format_release_date">Release date: <xliff:g id="date">%1s</xliff:g></string>
 
-    <string name="btn_favourites">Add to favourites</string>
-    <string name="btn_favourites_added">Added to favourites</string>
+    <string name="btn_favourites_add">Add to favourites</string>
+    <string name="btn_favourites_remove">Remove from favourites</string>
 
 </resources>
