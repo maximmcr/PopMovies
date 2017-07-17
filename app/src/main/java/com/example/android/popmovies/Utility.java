@@ -37,7 +37,7 @@ public class Utility {
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
-    public static boolean isSeeSaved(Context context) {
+    public static boolean isOptionSaved(Context context) {
         String option = PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getString(context.getString(R.string.pref_list_key), context.getString(R.string.pref_list_default));

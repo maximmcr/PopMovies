@@ -29,6 +29,7 @@ public class MoviesProvider extends ContentProvider {
     static final int VIDEOS = 300;
 
     private static final SQLiteQueryBuilder sMovieWithDataQueryBuilder;
+
     static {
         sMovieWithDataQueryBuilder = new SQLiteQueryBuilder();
 
@@ -94,7 +95,7 @@ public class MoviesProvider extends ContentProvider {
 
                 result = mOpenHelper.getReadableDatabase().query(
                         MoviesContract.MovieEntry.TABLE_NAME,
-                        null,
+                        projection,
                         MoviesContract.MovieEntry._ID + " = " + id,
                         null,
                         null,
@@ -108,7 +109,7 @@ public class MoviesProvider extends ContentProvider {
 
                 result = mOpenHelper.getReadableDatabase().query(
                         MoviesContract.CommentEntry.TABLE_NAME,
-                        null,
+                        projection,
                         MoviesContract.CommentEntry.COLUMN_MOVIE_KEY + " = " + id,
                         null,
                         null,
@@ -122,7 +123,7 @@ public class MoviesProvider extends ContentProvider {
 
                 result = mOpenHelper.getReadableDatabase().query(
                         MoviesContract.VideoEntry.TABLE_NAME,
-                        null,
+                        projection,
                         MoviesContract.VideoEntry.COLUMN_MOVIE_KEY + " = " + id,
                         null,
                         null,
@@ -224,7 +225,6 @@ public class MoviesProvider extends ContentProvider {
         return result;
     }
 
-    // TODO (optionally) - code update
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         return 0;

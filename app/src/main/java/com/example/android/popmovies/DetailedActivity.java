@@ -34,7 +34,6 @@ public class DetailedActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = DetailedActivity.class.getSimpleName();
 
-    // TODO: 16.07.2017 add columns for Video and Comment tables
     private static final String[] MOVIE_COLUMNS = {
             MoviesContract.MovieEntry._ID,
             MoviesContract.MovieEntry.COLUMN_TITLE,
@@ -46,28 +45,52 @@ public class DetailedActivity extends AppCompatActivity {
             MoviesContract.MovieEntry.COLUMN_POPULARITY,
             MoviesContract.MovieEntry.COLUMN_OVERVIEW
     };
-    private static final int COLUMN_ID = 0;
-    private static final int COLUMN_TITLE = 1;
-    private static final int COLUMN_TAGLINE = 2;
-    private static final int COLUMN_POSTER = 3;
-    private static final int COLUMN_DATE = 4;
-    private static final int COLUMN_RUNTIME = 5;
-    private static final int COLUMN_RATING = 6;
-    private static final int COLUMN_POPULARITY = 7;
-    private static final int COLUMN_OVERVIEW = 8;
+    private static final int COLUMN_MOVIE_ID = 0;
+    private static final int COLUMN_MOVIE_TITLE = 1;
+    private static final int COLUMN_MOVIE_TAGLINE = 2;
+    private static final int COLUMN_MOVIE_POSTER = 3;
+    private static final int COLUMN_MOVIE_DATE = 4;
+    private static final int COLUMN_MOVIE_RUNTIME = 5;
+    private static final int COLUMN_MOVIE_RATING = 6;
+    private static final int COLUMN_MOVIE_POPULARITY = 7;
+    private static final int COLUMN_MOVIE_OVERVIEW = 8;
 
+    private static final String[] COMMENT_COLUMNS = {
+            MoviesContract.CommentEntry.COLUMN_MOVIE_KEY,
+            MoviesContract.CommentEntry.COLUMN_URL,
+            MoviesContract.CommentEntry.COLUMN_CONTENT,
+            MoviesContract.CommentEntry.COLUMN_AUTHOR
+    };
+    private static final int COLUMN_COMMENT_KEY = 0;
+    private static final int COLUMN_COMMENT_URL = 1;
+    private static final int COLUMN_COMMENT_CONTENT = 2;
+    private static final int COLUMN_COMMENT_AUTHOR = 3;
 
+    private static final String[] VIDEO_COLUMNS = {
+            MoviesContract.VideoEntry.COLUMN_MOVIE_KEY,
+            MoviesContract.VideoEntry.COLUMN_NAME,
+            MoviesContract.VideoEntry.COLUMN_PATH,
+            MoviesContract.VideoEntry.COLUMN_TYPE
+    };
+    private static final int COLUMN_VIDEO_KEY = 0;
+    private static final int COLUMN_VIDEO_NAME = 1;
+    private static final int COLUMN_VIDEO_PATH = 2;
+    private static final int COLUMN_VIDEO_TYPE = 3;
 
     MovieInfo movieInfo;
 
-    // TODO: 16.07.2017 write if statement to choose where get data(api or db)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movie")) {
             String id = getIntent().getStringExtra("id");
-            new FetchDetailedMovieInfo().execute(id);
+            if (Utility.isOptionSaved(getApplicationContext())) {
+                fetchMovieInfoFromDB(Long.parseLong(id));
+                updateInfo();
+            } else {
+                new FetchDetailedMovieInfo().execute(id);
+            }
         }
         else {
             movieInfo = savedInstanceState.getParcelable("movie");
@@ -80,12 +103,15 @@ public class DetailedActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    // TODO - show movie from favorites
     private void updateInfo() {
         ImageView img = (ImageView) findViewById(R.id.detail_image);
-        Picasso.with(getApplicationContext())
-                .load("http://image.tmdb.org/t/p/w342/" + movieInfo.mPoster)
-                .into(img);
+        if (Utility.isOptionSaved(getApplicationContext())) {
+            img.setImageBitmap(Utility.stringToBitmap(movieInfo.mPoster));
+        } else {
+            Picasso.with(getApplicationContext())
+                    .load("http://image.tmdb.org/t/p/w342/" + movieInfo.mPoster)
+                    .into(img);
+        }
 
         TextView title = (TextView) findViewById(R.id.detail_title);
         title.setText(movieInfo.mTitle);
@@ -212,16 +238,78 @@ public class DetailedActivity extends AppCompatActivity {
                 null);
         Log.d(LOG_TAG, "Deleted " + count + "rows from db");
     }
-
-    // TODO: 16.07.2017 code fetchMovieInfoFromDB method (3 queries for every table)
     private void fetchMovieInfoFromDB(long id) {
-        Cursor movieCursor = getContentResolver().query(
-                MoviesContract.MovieEntry.buildMovieUri(id),
-                null,
+
+        Cursor commentCursor = getContentResolver().query(
+                MoviesContract.CommentEntry.buildMovieUri(id),
+                COMMENT_COLUMNS,
                 null,
                 null,
                 null
         );
+        commentCursor.moveToFirst();
+        ArrayList<MovieInfo.Comment> comments = new ArrayList<>();
+        for (int i = 0; i < commentCursor.getCount(); i++) {
+            String author = commentCursor.getString(COLUMN_COMMENT_AUTHOR);
+            String content = commentCursor.getString(COLUMN_COMMENT_CONTENT);
+            String url = commentCursor.getString(COLUMN_COMMENT_URL);
+            MovieInfo.Comment comment = new MovieInfo.Comment(
+                    author,
+                    content,
+                    url
+            );
+            comments.add(comment);
+            commentCursor.moveToNext();
+        }
+        commentCursor.close();
+
+        Cursor videoCursor = getContentResolver().query(
+                MoviesContract.VideoEntry.buildMovieUri(id),
+                VIDEO_COLUMNS,
+                null,
+                null,
+                null
+        );
+        videoCursor.moveToFirst();
+        ArrayList<MovieInfo.Video> videos = new ArrayList<>();
+        for (int i = 0; i < videoCursor.getCount(); i++) {
+            String path = videoCursor.getString(COLUMN_VIDEO_PATH);
+            String name = videoCursor.getString(COLUMN_VIDEO_NAME);
+            String type = videoCursor.getString(COLUMN_VIDEO_TYPE);
+            MovieInfo.Video video = new MovieInfo.Video(
+                    path,
+                    name,
+                    type
+            );
+            videos.add(video);
+            videoCursor.moveToNext();
+        }
+        videoCursor.close();
+
+        Cursor movieCursor = getContentResolver().query(
+                MoviesContract.MovieEntry.buildMovieUri(id),
+                MOVIE_COLUMNS,
+                null,
+                null,
+                null
+        );
+        movieCursor.moveToFirst();
+
+        movieInfo = new MovieInfo(
+                movieCursor.getInt(COLUMN_MOVIE_ID),
+                movieCursor.getString(COLUMN_MOVIE_TITLE),
+                movieCursor.getString(COLUMN_MOVIE_TAGLINE),
+                Utility.byteArrayToString(movieCursor.getBlob(COLUMN_MOVIE_POSTER)),
+                movieCursor.getString(COLUMN_MOVIE_DATE),
+                movieCursor.getInt(COLUMN_MOVIE_RUNTIME),
+                movieCursor.getDouble(COLUMN_MOVIE_RATING),
+                movieCursor.getDouble(COLUMN_MOVIE_POPULARITY),
+                movieCursor.getString(COLUMN_MOVIE_OVERVIEW),
+                comments,
+                videos
+        );
+
+        movieCursor.close();
 
     }
 

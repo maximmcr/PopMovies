@@ -56,7 +56,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
     @Override
     public void onBindViewHolder(final MovieViewHolder viewHolder, final int position) {
         final MovieInfo movie = moviesInfo.get(position);
-        if (Utility.isSeeSaved(context)) {
+        if (Utility.isOptionSaved(context)) {
             viewHolder.poster.setImageBitmap(Utility.stringToBitmap(movie.mPoster));
         } else {
             Picasso.with(context)
@@ -69,7 +69,8 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         viewHolder.poster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Utility.isOnline(context)) {
+
+                if (Utility.isOptionSaved(context) || Utility.isOnline(context)) {
                     Intent intent = new Intent(context, DetailedActivity.class);
                     intent.putExtra("id", String.valueOf(moviesInfo.get(position).mId));
 

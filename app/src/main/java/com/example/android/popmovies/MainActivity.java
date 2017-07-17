@@ -46,13 +46,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int COLUMN_ID = 0;
     private static final int COLUMN_POSTER = 1;
 
-
+    // TODO: 17.07.2017 implement cursor adapter or use grid view instead of recyclerview
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
-            movies = new ArrayList<>();
             updateMovieInfo();
         } else {
             movies = savedInstanceState.getParcelableArrayList("movies");
@@ -133,15 +132,16 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    public void updateMovieInfo() {
+    private void updateMovieInfo() {
         String option = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-        if (Utility.isSeeSaved(getApplicationContext())) {
-            movies.addAll(getMovieListFromDB());
+        if (Utility.isOptionSaved(getApplicationContext())) {
+            movies = getMovieListFromDB();
             if (movieInfoAdapter != null) {
                 movieInfoAdapter.clear();
                 movieInfoAdapter.addAll(movies);
+                movieInfoAdapter.notifyDataSetChanged();
             }
         } else {
             if (Utility.isOnline(getApplicationContext())) {
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
+    private class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
 
         private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
         @Override
@@ -232,11 +232,12 @@ public class MainActivity extends AppCompatActivity {
 //                movieInfoAdapter.clear();
 //            }
             movieInfoAdapter.addAll(moviesInfo);
+            movieInfoAdapter.notifyDataSetChanged();
         }
 
     }
 
-    public class LLMWrapper extends GridLayoutManager {
+    private class LLMWrapper extends GridLayoutManager {
 
         public LLMWrapper(Context context, int spanCount) {
             super(context, spanCount);
