@@ -34,7 +34,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    MovieInfoAdapter movieInfoAdapter;
+    static MovieInfoAdapter movieInfoAdapter;
     ArrayList<MovieInfo> movies;
     public final String CLASS_TAG = MainActivity.class.getSimpleName();
     private String mSortingType;
@@ -46,19 +46,18 @@ public class MainActivity extends AppCompatActivity {
     private static final int COLUMN_ID = 0;
     private static final int COLUMN_POSTER = 1;
 
-    // TODO: 17.07.2017 implement cursor adapter or use grid view instead of recyclerview
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        movies = new ArrayList<>();
+        movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             updateMovieInfo();
         } else {
             movies = savedInstanceState.getParcelableArrayList("movies");
         }
-
         RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
-        movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
         view.setLayoutManager(new LLMWrapper(this, 2));
         view.addItemDecoration(new Decorator(0));
         view.setAdapter(movieInfoAdapter);
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         if (Utility.isOptionSaved(getApplicationContext())) {
             movies = getMovieListFromDB();
             if (movieInfoAdapter != null) {
-                movieInfoAdapter.clear();
+                movieInfoAdapter.clearAll();
                 movieInfoAdapter.addAll(movies);
                 movieInfoAdapter.notifyDataSetChanged();
             }
@@ -229,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<MovieInfo> moviesInfo) {
             super.onPostExecute(moviesInfo);
 //            if (movieInfoAdapter.getItemCount() > 0) {
-//                movieInfoAdapter.clear();
+//                movieInfoAdapter.clearAll();
 //            }
             movieInfoAdapter.addAll(moviesInfo);
             movieInfoAdapter.notifyDataSetChanged();

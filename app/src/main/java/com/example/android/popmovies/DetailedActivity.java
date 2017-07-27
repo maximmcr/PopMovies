@@ -160,6 +160,8 @@ public class DetailedActivity extends AppCompatActivity {
                     btnFavourites.setText(R.string.btn_favourites_remove);
                 } else {
                     deleteMovieFromDB(movieId);
+                    CallbackMovieRemoved callback = MainActivity.movieInfoAdapter;
+                    callback.removeMovie(movieId);
                     btnFavourites.setText(R.string.btn_favourites_add);
                 }
             }
@@ -456,5 +458,9 @@ public class DetailedActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    interface CallbackMovieRemoved {
+        void removeMovie(int id);
     }
 }

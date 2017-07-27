@@ -20,7 +20,21 @@ import java.util.ArrayList;
  * Created by Frei on 24.01.2017.
  */
 
-public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.MovieViewHolder> {
+public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.MovieViewHolder>
+        implements DetailedActivity.CallbackMovieRemoved{
+
+    @Override
+    public void removeMovie(int id) {
+        int position = -1;
+        for (int i = 0; i < moviesInfo.size(); i++) {
+            if (moviesInfo.get(i).mId == id) {
+                moviesInfo.remove(i);
+                position = i;
+                break;
+            }
+        }
+        if (position >= 0) this.notifyItemRemoved(position);
+    }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView poster;
@@ -89,7 +103,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         });
     }
 
-    public void clear() {
+    public void clearAll() {
         if (moviesInfo.size() > 0) {
             this.moviesInfo.clear();
         }
