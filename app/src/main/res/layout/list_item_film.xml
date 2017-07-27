@@ -1,59 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/list_item_card"
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item_poster"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    app:cardCornerRadius="5dp"
-    app:cardElevation="5dp">
+    android:transitionName="@string/transition_poster"
+    android:scaleType="fitCenter"
+    android:adjustViewBounds="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/list_item_poster"
-            android:layout_width="match_parent"
-            android:layout_height="228dp"
-            android:layout_marginBottom="8dp"
-            android:scaleType="centerCrop"
-            android:transitionName="@string/transition_poster" />
-
-        <TextView
-            android:id="@+id/list_item_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_poster"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:transitionName="@string/transition_title" />
-
-        <TextView
-            android:id="@+id/list_item_release"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_poster" />
-
-        <TextView
-            android:id="@+id/list_item_rating"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_poster" />
-
-        <TextView
-            android:id="@+id/list_item_popularity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_poster" />
-
-        <TextView
-            android:id="@+id/list_item_overview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:transitionName="@string/transition_overview" />
-    </LinearLayout>
-
-</android.support.v7.widget.CardView>
+</ImageView>

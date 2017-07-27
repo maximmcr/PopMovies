@@ -2,8 +2,8 @@ package com.example.android.popmovies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.database.Cursor;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +15,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.example.android.popmovies.data.MoviesContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,26 +32,34 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    MovieInfoAdapter movieInfoAdapter;
+    static MovieInfoAdapter movieInfoAdapter;
     ArrayList<MovieInfo> movies;
     public final String CLASS_TAG = MainActivity.class.getSimpleName();
     private String mSortingType;
+
+    private static final String[] MOVIE_COLUMNS = {
+            MoviesContract.MovieEntry.TABLE_NAME + "." + MoviesContract.MovieEntry._ID,
+            MoviesContract.MovieEntry.COLUMN_POSTER
+    };
+    private static final int COLUMN_ID = 0;
+    private static final int COLUMN_POSTER = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        movies = new ArrayList<>();
+        movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
-            movies = new ArrayList<>();
             updateMovieInfo();
         } else {
             movies = savedInstanceState.getParcelableArrayList("movies");
         }
-
         RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
-        movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
         view.setLayoutManager(new LLMWrapper(this, 2));
+        view.addItemDecoration(new Decorator(0));
         view.setAdapter(movieInfoAdapter);
 
         mSortingType = PreferenceManager
@@ -77,18 +88,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        Log.i(CLASS_TAG, "onStop");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.i(CLASS_TAG, "onPause");
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList("movies", movies);
         super.onSaveInstanceState(outState);
@@ -108,37 +107,65 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void updateMovieInfo() {
-        if (isOnline()) {
-            String option = PreferenceManager
-                    .getDefaultSharedPreferences(getApplicationContext())
-                    .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-            new FetchMovieInfo().execute(option);
+    private ArrayList<MovieInfo> getMovieListFromDB() {
+        Log.d(LOG_TAG, "query to db started");
+
+        Cursor c = getContentResolver().query(
+                MoviesContract.MovieEntry.CONTENT_URI,
+                MOVIE_COLUMNS,
+                null,
+                null,
+                null
+        );
+        
+        ArrayList<MovieInfo> result = new ArrayList<>();
+        c.moveToFirst();
+        for (int i = 0; i < c.getCount(); i++) {
+            int id = c.getInt(COLUMN_ID);
+            String poster = Utility.byteArrayToString(c.getBlob(COLUMN_POSTER));
+            result.add(new MovieInfo(poster, id));
+            c.moveToNext();
+        }
+
+        Log.d(LOG_TAG, "query to db ended");
+        return result;
+    }
+
+    private void updateMovieInfo() {
+        String option = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+        if (Utility.isOptionSaved(getApplicationContext())) {
+            movies = getMovieListFromDB();
+            if (movieInfoAdapter != null) {
+                movieInfoAdapter.clearAll();
+                movieInfoAdapter.addAll(movies);
+                movieInfoAdapter.notifyDataSetChanged();
+            }
         } else {
-            Snackbar.make(findViewById(R.id.activity_main), "There is no internet connection!", Snackbar.LENGTH_LONG)
-                    .show();
+            if (Utility.isOnline(getApplicationContext())) {
+                new FetchMovieInfo().execute(option);
+            } else {
+                Snackbar.make(findViewById(R.id.activity_main), "There is no internet connection!", Snackbar.LENGTH_LONG)
+                        .show();
+            }
         }
     }
 
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager)
-                getSystemService(getApplicationContext().CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
-    }
+    private class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
 
-    public class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
+        private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
         @Override
         protected ArrayList<MovieInfo> doInBackground(String... params) {
 
-            final String API_KEY = BuildConfig.API_KEY;
+            final String API_KEY = BuildConfig.API_KEY_TMDB;
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String jsonMovieInfo = null;
 
             try {
-                Uri TMDBrequest = Uri.parse(getString(R.string.tmdb_address)).buildUpon()
+                Uri TMDBrequest = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
                         .appendPath(params[0])
                         .appendQueryParameter("api_key", API_KEY)
                         .build();
@@ -186,17 +213,10 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < movieList.length(); i++) {
                     JSONObject jsonMovie = movieList.getJSONObject(i);
 
-                    String overview = jsonMovie.getString("overview");
-                    String title = jsonMovie.getString("title");
                     String posterId = jsonMovie.getString("poster_path");
-                    String releaseDate = jsonMovie.getString("release_date");
-                    double popularity = Math.round(jsonMovie.getDouble("popularity") * 100d) / 100d;
-                    double rating = jsonMovie.getDouble("vote_average");
                     int id = jsonMovie.getInt("id");
 
-                    MovieInfo movie = new MovieInfo(title, posterId, releaseDate,
-                            overview, rating, popularity, id);
-                    moviesInfo.add(movie);
+                    moviesInfo.add(new MovieInfo(posterId, id));
                 }
             } catch (JSONException e) {
                 Log.e("JSON Formatter", "Json string from asynctask not formatted", e);
@@ -207,15 +227,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<MovieInfo> moviesInfo) {
             super.onPostExecute(moviesInfo);
-            if (movieInfoAdapter.getItemCount() > 0) {
-                movieInfoAdapter.clear();
-            }
+//            if (movieInfoAdapter.getItemCount() > 0) {
+//                movieInfoAdapter.clearAll();
+//            }
             movieInfoAdapter.addAll(moviesInfo);
+            movieInfoAdapter.notifyDataSetChanged();
         }
 
     }
 
-    public class LLMWrapper extends GridLayoutManager {
+    private class LLMWrapper extends GridLayoutManager {
 
         public LLMWrapper(Context context, int spanCount) {
             super(context, spanCount);
@@ -228,6 +249,26 @@ public class MainActivity extends AppCompatActivity {
             } catch (IndexOutOfBoundsException e) {
                 Log.e("probe", "meet a IOOBE in RecyclerView");
             }
+        }
+    }
+
+    private static class Decorator extends RecyclerView.ItemDecoration {
+        private final int space;
+
+        public Decorator(int space) {
+            this.space = space;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                                   RecyclerView.State state) {
+            //super.getItemOffsets(outRect, view, parent, state);
+            outRect.left = space;
+            outRect.right = space;
+            outRect.bottom = space;
+            outRect.top = space;
+
+            view.setPadding(space,space,space,space);
         }
     }
 }
