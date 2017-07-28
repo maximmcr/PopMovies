@@ -25,7 +25,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
 
     @Override
     public void removeMovie(int id) {
-        int position = -1;
+        int position = 0;
         for (int i = 0; i < moviesInfo.size(); i++) {
             if (moviesInfo.get(i).mId == id) {
                 moviesInfo.remove(i);
@@ -33,7 +33,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
                 break;
             }
         }
-        if (position >= 0) this.notifyItemRemoved(position);
+        this.notifyItemRemoved(position);
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {

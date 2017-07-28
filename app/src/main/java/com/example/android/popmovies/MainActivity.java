@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     static MovieInfoAdapter movieInfoAdapter;
-    private RecyclerView recyclerView;
+    private static RecyclerView recyclerView;
     ArrayList<MovieInfo> movies;
     public final String CLASS_TAG = MainActivity.class.getSimpleName();
     private String mSortingType;
@@ -53,14 +53,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         movies = new ArrayList<>();
         movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
+
         if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             updateMovieInfo();
         } else {
             movies = savedInstanceState.getParcelableArrayList("movies");
         }
-
-        initializeRecyclerView();
-
+        //initializeRecyclerView();
         mSortingType = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
@@ -154,11 +153,12 @@ public class MainActivity extends AppCompatActivity {
                 setContentView(R.layout.activity_main_nomovies);
             }
             movieInfoAdapter.notifyDataSetChanged();
+
         } else {
             if (Utility.isOnline(getApplicationContext())) {
                 new FetchMovieInfo().execute(option);
             } else {
-                Snackbar.make(findViewById(R.id.activity_main), "There is no internet connection!", Snackbar.LENGTH_LONG)
+                Snackbar.make(findViewById(R.id.activity_main), R.string.snackbar_no_internet, Snackbar.LENGTH_LONG)
                         .show();
             }
         }

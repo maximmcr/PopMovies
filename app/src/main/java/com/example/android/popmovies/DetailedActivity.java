@@ -5,11 +5,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -146,26 +147,34 @@ public class DetailedActivity extends AppCompatActivity {
                 new VideoAdapter(getApplicationContext(), movieInfo.mYoutubeAdresses);
         lv.setAdapter(videoAdapter);
 
-
-        final Button btnFavourites = (Button) findViewById(R.id.detail_btn_favourites);
-        if (isMovieInDB(movieInfo.mId)) btnFavourites.setText(R.string.btn_favourites_remove);
-        else btnFavourites.setText(R.string.btn_favourites_add);
-        btnFavourites.setOnClickListener(new View.OnClickListener() {
+        final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(R.id.detail_fab_favourite);
+        if (isMovieInDB(movieInfo.mId)) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
+        else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+        fabFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int movieId = movieInfo.mId;
                 boolean isMovieInDB = isMovieInDB(movieId);
                 if (!isMovieInDB) {
                     insertMovieToDB(movieId);
-                    btnFavourites.setText(R.string.btn_favourites_remove);
+                    fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
+                    Snackbar.make(findViewById(R.id.activity_detailed),
+                            R.string.snackbar_movie_added, Snackbar.LENGTH_SHORT)
+                    .show();
                 } else {
                     deleteMovieFromDB(movieId);
-                    CallbackMovieRemoved callback = MainActivity.movieInfoAdapter;
-                    callback.removeMovie(movieId);
-                    btnFavourites.setText(R.string.btn_favourites_add);
+                    if (Utility.isOptionSaved(getApplicationContext())) {
+                        CallbackMovieRemoved callback = MainActivity.movieInfoAdapter;
+                        callback.removeMovie(movieId);
+                    }
+                    fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+                    Snackbar.make(findViewById(R.id.activity_detailed),
+                            R.string.snackbar_movie_removed, Snackbar.LENGTH_SHORT)
+                    .show();
                 }
             }
         });
+
     }
 
     //methods for working with db

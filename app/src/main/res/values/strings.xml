@@ -33,4 +33,7 @@
 
     <string name="text_nomovies">There are no saved movies.</string>
 
+    <string name="snackbar_movie_added">The movie have been added to favourites.</string>
+    <string name="snackbar_movie_removed">The movie have been removed from favourites.</string>
+    <string name="snackbar_no_internet">There is no internet connection!</string>
 </resources>
