@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     static MovieInfoAdapter movieInfoAdapter;
+    private RecyclerView recyclerView;
     ArrayList<MovieInfo> movies;
     public final String CLASS_TAG = MainActivity.class.getSimpleName();
     private String mSortingType;
@@ -57,14 +58,19 @@ public class MainActivity extends AppCompatActivity {
         } else {
             movies = savedInstanceState.getParcelableArrayList("movies");
         }
-        RecyclerView view = (RecyclerView) findViewById(R.id.activity_main);
-        view.setLayoutManager(new LLMWrapper(this, 2));
-        view.addItemDecoration(new Decorator(0));
-        view.setAdapter(movieInfoAdapter);
+
+        initializeRecyclerView();
 
         mSortingType = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+    }
+
+    private void initializeRecyclerView() {
+        recyclerView = (RecyclerView) findViewById(R.id.activity_main);
+        recyclerView.setLayoutManager(new LLMWrapper(this, 2));
+        recyclerView.addItemDecoration(new Decorator(0));
+        recyclerView.setAdapter(movieInfoAdapter);
     }
 
     @Override
@@ -132,16 +138,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMovieInfo() {
+        setContentView(R.layout.activity_main);
+        initializeRecyclerView();
+        movieInfoAdapter.clearAll();
+
         String option = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
         if (Utility.isOptionSaved(getApplicationContext())) {
             movies = getMovieListFromDB();
-            if (movieInfoAdapter != null) {
-                movieInfoAdapter.clearAll();
+            movieInfoAdapter.clearAll();
+            if (movieInfoAdapter != null && movies.size() > 0) {
                 movieInfoAdapter.addAll(movies);
-                movieInfoAdapter.notifyDataSetChanged();
+            } else {
+                setContentView(R.layout.activity_main_nomovies);
             }
+            movieInfoAdapter.notifyDataSetChanged();
         } else {
             if (Utility.isOnline(getApplicationContext())) {
                 new FetchMovieInfo().execute(option);

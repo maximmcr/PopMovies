@@ -31,4 +31,6 @@
     <string name="btn_favourites_add">Add to favourites</string>
     <string name="btn_favourites_remove">Remove from favourites</string>
 
+    <string name="text_nomovies">There are no saved movies.</string>
+
 </resources>
