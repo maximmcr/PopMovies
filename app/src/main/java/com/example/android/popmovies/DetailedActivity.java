@@ -5,13 +5,15 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -137,15 +139,17 @@ public class DetailedActivity extends AppCompatActivity {
         TextView overview = (TextView) findViewById(R.id.detail_overview);
         overview.setText(movieInfo.mOverview);
 
-        ViewPager vp = (ViewPager) findViewById(R.id.detail_comment_viewpager);
+        CommentViewPager vp = (CommentViewPager) findViewById(R.id.detail_comment_viewpager);
         CommentVPAdapter vpAdapter =
                 new CommentVPAdapter(getApplicationContext(), movieInfo.mComments);
         vp.setAdapter(vpAdapter);
+
 
         ListView lv = (ListView) findViewById(R.id.detail_video_listview);
         VideoAdapter videoAdapter =
                 new VideoAdapter(getApplicationContext(), movieInfo.mYoutubeAdresses);
         lv.setAdapter(videoAdapter);
+        setListViewHeightBasedOnChildren(lv);
 
         final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(R.id.detail_fab_favourite);
         if (isMovieInDB(movieInfo.mId)) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
@@ -175,6 +179,28 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
 
+        View screen = getLayoutInflater().inflate(R.layout.activity_detailed, null);
+        CoordinatorLayout cl = (CoordinatorLayout) findViewById(R.id.detailed_scroll);
+
+        cl.scrollTo(0,0);
+    }
+
+    private void setListViewHeightBasedOnChildren(ListView lv) {
+        ListAdapter adapter = lv.getAdapter();
+        if (adapter == null) {
+            Log.d(LOG_TAG, "ListView adapter is null");
+            return;
+        }
+        int totalHeight = 0;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            View child = adapter.getView(i, null, lv);
+            child.measure(0, 0);
+            totalHeight += child.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = lv.getLayoutParams();
+        params.height = totalHeight + (lv.getDividerHeight() * (lv.getChildCount() - 1));
+        lv.setLayoutParams(params);
     }
 
     //methods for working with db

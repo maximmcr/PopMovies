@@ -4,6 +4,7 @@
     android:id="@+id/detailed_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
     app:layout_behavior="com.example.android.popmovies.FABScrolling">
 
     <android.support.v4.widget.NestedScrollView
@@ -21,10 +22,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
+                android:gravity="center_horizontal"
                 android:paddingBottom="16dp"
-                android:paddingLeft="72dp"
+                android:paddingLeft="16dp"
                 android:paddingTop="16dp"
-                android:text="Movie name" />
+                android:text="Movie name"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="#ffffff"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/detail_tagline"
@@ -32,8 +37,12 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:paddingBottom="16dp"
-                android:paddingLeft="72dp"
-                android:text="Movie tagline" />
+                android:paddingLeft="16dp"
+                android:text="Movie tagline"
+                android:textAppearance="?android:textAppearance"
+                android:textColor="#ffffff"
+                android:textStyle="italic" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,6 +53,10 @@
                     android:id="@+id/detail_image"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="16dp"
                     android:layout_weight="2"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter" />
@@ -56,24 +69,29 @@
 
                     <TextView
                         android:id="@+id/detail_date"
+                        style="@style/DetailText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
                         android:text="Release date" />
 
                     <TextView
                         android:id="@+id/detail_runtime"
+                        style="@style/DetailText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Runtime" />
 
                     <TextView
                         android:id="@+id/detail_rating"
+                        style="@style/DetailText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rating" />
 
                     <TextView
                         android:id="@+id/detail_popularity"
+                        style="@style/DetailText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="popularity" />
@@ -86,17 +104,36 @@
                 android:id="@+id/detail_overview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:text="overview" />
 
-            <android.support.v4.view.ViewPager
+            <FrameLayout
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="3dp" />
+
+
+            <com.example.android.popmovies.CommentViewPager
                 android:id="@+id/detail_comment_viewpager"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
+                android:layout_height="100dp" />
+
+            <FrameLayout
+                style="@style/DividerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="3dp" />
 
             <ListView
                 android:id="@+id/detail_video_listview"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:divider="@color/colorPrimaryLight"
+                android:dividerHeight="1dp"
+                android:scrollbars="none" />
 
         </LinearLayout>
 

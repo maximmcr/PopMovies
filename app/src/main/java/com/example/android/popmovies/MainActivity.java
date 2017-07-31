@@ -1,9 +1,7 @@
 package com.example.android.popmovies;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.example.android.popmovies.data.MoviesContract;
 
@@ -67,8 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeRecyclerView() {
         recyclerView = (RecyclerView) findViewById(R.id.activity_main);
-        recyclerView.setLayoutManager(new LLMWrapper(this, 2));
-        recyclerView.addItemDecoration(new Decorator(0));
+        recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
         recyclerView.setAdapter(movieInfoAdapter);
     }
 
@@ -246,41 +242,5 @@ public class MainActivity extends AppCompatActivity {
             movieInfoAdapter.notifyDataSetChanged();
         }
 
-    }
-
-    private class LLMWrapper extends GridLayoutManager {
-
-        public LLMWrapper(Context context, int spanCount) {
-            super(context, spanCount);
-        }
-
-        @Override
-        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            try {
-                super.onLayoutChildren(recycler, state);
-            } catch (IndexOutOfBoundsException e) {
-                Log.e("probe", "meet a IOOBE in RecyclerView");
-            }
-        }
-    }
-
-    private static class Decorator extends RecyclerView.ItemDecoration {
-        private final int space;
-
-        public Decorator(int space) {
-            this.space = space;
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                                   RecyclerView.State state) {
-            //super.getItemOffsets(outRect, view, parent, state);
-            outRect.left = space;
-            outRect.right = space;
-            outRect.bottom = space;
-            outRect.top = space;
-
-            view.setPadding(space,space,space,space);
-        }
     }
 }

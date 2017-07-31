@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 
 import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
@@ -81,5 +82,14 @@ public class Utility {
         BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
         Bitmap bitmap = bitmapDrawable.getBitmap();
         return bitmapToByteArray(bitmap);
+    }
+
+    public static int pxToDp(Context context, int px) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return (int) (px / displayMetrics.density);
+    }
+    public static int dpToPx(Context context, int dp) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return (int) (dp * displayMetrics.density);
     }
 }
