@@ -1,5 +1,6 @@
 package com.example.android.popmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -32,9 +33,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     static MovieInfoAdapter movieInfoAdapter;
-    private RecyclerView recyclerView;
-    ArrayList<MovieInfo> movies;
-    public final String CLASS_TAG = MainActivity.class.getSimpleName();
+    private ArrayList<MovieInfo> mMovies;
+
     private String mSortingType;
 
     private static final String[] MOVIE_COLUMNS = {
@@ -44,59 +44,64 @@ public class MainActivity extends AppCompatActivity {
     private static final int COLUMN_ID = 0;
     private static final int COLUMN_POSTER = 1;
 
+    private static final String SAVED_MOVIE_TAG = "mMovies";
+    private static final String SAVED_SORTING_TAG = "sorting";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        movies = new ArrayList<>();
-        movieInfoAdapter = new MovieInfoAdapter(movies, MainActivity.this);
-
-        if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
-            updateMovieInfo();
+        Log.d(LOG_TAG, "onCreate");
+        if (savedInstanceState != null) {
+            mMovies = savedInstanceState.getParcelableArrayList(SAVED_MOVIE_TAG);
+            mSortingType = savedInstanceState.getString(SAVED_SORTING_TAG);
+            movieInfoAdapter.notifyDataSetChanged();
         } else {
-            movies = savedInstanceState.getParcelableArrayList("movies");
+            mMovies = new ArrayList<>();
+            movieInfoAdapter = new MovieInfoAdapter(mMovies, this);
+            mSortingType = PreferenceManager
+                    .getDefaultSharedPreferences(getApplicationContext())
+                    .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
+            updateMovieInfo();
         }
-        //initializeRecyclerView();
-        mSortingType = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-    }
 
-    private void initializeRecyclerView() {
-        recyclerView = (RecyclerView) findViewById(R.id.activity_main);
-        recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
-        recyclerView.setAdapter(movieInfoAdapter);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.activity_main);
+        mRecyclerView.setLayoutManager(new WrappedGLM(getApplicationContext(), 2));
+        mRecyclerView.setAdapter(movieInfoAdapter);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Log.i(CLASS_TAG, "onStart");
+        Log.d(LOG_TAG, "onStart");
         //updateMovieInfo();
     }
-
     @Override
     public void onResume() {
         super.onResume();
-        String currentSorting = PreferenceManager
+        Log.d(LOG_TAG, "onResume");
+        String newOption = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-        if (mSortingType != currentSorting) {
-            mSortingType = currentSorting;
+        if (!newOption.equals(mSortingType)) {
+            mSortingType = newOption;
+            movieInfoAdapter.clearAll();
             updateMovieInfo();
         }
-        Log.i(CLASS_TAG, "onResume");
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("movies", movies);
+        Log.d(LOG_TAG, "onSaveInstanceState");
+        outState.putParcelableArrayList(SAVED_MOVIE_TAG, mMovies);
+        outState.putString(SAVED_SORTING_TAG, mSortingType);
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        movies = savedInstanceState.getParcelableArrayList("movies");
+        Log.d(LOG_TAG, "onRestoreInstanceState");
+        //mMovies = savedInstanceState.getParcelableArrayList("mMovies");
     }
 
     @Override
@@ -136,32 +141,14 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    // TODO: 31.07.2017 Refactor method updateMovieInfo
     private void updateMovieInfo() {
-        setContentView(R.layout.activity_main);
-        initializeRecyclerView();
-        movieInfoAdapter.clearAll();
-
-        String option = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
-        if (Utility.isOptionSaved(getApplicationContext())) {
-            movies = getMovieListFromDB();
-            movieInfoAdapter.clearAll();
-            if (movieInfoAdapter != null && movies.size() > 0) {
-                movieInfoAdapter.addAll(movies);
-            } else {
-                setContentView(R.layout.activity_main_nomovies);
-            }
-            movieInfoAdapter.notifyDataSetChanged();
-
+        if (Utility.isOptionSaved(this)) {
+            movieInfoAdapter.addAll(getMovieListFromDB());
+        } else if (Utility.isOnline(this)) {
+            new FetchMovieInfo().execute(mSortingType);
         } else {
-            if (Utility.isOnline(getApplicationContext())) {
-                new FetchMovieInfo().execute(option);
-            } else {
-                Snackbar.make(findViewById(R.id.activity_main), R.string.snackbar_no_internet, Snackbar.LENGTH_LONG)
-                        .show();
-            }
+            Snackbar.make(findViewById(R.id.activity_main), R.string.snackbar_no_internet, Snackbar.LENGTH_LONG)
+                    .show();
         }
     }
 
@@ -247,5 +234,20 @@ public class MainActivity extends AppCompatActivity {
             movieInfoAdapter.notifyDataSetChanged();
         }
 
+    }
+
+    public class WrappedGLM extends GridLayoutManager {
+        public WrappedGLM(Context context, int spanCount) {
+            super(context, spanCount);
+        }
+
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            try {
+                super.onLayoutChildren(recycler, state);
+            } catch (IndexOutOfBoundsException e) {
+                Log.e("probe", "meet a IOOBE in RecyclerView");
+            }
+        }
     }
 }

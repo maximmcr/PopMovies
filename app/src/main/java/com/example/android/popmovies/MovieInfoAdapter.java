@@ -23,20 +23,6 @@ import java.util.ArrayList;
 public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.MovieViewHolder>
         implements DetailedActivity.CallbackMovieRemoved{
 
-    @Override
-    public void removeMovie(int id) {
-        int position = 0;
-        for (int i = 0; i < moviesInfo.size(); i++) {
-            if (moviesInfo.get(i).mId == id) {
-                moviesInfo.remove(i);
-                position = i;
-                break;
-            }
-        }
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, moviesInfo.size() - position);
-    }
-
     public class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView poster;
 
@@ -109,6 +95,20 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
             this.moviesInfo.clear();
         }
         this.notifyItemRangeRemoved(0, moviesInfo.size());
+    }
+
+    @Override
+    public void removeMovie(int id) {
+        int position = 0;
+        for (int i = 0; i < moviesInfo.size(); i++) {
+            if (moviesInfo.get(i).mId == id) {
+                moviesInfo.remove(i);
+                position = i;
+                break;
+            }
+        }
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, moviesInfo.size() - position);
     }
 
     public void addAll(ArrayList<MovieInfo> movies) {
