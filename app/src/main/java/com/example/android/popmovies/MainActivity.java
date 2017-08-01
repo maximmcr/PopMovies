@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     static MovieInfoAdapter movieInfoAdapter;
-    private static RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     ArrayList<MovieInfo> movies;
     public final String CLASS_TAG = MainActivity.class.getSimpleName();
     private String mSortingType;
@@ -90,8 +90,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("movies", movies);
         super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("movies", movies);
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        movies = savedInstanceState.getParcelableArrayList("movies");
     }
 
     @Override
@@ -99,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
@@ -132,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
+    // TODO: 31.07.2017 Refactor method updateMovieInfo
     private void updateMovieInfo() {
         setContentView(R.layout.activity_main);
         initializeRecyclerView();

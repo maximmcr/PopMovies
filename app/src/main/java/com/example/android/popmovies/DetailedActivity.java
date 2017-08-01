@@ -5,13 +5,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -179,12 +179,15 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
 
-        View screen = getLayoutInflater().inflate(R.layout.activity_detailed, null);
-        CoordinatorLayout cl = (CoordinatorLayout) findViewById(R.id.detailed_scroll);
-
-        cl.scrollTo(0,0);
+        if (vpAdapter.getCount() == 0 || vpAdapter == null) {
+            ((TextView) findViewById(R.id.detail_review_header)).setVisibility(View.GONE);
+            ((FrameLayout) findViewById(R.id.detail_review_divider)).setVisibility(View.GONE);
+        }
+        if (videoAdapter.getCount() == 0 || videoAdapter == null) {
+            ((TextView) findViewById(R.id.detail_video_header)).setVisibility(View.GONE);
+            ((FrameLayout) findViewById(R.id.detail_video_divider)).setVisibility(View.GONE);
+        }
     }
-
     private void setListViewHeightBasedOnChildren(ListView lv) {
         ListAdapter adapter = lv.getAdapter();
         if (adapter == null) {
@@ -352,8 +355,13 @@ public class DetailedActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("movie", movieInfo);
         super.onSaveInstanceState(outState);
+        outState.putParcelable("movie", movieInfo);
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        movieInfo = savedInstanceState.getParcelable("movie");
     }
 
     private class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {

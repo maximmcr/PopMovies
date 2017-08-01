@@ -59,7 +59,8 @@
                     android:layout_marginTop="16dp"
                     android:layout_weight="2"
                     android:adjustViewBounds="true"
-                    android:scaleType="fitCenter" />
+                    android:scaleType="fitCenter"
+                    android:transitionName="@string/transition_poster" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -109,8 +110,16 @@
                 android:paddingRight="16dp"
                 android:text="overview" />
 
+            <TextView
+                android:id="@+id/detail_review_header"
+                style="@style/DetailHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_text_reviews" />
+
             <FrameLayout
-                style="@style/DividerStyle"
+                android:id="@+id/detail_review_divider"
+                style="@style/DetailDivider"
                 android:layout_width="match_parent"
                 android:layout_height="3dp" />
 
@@ -120,8 +129,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp" />
 
+            <TextView
+                android:id="@+id/detail_video_header"
+                style="@style/DetailHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_text_videos" />
+
             <FrameLayout
-                style="@style/DividerStyle"
+                android:id="@+id/detail_video_divider"
+                style="@style/DetailDivider"
                 android:layout_width="match_parent"
                 android:layout_height="3dp" />
 

@@ -33,7 +33,8 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
                 break;
             }
         }
-        this.notifyItemRemoved(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, moviesInfo.size() - position);
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {

@@ -28,8 +28,10 @@
     </string>
     <string name="format_release_date">Release date: <xliff:g id="date">%1s</xliff:g></string>
 
-    <string name="btn_favourites_add">Add to favourites</string>
-    <string name="btn_favourites_remove">Remove from favourites</string>
+    <string name="detail_btn_favourites_add">Add to favourites</string>
+    <string name="detail_btn_favourites_remove">Remove from favourites</string>
+    <string name="detail_text_reviews">Users\' reviews</string>
+    <string name="detail_text_videos">Videos, clips, etc.</string>
 
     <string name="text_nomovies">There are no saved movies.</string>
 
