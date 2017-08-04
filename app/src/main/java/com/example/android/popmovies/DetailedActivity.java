@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -80,24 +81,30 @@ public class DetailedActivity extends AppCompatActivity {
     private static final int COLUMN_VIDEO_PATH = 2;
     private static final int COLUMN_VIDEO_TYPE = 3;
 
+    private static final String SAVE_MOVIE_TAG = "movie";
+    private static final String SAVE_SCROLLVIEW_TAG = "scrollview";
+
     private MovieInfo movieInfo;
+
+    private NestedScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movie")) {
+            scrollView = (NestedScrollView) findViewById(R.id.detail_scrollview);
             String id = getIntent().getStringExtra("id");
             if (Utility.isOptionSaved(getApplicationContext())) {
                 fetchMovieInfoFromDB(Long.parseLong(id));
-                updateInfo();
+                initializeAndUpdateInfo();
             } else {
                 new FetchDetailedMovieInfo().execute(id);
             }
         }
         else {
-            movieInfo = savedInstanceState.getParcelable("movie");
-            updateInfo();
+            movieInfo = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
+            initializeAndUpdateInfo();
         }
     }
 
@@ -106,7 +113,7 @@ public class DetailedActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    private void updateInfo() {
+    private void initializeAndUpdateInfo() {
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         if (Utility.isOptionSaved(getApplicationContext())) {
             img.setImageBitmap(Utility.stringToBitmap(movieInfo.mPoster));
@@ -154,7 +161,7 @@ public class DetailedActivity extends AppCompatActivity {
         final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(R.id.detail_fab_favourite);
         if (isMovieInDB(movieInfo.mId)) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
         else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
-        // TODO: 04.08.2017 bug: movies don't delete
+        // TODO: 04.08.2017 refactor onClick for delete action
         fabFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -357,12 +364,12 @@ public class DetailedActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("movie", movieInfo);
+        outState.putParcelable(SAVE_MOVIE_TAG, movieInfo);
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        movieInfo = savedInstanceState.getParcelable("movie");
+        //movieInfo = savedInstanceState.getParcelable("movie");
     }
 
     private class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
@@ -496,7 +503,7 @@ public class DetailedActivity extends AppCompatActivity {
                         );
 
                 Log.i("onPostExecute", movie.getString("tagline"));
-                updateInfo();
+                initializeAndUpdateInfo();
 
             } catch (JSONException e) {
                 e.printStackTrace();
