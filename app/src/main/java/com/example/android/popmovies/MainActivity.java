@@ -54,11 +54,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "onCreate");
         if (savedInstanceState != null) {
             mMovies = savedInstanceState.getParcelableArrayList(SAVED_MOVIE_TAG);
+            movieInfoAdapter = new MovieInfoAdapter(mMovies, this);
             mSortingType = savedInstanceState.getString(SAVED_SORTING_TAG);
-            movieInfoAdapter.notifyDataSetChanged();
         } else {
             mMovies = new ArrayList<>();
             movieInfoAdapter = new MovieInfoAdapter(mMovies, this);
+
             mSortingType = PreferenceManager
                     .getDefaultSharedPreferences(getApplicationContext())
                     .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
@@ -74,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         Log.d(LOG_TAG, "onStart");
-        //updateMovieInfo();
     }
     @Override
     public void onResume() {

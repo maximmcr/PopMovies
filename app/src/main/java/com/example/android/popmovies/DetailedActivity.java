@@ -80,7 +80,7 @@ public class DetailedActivity extends AppCompatActivity {
     private static final int COLUMN_VIDEO_PATH = 2;
     private static final int COLUMN_VIDEO_TYPE = 3;
 
-    MovieInfo movieInfo;
+    private MovieInfo movieInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +154,7 @@ public class DetailedActivity extends AppCompatActivity {
         final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(R.id.detail_fab_favourite);
         if (isMovieInDB(movieInfo.mId)) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
         else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+        // TODO: 04.08.2017 bug: movies don't delete
         fabFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
