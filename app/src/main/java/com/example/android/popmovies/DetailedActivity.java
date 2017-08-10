@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -188,12 +187,12 @@ public class DetailedActivity extends AppCompatActivity {
         });
 
         if (vpAdapter.getCount() == 0 || vpAdapter == null) {
-            ((TextView) findViewById(R.id.detail_review_header)).setVisibility(View.GONE);
-            ((FrameLayout) findViewById(R.id.detail_review_divider)).setVisibility(View.GONE);
+            findViewById(R.id.detail_review_header).setVisibility(View.GONE);
+            findViewById(R.id.detail_review_divider).setVisibility(View.GONE);
         }
         if (videoAdapter.getCount() == 0 || videoAdapter == null) {
-            ((TextView) findViewById(R.id.detail_video_header)).setVisibility(View.GONE);
-            ((FrameLayout) findViewById(R.id.detail_video_divider)).setVisibility(View.GONE);
+            findViewById(R.id.detail_video_header).setVisibility(View.GONE);
+            findViewById(R.id.detail_video_divider).setVisibility(View.GONE);
         }
     }
     private void setListViewHeightBasedOnChildren(ListView lv) {
