@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     static MovieInfoAdapter movieInfoAdapter;
-    private ArrayList<MovieInfo> mMovies;
+    private ArrayList<MovieModel> mMovies;
 
     private String mSortingType;
 
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private ArrayList<MovieInfo> getMovieListFromDB() {
+    private ArrayList<MovieModel> getMovieListFromDB() {
         Log.d(LOG_TAG, "query to db started");
 
         Cursor c = getContentResolver().query(
@@ -128,12 +128,12 @@ public class MainActivity extends AppCompatActivity {
                 null
         );
         
-        ArrayList<MovieInfo> result = new ArrayList<>();
+        ArrayList<MovieModel> result = new ArrayList<>();
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
             int id = c.getInt(COLUMN_ID);
             String poster = Utility.byteArrayToString(c.getBlob(COLUMN_POSTER));
-            result.add(new MovieInfo(poster, id));
+            result.add(new MovieModel(poster, id));
             c.moveToNext();
         }
 
@@ -152,11 +152,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieInfo>> {
+    private class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieModel>> {
 
         private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
         @Override
-        protected ArrayList<MovieInfo> doInBackground(String... params) {
+        protected ArrayList<MovieModel> doInBackground(String... params) {
 
             final String API_KEY = BuildConfig.API_KEY_TMDB;
 
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-            ArrayList<MovieInfo> result = null;
+            ArrayList<MovieModel> result = null;
             if (jsonMovieInfo != null) {
                 try {
                     Log.i("doInBackground", "movie info is starting transferring");
@@ -206,8 +206,8 @@ public class MainActivity extends AppCompatActivity {
             return result;
         }
 
-        private ArrayList<MovieInfo> getMovieInfoFromJson(String jsonStr) throws JSONException {
-            ArrayList<MovieInfo> moviesInfo = new ArrayList<>();
+        private ArrayList<MovieModel> getMovieInfoFromJson(String jsonStr) throws JSONException {
+            ArrayList<MovieModel> moviesInfo = new ArrayList<>();
             try {
                 JSONArray movieList = new JSONObject(jsonStr).getJSONArray("results");
                 for (int i = 0; i < movieList.length(); i++) {
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                     String posterId = jsonMovie.getString("poster_path");
                     int id = jsonMovie.getInt("id");
 
-                    moviesInfo.add(new MovieInfo(posterId, id));
+                    moviesInfo.add(new MovieModel(posterId, id));
                 }
             } catch (JSONException e) {
                 Log.e("JSON Formatter", "Json string from asynctask not formatted", e);
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(ArrayList<MovieInfo> moviesInfo) {
+        protected void onPostExecute(ArrayList<MovieModel> moviesInfo) {
             super.onPostExecute(moviesInfo);
 //            if (movieInfoAdapter.getItemCount() > 0) {
 //                movieInfoAdapter.clearAll();

@@ -21,12 +21,12 @@ import static com.example.android.popmovies.Utility.isOnline;
 
 public class CommentVPAdapter extends PagerAdapter {
 
-    ArrayList<MovieInfo.Comment> mComments;
+    ArrayList<CommentModel> mCommentModels;
     Context mContext;
 
-    public CommentVPAdapter(Context context, ArrayList<MovieInfo.Comment> comments) {
+    public CommentVPAdapter(Context context, ArrayList<CommentModel> commentModels) {
         mContext = context;
-        mComments = comments;
+        mCommentModels = commentModels;
     }
 
     @Override
@@ -35,16 +35,16 @@ public class CommentVPAdapter extends PagerAdapter {
         ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.list_item_comment, container, false);
 
         TextView authorTV = (TextView) layout.findViewById(R.id.comment_author);
-        authorTV.setText(mComments.get(position).mAuthor);
+        authorTV.setText(mCommentModels.get(position).mAuthor);
 
         TextView contentTV = (TextView) layout.findViewById(R.id.comment_content);
-        contentTV.setText(getShortComment(mComments.get(position).mContent));
+        contentTV.setText(getShortComment(mCommentModels.get(position).mContent));
 
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isOnline(mContext)) {
-                    Uri uri = Uri.parse(mComments.get(position).mUrl);
+                    Uri uri = Uri.parse(mCommentModels.get(position).mUrl);
                     Intent openComment = new Intent(Intent.ACTION_VIEW, uri);
                     openComment.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(openComment);
@@ -65,7 +65,7 @@ public class CommentVPAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mComments.size();
+        return mCommentModels.size();
     }
 
     @Override

@@ -34,10 +34,10 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
     }
 
     Context context;
-    ArrayList<MovieInfo> moviesInfo;
+    ArrayList<MovieModel> moviesInfo;
     Activity main;
 
-    public MovieInfoAdapter(ArrayList<MovieInfo> moviesInfo, Activity activity) {
+    public MovieInfoAdapter(ArrayList<MovieModel> moviesInfo, Activity activity) {
         this.moviesInfo = moviesInfo;
         main = activity;
     }
@@ -56,7 +56,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
 
     @Override
     public void onBindViewHolder(final MovieViewHolder viewHolder, final int position) {
-        final MovieInfo movie = moviesInfo.get(position);
+        final MovieModel movie = moviesInfo.get(position);
         if (Utility.isOptionSaved(context)) {
             viewHolder.poster.setImageBitmap(Utility.stringToBitmap(movie.mPoster));
         } else {
@@ -111,7 +111,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         notifyItemRangeChanged(position, moviesInfo.size() - position);
     }
 
-    public void addAll(ArrayList<MovieInfo> movies) {
+    public void addAll(ArrayList<MovieModel> movies) {
         for (int i = 0; i < movies.size(); i++) {
             moviesInfo.add(movies.get(i));
         }

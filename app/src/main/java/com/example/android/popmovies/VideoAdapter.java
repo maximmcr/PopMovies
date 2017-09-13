@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * Created by Frei on 10.07.2017.
  */
 
-public class VideoAdapter extends ArrayAdapter<MovieInfo.Video> {
+public class VideoAdapter extends ArrayAdapter<VideoModel> {
 
     private static final String YOUTUBE_REQUEST_BASE = "https://www.youtube.com/watch";
 
@@ -29,15 +29,15 @@ public class VideoAdapter extends ArrayAdapter<MovieInfo.Video> {
         TextView name;
     }
 
-    public VideoAdapter(Context context, ArrayList<MovieInfo.Video> videos) {
-        super(context, R.layout.list_item_video, videos);
+    public VideoAdapter(Context context, ArrayList<VideoModel> videoModels) {
+        super(context, R.layout.list_item_video, videoModels);
         mContext = context;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        final MovieInfo.Video video = getItem(position);
+        final VideoModel videoModel = getItem(position);
 
         ViewHolder viewHolder;
         if (convertView == null) {
@@ -51,15 +51,15 @@ public class VideoAdapter extends ArrayAdapter<MovieInfo.Video> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.type.setText(video.mType);
-        viewHolder.name.setText(video.mName);
+        viewHolder.type.setText(videoModel.mType);
+        viewHolder.name.setText(videoModel.mName);
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (Utility.isOnline(mContext)) {
                     Uri uri = Uri.parse(YOUTUBE_REQUEST_BASE)
                             .buildUpon()
-                            .appendQueryParameter("v", video.mPath)
+                            .appendQueryParameter("v", videoModel.mPath)
                             .build();
                     Intent playVideo = new Intent(Intent.ACTION_VIEW, uri);
                     if (playVideo.resolveActivity(mContext.getPackageManager()) != null) {

@@ -83,7 +83,7 @@ public class DetailedActivity extends AppCompatActivity {
     private static final String SAVE_MOVIE_TAG = "movie";
     private static final String SAVE_SCROLLVIEW_TAG = "scrollview";
 
-    private MovieInfo movieInfo;
+    private MovieModel movieModel;
 
     private NestedScrollView scrollView;
 
@@ -102,7 +102,7 @@ public class DetailedActivity extends AppCompatActivity {
             }
         }
         else {
-            movieInfo = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
+            movieModel = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
             initializeAndUpdateInfo();
         }
     }
@@ -115,56 +115,56 @@ public class DetailedActivity extends AppCompatActivity {
     private void initializeAndUpdateInfo() {
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         if (Utility.isOptionSaved(getApplicationContext())) {
-            img.setImageBitmap(Utility.stringToBitmap(movieInfo.mPoster));
+            img.setImageBitmap(Utility.stringToBitmap(movieModel.mPoster));
         } else {
             Picasso.with(getApplicationContext())
-                    .load("http://image.tmdb.org/t/p/w342/" + movieInfo.mPoster)
+                    .load("http://image.tmdb.org/t/p/w342/" + movieModel.mPoster)
                     .into(img);
         }
 
         TextView title = (TextView) findViewById(R.id.detail_title);
-        title.setText(movieInfo.mTitle);
+        title.setText(movieModel.mTitle);
 
         TextView tagline = (TextView) findViewById(R.id.detail_tagline);
-        tagline.setText(movieInfo.mTagline);
+        tagline.setText(movieModel.mTagline);
 
         TextView releaseDate = (TextView) findViewById(R.id.detail_date);
         releaseDate.setText(getString(
                 R.string.format_release_date,
-                Utility.formatDate(movieInfo.mReleaseDate)));
+                Utility.formatDate(movieModel.mReleaseDate)));
 
         TextView runtime = (TextView) findViewById(R.id.detail_runtime);
-        runtime.setText(getString(R.string.format_runtime, movieInfo.mRuntime));
+        runtime.setText(getString(R.string.format_runtime, movieModel.mRuntime));
 
         TextView popularity = (TextView) findViewById(R.id.detail_popularity);
-        popularity.setText(getString(R.string.format_popular, movieInfo.mPopularity));
+        popularity.setText(getString(R.string.format_popular, movieModel.mPopularity));
 
         TextView rating = (TextView) findViewById(R.id.detail_rating);
-        rating.setText(getString(R.string.format_rating, movieInfo.mRating));
+        rating.setText(getString(R.string.format_rating, movieModel.mRating));
 
         TextView overview = (TextView) findViewById(R.id.detail_overview);
-        overview.setText(movieInfo.mOverview);
+        overview.setText(movieModel.mOverview);
 
         CommentViewPager vp = (CommentViewPager) findViewById(R.id.detail_comment_viewpager);
         CommentVPAdapter vpAdapter =
-                new CommentVPAdapter(getApplicationContext(), movieInfo.mComments);
+                new CommentVPAdapter(getApplicationContext(), movieModel.mCommentModels);
         vp.setAdapter(vpAdapter);
 
 
         ListView lv = (ListView) findViewById(R.id.detail_video_listview);
         VideoAdapter videoAdapter =
-                new VideoAdapter(getApplicationContext(), movieInfo.mYoutubeAdresses);
+                new VideoAdapter(getApplicationContext(), movieModel.mYoutubeAdresses);
         lv.setAdapter(videoAdapter);
         setListViewHeightBasedOnChildren(lv);
 
         final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(R.id.detail_fab_favourite);
-        if (isMovieInDB(movieInfo.mId)) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
+        if (isMovieInDB(movieModel.mId)) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
         else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
         // TODO: 04.08.2017 refactor onClick for delete action
         fabFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int movieId = movieInfo.mId;
+                int movieId = movieModel.mId;
                 boolean isMovieInDB = isMovieInDB(movieId);
                 if (!isMovieInDB) {
                     insertMovieToDB(movieId);
@@ -233,16 +233,16 @@ public class DetailedActivity extends AppCompatActivity {
         //inserting base movie info
         ContentValues movieValues = new ContentValues();
         movieValues.put(MoviesContract.MovieEntry._ID, id);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, movieInfo.mTitle);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, movieInfo.mTagline);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, movieModel.mTitle);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, movieModel.mTagline);
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         movieValues.put(MoviesContract.MovieEntry.COLUMN_POSTER,
                 Utility.drawableToByteArray(img.getDrawable()));
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, movieInfo.mReleaseDate);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, movieInfo.mRuntime);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, movieInfo.mRating);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, movieInfo.mPopularity);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, movieInfo.mOverview);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, movieModel.mReleaseDate);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, movieModel.mRuntime);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, movieModel.mRating);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, movieModel.mPopularity);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, movieModel.mOverview);
 
         getContentResolver().insert(
                 MoviesContract.MovieEntry.buildMovieUri(id),
@@ -250,12 +250,12 @@ public class DetailedActivity extends AppCompatActivity {
 
         //inserting comments
         Vector<ContentValues> commentValues = new Vector<>();
-        for (MovieInfo.Comment comment : movieInfo.mComments) {
+        for (CommentModel commentModel : movieModel.mCommentModels) {
             ContentValues value = new ContentValues();
             value.put(MoviesContract.CommentEntry.COLUMN_MOVIE_KEY, id);
-            value.put(MoviesContract.CommentEntry.COLUMN_AUTHOR, comment.mAuthor);
-            value.put(MoviesContract.CommentEntry.COLUMN_CONTENT, comment.mContent);
-            value.put(MoviesContract.CommentEntry.COLUMN_URL, comment.mUrl);
+            value.put(MoviesContract.CommentEntry.COLUMN_AUTHOR, commentModel.mAuthor);
+            value.put(MoviesContract.CommentEntry.COLUMN_CONTENT, commentModel.mContent);
+            value.put(MoviesContract.CommentEntry.COLUMN_URL, commentModel.mUrl);
             commentValues.add(value);
         }
 
@@ -265,12 +265,12 @@ public class DetailedActivity extends AppCompatActivity {
 
         //inserting videos
         Vector<ContentValues> videoValues = new Vector<>();
-        for (MovieInfo.Video video : movieInfo.mYoutubeAdresses) {
+        for (VideoModel videoModel : movieModel.mYoutubeAdresses) {
             ContentValues value = new ContentValues();
             value.put(MoviesContract.VideoEntry.COLUMN_MOVIE_KEY, id);
-            value.put(MoviesContract.VideoEntry.COLUMN_NAME, video.mName);
-            value.put(MoviesContract.VideoEntry.COLUMN_PATH, video.mPath);
-            value.put(MoviesContract.VideoEntry.COLUMN_TYPE, video.mType);
+            value.put(MoviesContract.VideoEntry.COLUMN_NAME, videoModel.mName);
+            value.put(MoviesContract.VideoEntry.COLUMN_PATH, videoModel.mPath);
+            value.put(MoviesContract.VideoEntry.COLUMN_TYPE, videoModel.mType);
             videoValues.add(value);
         }
 
@@ -295,17 +295,17 @@ public class DetailedActivity extends AppCompatActivity {
                 null
         );
         commentCursor.moveToFirst();
-        ArrayList<MovieInfo.Comment> comments = new ArrayList<>();
+        ArrayList<CommentModel> commentModels = new ArrayList<>();
         for (int i = 0; i < commentCursor.getCount(); i++) {
             String author = commentCursor.getString(COLUMN_COMMENT_AUTHOR);
             String content = commentCursor.getString(COLUMN_COMMENT_CONTENT);
             String url = commentCursor.getString(COLUMN_COMMENT_URL);
-            MovieInfo.Comment comment = new MovieInfo.Comment(
+            CommentModel commentModel = new CommentModel(
                     author,
                     content,
                     url
             );
-            comments.add(comment);
+            commentModels.add(commentModel);
             commentCursor.moveToNext();
         }
         commentCursor.close();
@@ -318,17 +318,17 @@ public class DetailedActivity extends AppCompatActivity {
                 null
         );
         videoCursor.moveToFirst();
-        ArrayList<MovieInfo.Video> videos = new ArrayList<>();
+        ArrayList<VideoModel> videoModels = new ArrayList<>();
         for (int i = 0; i < videoCursor.getCount(); i++) {
             String path = videoCursor.getString(COLUMN_VIDEO_PATH);
             String name = videoCursor.getString(COLUMN_VIDEO_NAME);
             String type = videoCursor.getString(COLUMN_VIDEO_TYPE);
-            MovieInfo.Video video = new MovieInfo.Video(
+            VideoModel videoModel = new VideoModel(
                     path,
                     name,
                     type
             );
-            videos.add(video);
+            videoModels.add(videoModel);
             videoCursor.moveToNext();
         }
         videoCursor.close();
@@ -342,7 +342,7 @@ public class DetailedActivity extends AppCompatActivity {
         );
         movieCursor.moveToFirst();
 
-        movieInfo = new MovieInfo(
+        movieModel = new MovieModel(
                 movieCursor.getInt(COLUMN_MOVIE_ID),
                 movieCursor.getString(COLUMN_MOVIE_TITLE),
                 movieCursor.getString(COLUMN_MOVIE_TAGLINE),
@@ -352,8 +352,8 @@ public class DetailedActivity extends AppCompatActivity {
                 movieCursor.getDouble(COLUMN_MOVIE_RATING),
                 movieCursor.getDouble(COLUMN_MOVIE_POPULARITY),
                 movieCursor.getString(COLUMN_MOVIE_OVERVIEW),
-                comments,
-                videos
+                commentModels,
+                videoModels
         );
 
         movieCursor.close();
@@ -363,12 +363,12 @@ public class DetailedActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(SAVE_MOVIE_TAG, movieInfo);
+        outState.putParcelable(SAVE_MOVIE_TAG, movieModel);
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        //movieInfo = savedInstanceState.getParcelable("movie");
+        //movieModel = savedInstanceState.getParcelable("movie");
     }
 
     private class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
@@ -464,30 +464,30 @@ public class DetailedActivity extends AppCompatActivity {
                 JSONObject movie = new JSONObject(s[0]);
 
                 JSONArray jComments = new JSONObject(s[1]).getJSONArray("results");
-                ArrayList<MovieInfo.Comment> comments = new ArrayList<>();
+                ArrayList<CommentModel> commentModels = new ArrayList<>();
                 for (int i = 0; i < jComments.length(); i++) {
                     JSONObject obj = jComments.getJSONObject(i);
-                    MovieInfo.Comment comment = new MovieInfo.Comment(
+                    CommentModel commentModel = new CommentModel(
                             obj.getString("author"),
                             obj.getString("content"),
                             obj.getString("url")
                     );
-                    comments.add(comment);
+                    commentModels.add(commentModel);
                 }
 
-                ArrayList<MovieInfo.Video> youtubeAdresses = new ArrayList<>();
+                ArrayList<VideoModel> youtubeAdresses = new ArrayList<>();
                 JSONArray jVideos = new JSONObject(s[2]).getJSONArray("results");
                 for (int i = 0; i < jVideos.length(); i++) {
                     JSONObject obj = jVideos.getJSONObject(i);
-                    MovieInfo.Video video = new MovieInfo.Video(
+                    VideoModel videoModel = new VideoModel(
                             obj.getString("key"),
                             obj.getString("name"),
                             obj.getString("type")
                     );
-                    youtubeAdresses.add(video);
+                    youtubeAdresses.add(videoModel);
                 }
 
-                movieInfo = new MovieInfo(
+                movieModel = new MovieModel(
                         movie.getInt("id"),
                         movie.getString("title"),
                         movie.getString("tagline"),
@@ -497,7 +497,7 @@ public class DetailedActivity extends AppCompatActivity {
                         movie.getDouble("vote_average"),
                         movie.getDouble("popularity"),
                         movie.getString("overview"),
-                        comments,
+                        commentModels,
                         youtubeAdresses
                         );
 
