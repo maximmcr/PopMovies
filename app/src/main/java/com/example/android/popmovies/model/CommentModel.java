@@ -1,16 +1,21 @@
-package com.example.android.popmovies;
+package com.example.android.popmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Frei on 13.09.2017.
  */
 
 public class CommentModel implements Parcelable {
-    String mAuthor;
-    String mContent;
-    String mUrl;
+    @SerializedName("author")
+    private String mAuthor;
+    @SerializedName("content")
+    private String mContent;
+    @SerializedName("url")
+    private String mUrl;
 
     public CommentModel(String author, String content, String url) {
         mAuthor = author;
@@ -22,6 +27,30 @@ public class CommentModel implements Parcelable {
         mAuthor = in.readString();
         mContent = in.readString();
         mUrl = in.readString();
+    }
+
+    public String getAuthor() {
+        return mAuthor;
+    }
+
+    public void setAuthor(String author) {
+        this.mAuthor = author;
+    }
+
+    public String getContent() {
+        return mContent;
+    }
+
+    public void setContent(String content) {
+        this.mContent = content;
+    }
+
+    public String getUrl() {
+        return mUrl;
+    }
+
+    public void setUrl(String url) {
+        this.mUrl = url;
     }
 
     @Override
