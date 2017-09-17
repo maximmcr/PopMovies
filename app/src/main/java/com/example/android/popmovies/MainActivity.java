@@ -3,8 +3,6 @@ package com.example.android.popmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -18,23 +16,18 @@ import android.view.MenuItem;
 import com.example.android.popmovies.data.MoviesContract;
 import com.example.android.popmovies.model.MovieModel;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    static MovieInfoAdapter movieInfoAdapter;
+    static MovieInfoAdapter mMovieInfoAdapter;
     private ArrayList<MovieModel> mMovies;
+    private RecyclerView mRecyclerView;
 
     private String mSortingType;
 
@@ -55,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "onCreate");
         if (savedInstanceState != null) {
             mMovies = savedInstanceState.getParcelableArrayList(SAVED_MOVIE_TAG);
-            movieInfoAdapter = new MovieInfoAdapter(mMovies, this);
+            mMovieInfoAdapter = new MovieInfoAdapter(mMovies, this);
             mSortingType = savedInstanceState.getString(SAVED_SORTING_TAG);
         } else {
             mMovies = new ArrayList<>();
-            movieInfoAdapter = new MovieInfoAdapter(mMovies, this);
+            mMovieInfoAdapter = new MovieInfoAdapter(mMovies, this);
 
             mSortingType = PreferenceManager
                     .getDefaultSharedPreferences(getApplicationContext())
@@ -67,9 +60,9 @@ public class MainActivity extends AppCompatActivity {
             updateMovieInfo();
         }
 
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.activity_main);
+        mRecyclerView = (RecyclerView) findViewById(R.id.activity_main);
         mRecyclerView.setLayoutManager(new WrappedGLM(getApplicationContext(), 2));
-        mRecyclerView.setAdapter(movieInfoAdapter);
+        mRecyclerView.setAdapter(mMovieInfoAdapter);
     }
 
     @Override
@@ -86,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
         if (!newOption.equals(mSortingType)) {
             mSortingType = newOption;
-            movieInfoAdapter.clearAll();
+            mMovieInfoAdapter.clearAll();
             updateMovieInfo();
         }
     }
@@ -144,97 +137,37 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateMovieInfo() {
         if (Utility.isOptionSaved(this)) {
-            movieInfoAdapter.addAll(getMovieListFromDB());
+            mMovieInfoAdapter.addAll(getMovieListFromDB());
         } else if (Utility.isOnline(this)) {
-            new FetchMovieInfo().execute(mSortingType);
+            //new FetchMovieInfo().execute(mSortingType);
+            getMovieList(mSortingType);
         } else {
             Snackbar.make(findViewById(R.id.activity_main), R.string.snackbar_no_internet, Snackbar.LENGTH_LONG)
                     .show();
         }
     }
 
-    private class FetchMovieInfo extends AsyncTask<String, Void, ArrayList<MovieModel>> {
-
-        private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
-        @Override
-        protected ArrayList<MovieModel> doInBackground(String... params) {
-
-            final String API_KEY = BuildConfig.API_KEY_TMDB;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String jsonMovieInfo = null;
-
-            try {
-                Uri TMDBrequest = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
-                        .appendPath(params[0])
-                        .appendQueryParameter("api_key", API_KEY)
-                        .build();
-
-                URL url = new URL(TMDBrequest.toString());
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream stream = urlConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-                jsonMovieInfo = reader.readLine();
-
-            } catch (IOException e) {
-                Log.e("FetchMovieInfo", "Class haven't get info", e);
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        Log.e("FetchMovieInfo", "Error closing reader", e);
+    private void getMovieList(String sortingType) {
+        final String API_KEY = BuildConfig.API_KEY_TMDB;
+        PopMoviesApplication.getTmdbApi()
+                .getMovieList(sortingType, API_KEY)
+                .enqueue(new Callback<MovieModel.Response>() {
+                    @Override
+                    public void onResponse(Call<MovieModel.Response> call, Response<MovieModel.Response> response) {
+                        mMovies.addAll(response.body().movies);
+                        mRecyclerView.getAdapter().notifyDataSetChanged();
                     }
-                }
-            }
-            ArrayList<MovieModel> result = null;
-            if (jsonMovieInfo != null) {
-                try {
-                    Log.i("doInBackground", "movie info is starting transferring");
-                    result = getMovieInfoFromJson(jsonMovieInfo);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            return result;
-        }
 
-        private ArrayList<MovieModel> getMovieInfoFromJson(String jsonStr) throws JSONException {
-            ArrayList<MovieModel> moviesInfo = new ArrayList<>();
-            try {
-                JSONArray movieList = new JSONObject(jsonStr).getJSONArray("results");
-                for (int i = 0; i < movieList.length(); i++) {
-                    JSONObject jsonMovie = movieList.getJSONObject(i);
-
-                    String posterId = jsonMovie.getString("poster_path");
-                    int id = jsonMovie.getInt("id");
-
-                    moviesInfo.add(new MovieModel(posterId, id));
-                }
-            } catch (JSONException e) {
-                Log.e("JSON Formatter", "Json string from asynctask not formatted", e);
-            }
-            return moviesInfo;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<MovieModel> moviesInfo) {
-            super.onPostExecute(moviesInfo);
-//            if (movieInfoAdapter.getItemCount() > 0) {
-//                movieInfoAdapter.clearAll();
-//            }
-            movieInfoAdapter.addAll(moviesInfo);
-            movieInfoAdapter.notifyDataSetChanged();
-        }
-
+                    @Override
+                    public void onFailure(Call<MovieModel.Response> call, Throwable t) {
+                        Snackbar.make(
+                                findViewById(R.id.activity_main),
+                                R.string.snackbar_no_internet,
+                                Snackbar.LENGTH_LONG
+                        ).show();
+                        Log.d(LOG_TAG, "Retrofit method " + t);
+                    }
+                });
     }
 
     public class WrappedGLM extends GridLayoutManager {

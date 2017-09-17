@@ -178,7 +178,7 @@ public class DetailedActivity extends AppCompatActivity {
                 } else {
                     deleteMovieFromDB(movieId);
                     if (Utility.isOptionSaved(getApplicationContext())) {
-                        CallbackMovieRemoved callback = MainActivity.movieInfoAdapter;
+                        CallbackMovieRemoved callback = MainActivity.mMovieInfoAdapter;
                         callback.removeMovie(movieId);
                     }
                     fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);

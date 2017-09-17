@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Frei on 24.01.2017.
@@ -154,6 +155,7 @@ public class MovieModel implements Parcelable {
         mYoutubeAddresses = videos;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -188,4 +190,9 @@ public class MovieModel implements Parcelable {
                     return new MovieModel[size];
                 }
             };
+
+    public static final class Response {
+        @SerializedName("results")
+        public List<MovieModel> movies = new ArrayList<>();
+    }
 }

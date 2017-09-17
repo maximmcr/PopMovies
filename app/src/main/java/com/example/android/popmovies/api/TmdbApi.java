@@ -1,8 +1,8 @@
 package com.example.android.popmovies.api;
 
-import com.example.android.popmovies.CommentModel;
-import com.example.android.popmovies.MovieModel;
-import com.example.android.popmovies.VideoModel;
+import com.example.android.popmovies.model.CommentModel;
+import com.example.android.popmovies.model.MovieModel;
+import com.example.android.popmovies.model.VideoModel;
 
 import java.util.List;
 
@@ -16,15 +16,15 @@ import retrofit2.http.Query;
  */
 
 public interface TmdbApi {
-    @GET("/{type}")
-    Call<List<MovieModel>> getMovieList(@Path("type") String type, @Query("apikey") String apiKey);
+    @GET("{type}")
+    Call<MovieModel.Response> getMovieList(@Path("type") String type, @Query("api_key") String apiKey);
 
-    @GET("/{movie_id}")
-    Call<MovieModel> getMovie(@Path("movie_id") int movieId, @Query("apikey") String apiKey);
+    @GET("{movie_id}")
+    Call<MovieModel> getMovie(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
 
-    @GET("/{movie_id}/videos")
-    Call<List<VideoModel>> getVideoList(@Path("movie_id") int movieId, @Query("apikey") String apiKey);
+    @GET("{movie_id}/videos")
+    Call<List<VideoModel>> getVideoList(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
 
-    @GET("/{movie_id}/reviews")
-    Call<List<CommentModel>> getReviewList(@Path("movie_id") int movieId, @Query("apikey") String apiKey);
+    @GET("{movie_id}/reviews")
+    Call<List<CommentModel>> getReviewList(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
 }
