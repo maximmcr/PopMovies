@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.android.popmovies.model.MovieModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -58,10 +59,10 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
     public void onBindViewHolder(final MovieViewHolder viewHolder, final int position) {
         final MovieModel movie = moviesInfo.get(position);
         if (Utility.isOptionSaved(context)) {
-            viewHolder.poster.setImageBitmap(Utility.stringToBitmap(movie.mPoster));
+            viewHolder.poster.setImageBitmap(Utility.stringToBitmap(movie.getPosterPath()));
         } else {
             Picasso.with(context)
-                    .load("http://image.tmdb.org/t/p/w185" + String.valueOf(movie.mPoster))
+                    .load("http://image.tmdb.org/t/p/w185" + String.valueOf(movie.getPosterPath()))
                     .error(R.drawable.image_not_loaded)
                     .placeholder(R.drawable.progress_animation)
                     .into(viewHolder.poster);
@@ -73,7 +74,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
 
                 if (Utility.isOptionSaved(context) || Utility.isOnline(context)) {
                     Intent intent = new Intent(context, DetailedActivity.class);
-                    intent.putExtra("id", String.valueOf(moviesInfo.get(position).mId));
+                    intent.putExtra("id", String.valueOf(moviesInfo.get(position).getId()));
 
                     Pair<View, String> pairImg = Pair.create(
                             (View) viewHolder.poster, context.getText(R.string.transition_poster).toString());
@@ -101,7 +102,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
     public void removeMovie(int id) {
         int position = 0;
         for (int i = 0; i < moviesInfo.size(); i++) {
-            if (moviesInfo.get(i).mId == id) {
+            if (moviesInfo.get(i).getId() == id) {
                 moviesInfo.remove(i);
                 position = i;
                 break;

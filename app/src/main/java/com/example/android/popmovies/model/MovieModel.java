@@ -39,8 +39,8 @@ public class MovieModel implements Parcelable {
     @SerializedName("overview")
     private String mOverview;
 
-    ArrayList<CommentModel> mComments;
-    ArrayList<VideoModel> mYoutubeAdresses;
+    private ArrayList<CommentModel> mComments;
+    private ArrayList<VideoModel> mYoutubeAddresses;
 
     public MovieModel(int id, String title, String tagline, String poster, String releaseDate,
                       int runtime, double rating, double popularity, String overview,
@@ -56,14 +56,12 @@ public class MovieModel implements Parcelable {
         mOverview = overview;
 
         mComments = comments;
-        mYoutubeAdresses = youtubeAdresses;
+        mYoutubeAddresses = youtubeAdresses;
     }
-
     public MovieModel(String posterId, int id) {
         this.mPosterPath = posterId;
         this.mId = id;
     }
-
     private MovieModel(Parcel in) {
         mId = in.readInt();
         mTitle = in.readString();
@@ -76,13 +74,12 @@ public class MovieModel implements Parcelable {
         mOverview = in.readString();
 
         in.readTypedList(mComments, CommentModel.CREATOR);
-        in.readTypedList(mYoutubeAdresses, VideoModel.CREATOR);
+        in.readTypedList(mYoutubeAddresses, VideoModel.CREATOR);
     }
 
     public Integer getId() {
         return mId;
     }
-
     public void setId(Integer id) {
         this.mId = id;
     }
@@ -90,7 +87,6 @@ public class MovieModel implements Parcelable {
     public String getOverview() {
         return mOverview;
     }
-
     public void setOverview(String overview) {
         this.mOverview = overview;
     }
@@ -98,7 +94,6 @@ public class MovieModel implements Parcelable {
     public Double getPopularity() {
         return mPopularity;
     }
-
     public void setPopularity(Double popularity) {
         this.mPopularity = popularity;
     }
@@ -106,7 +101,6 @@ public class MovieModel implements Parcelable {
     public String getPosterPath() {
         return mPosterPath;
     }
-
     public void setPosterPath(String posterPath) {
         this.mPosterPath = posterPath;
     }
@@ -114,7 +108,6 @@ public class MovieModel implements Parcelable {
     public String getReleaseDate() {
         return mReleaseDate;
     }
-
     public void setReleaseDate(String releaseDate) {
         this.mReleaseDate = releaseDate;
     }
@@ -122,7 +115,6 @@ public class MovieModel implements Parcelable {
     public Integer getRuntime() {
         return mRuntime;
     }
-
     public void setRuntime(Integer runtime) {
         this.mRuntime = runtime;
     }
@@ -130,7 +122,6 @@ public class MovieModel implements Parcelable {
     public String getTagline() {
         return mTagline;
     }
-
     public void setTagline(String tagline) {
         this.mTagline = tagline;
     }
@@ -138,7 +129,6 @@ public class MovieModel implements Parcelable {
     public String getTitle() {
         return mTitle;
     }
-
     public void setTitle(String title) {
         this.mTitle = title;
     }
@@ -146,9 +136,22 @@ public class MovieModel implements Parcelable {
     public Double getRating() {
         return mRating;
     }
-
     public void setRating(Double rating) {
         this.mRating = rating;
+    }
+
+    public ArrayList<CommentModel> getComments() {
+        return mComments;
+    }
+    public void setComments(ArrayList<CommentModel> comments) {
+        mComments = comments;
+    }
+
+    public ArrayList<VideoModel> getVideos() {
+        return mYoutubeAddresses;
+    }
+    public void setVideos(ArrayList<VideoModel> videos) {
+        mYoutubeAddresses = videos;
     }
 
     @Override
@@ -169,7 +172,7 @@ public class MovieModel implements Parcelable {
         dest.writeString(mOverview);
 
         dest.writeTypedList(mComments);
-        dest.writeTypedList(mYoutubeAdresses);
+        dest.writeTypedList(mYoutubeAddresses);
     }
 
     public static final Parcelable.Creator<MovieModel> CREATOR =

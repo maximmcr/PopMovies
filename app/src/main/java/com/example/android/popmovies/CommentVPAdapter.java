@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.popmovies.model.CommentModel;
+
 import java.util.ArrayList;
 
 import static com.example.android.popmovies.Utility.getShortComment;
@@ -21,12 +23,12 @@ import static com.example.android.popmovies.Utility.isOnline;
 
 public class CommentVPAdapter extends PagerAdapter {
 
-    ArrayList<CommentModel> mCommentModels;
+    ArrayList<CommentModel> mCommentModel;
     Context mContext;
 
-    public CommentVPAdapter(Context context, ArrayList<CommentModel> commentModels) {
+    public CommentVPAdapter(Context context, ArrayList<CommentModel> commentModel) {
         mContext = context;
-        mCommentModels = commentModels;
+        mCommentModel = commentModel;
     }
 
     @Override
@@ -35,16 +37,16 @@ public class CommentVPAdapter extends PagerAdapter {
         ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.list_item_comment, container, false);
 
         TextView authorTV = (TextView) layout.findViewById(R.id.comment_author);
-        authorTV.setText(mCommentModels.get(position).mAuthor);
+        authorTV.setText(mCommentModel.get(position).getAuthor());
 
         TextView contentTV = (TextView) layout.findViewById(R.id.comment_content);
-        contentTV.setText(getShortComment(mCommentModels.get(position).mContent));
+        contentTV.setText(getShortComment(mCommentModel.get(position).getContent()));
 
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isOnline(mContext)) {
-                    Uri uri = Uri.parse(mCommentModels.get(position).mUrl);
+                    Uri uri = Uri.parse(mCommentModel.get(position).getUrl());
                     Intent openComment = new Intent(Intent.ACTION_VIEW, uri);
                     openComment.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(openComment);
@@ -65,7 +67,7 @@ public class CommentVPAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mCommentModels.size();
+        return mCommentModel.size();
     }
 
     @Override
