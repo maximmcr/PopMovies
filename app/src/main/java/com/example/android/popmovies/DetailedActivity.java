@@ -18,6 +18,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.popmovies.data.MoviesContract;
+import com.example.android.popmovies.model.CommentModel;
+import com.example.android.popmovies.model.MovieModel;
+import com.example.android.popmovies.model.VideoModel;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -115,56 +118,56 @@ public class DetailedActivity extends AppCompatActivity {
     private void initializeAndUpdateInfo() {
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         if (Utility.isOptionSaved(getApplicationContext())) {
-            img.setImageBitmap(Utility.stringToBitmap(movieModel.mPoster));
+            img.setImageBitmap(Utility.stringToBitmap(movieModel.getPosterPath()));
         } else {
             Picasso.with(getApplicationContext())
-                    .load("http://image.tmdb.org/t/p/w342/" + movieModel.mPoster)
+                    .load("http://image.tmdb.org/t/p/w342/" + movieModel.getPosterPath())
                     .into(img);
         }
 
         TextView title = (TextView) findViewById(R.id.detail_title);
-        title.setText(movieModel.mTitle);
+        title.setText(movieModel.getTitle());
 
         TextView tagline = (TextView) findViewById(R.id.detail_tagline);
-        tagline.setText(movieModel.mTagline);
+        tagline.setText(movieModel.getTitle());
 
         TextView releaseDate = (TextView) findViewById(R.id.detail_date);
         releaseDate.setText(getString(
                 R.string.format_release_date,
-                Utility.formatDate(movieModel.mReleaseDate)));
+                Utility.formatDate(movieModel.getReleaseDate())));
 
         TextView runtime = (TextView) findViewById(R.id.detail_runtime);
-        runtime.setText(getString(R.string.format_runtime, movieModel.mRuntime));
+        runtime.setText(getString(R.string.format_runtime, movieModel.getRuntime()));
 
         TextView popularity = (TextView) findViewById(R.id.detail_popularity);
-        popularity.setText(getString(R.string.format_popular, movieModel.mPopularity));
+        popularity.setText(getString(R.string.format_popular, movieModel.getPopularity()));
 
         TextView rating = (TextView) findViewById(R.id.detail_rating);
-        rating.setText(getString(R.string.format_rating, movieModel.mRating));
+        rating.setText(getString(R.string.format_rating, movieModel.getRating()));
 
         TextView overview = (TextView) findViewById(R.id.detail_overview);
-        overview.setText(movieModel.mOverview);
+        overview.setText(movieModel.getOverview());
 
         CommentViewPager vp = (CommentViewPager) findViewById(R.id.detail_comment_viewpager);
         CommentVPAdapter vpAdapter =
-                new CommentVPAdapter(getApplicationContext(), movieModel.mCommentModels);
+                new CommentVPAdapter(getApplicationContext(), movieModel.getComments());
         vp.setAdapter(vpAdapter);
 
 
         ListView lv = (ListView) findViewById(R.id.detail_video_listview);
         VideoAdapter videoAdapter =
-                new VideoAdapter(getApplicationContext(), movieModel.mYoutubeAdresses);
+                new VideoAdapter(getApplicationContext(), movieModel.getVideos());
         lv.setAdapter(videoAdapter);
         setListViewHeightBasedOnChildren(lv);
 
         final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(R.id.detail_fab_favourite);
-        if (isMovieInDB(movieModel.mId)) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
+        if (isMovieInDB(movieModel.getId())) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
         else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
         // TODO: 04.08.2017 refactor onClick for delete action
         fabFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int movieId = movieModel.mId;
+                int movieId = movieModel.getId();
                 boolean isMovieInDB = isMovieInDB(movieId);
                 if (!isMovieInDB) {
                     insertMovieToDB(movieId);
@@ -233,16 +236,16 @@ public class DetailedActivity extends AppCompatActivity {
         //inserting base movie info
         ContentValues movieValues = new ContentValues();
         movieValues.put(MoviesContract.MovieEntry._ID, id);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, movieModel.mTitle);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, movieModel.mTagline);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, movieModel.getTitle());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, movieModel.getTagline());
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         movieValues.put(MoviesContract.MovieEntry.COLUMN_POSTER,
                 Utility.drawableToByteArray(img.getDrawable()));
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, movieModel.mReleaseDate);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, movieModel.mRuntime);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, movieModel.mRating);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, movieModel.mPopularity);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, movieModel.mOverview);
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, movieModel.getReleaseDate());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, movieModel.getRuntime());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, movieModel.getRating());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, movieModel.getPopularity());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, movieModel.getOverview());
 
         getContentResolver().insert(
                 MoviesContract.MovieEntry.buildMovieUri(id),
@@ -250,12 +253,12 @@ public class DetailedActivity extends AppCompatActivity {
 
         //inserting comments
         Vector<ContentValues> commentValues = new Vector<>();
-        for (CommentModel commentModel : movieModel.mCommentModels) {
+        for (CommentModel commentModel : movieModel.getComments()) {
             ContentValues value = new ContentValues();
             value.put(MoviesContract.CommentEntry.COLUMN_MOVIE_KEY, id);
-            value.put(MoviesContract.CommentEntry.COLUMN_AUTHOR, commentModel.mAuthor);
-            value.put(MoviesContract.CommentEntry.COLUMN_CONTENT, commentModel.mContent);
-            value.put(MoviesContract.CommentEntry.COLUMN_URL, commentModel.mUrl);
+            value.put(MoviesContract.CommentEntry.COLUMN_AUTHOR, commentModel.getAuthor());
+            value.put(MoviesContract.CommentEntry.COLUMN_CONTENT, commentModel.getContent());
+            value.put(MoviesContract.CommentEntry.COLUMN_URL, commentModel.getUrl());
             commentValues.add(value);
         }
 
@@ -265,12 +268,12 @@ public class DetailedActivity extends AppCompatActivity {
 
         //inserting videos
         Vector<ContentValues> videoValues = new Vector<>();
-        for (VideoModel videoModel : movieModel.mYoutubeAdresses) {
+        for (VideoModel videoModel : movieModel.getVideos()) {
             ContentValues value = new ContentValues();
             value.put(MoviesContract.VideoEntry.COLUMN_MOVIE_KEY, id);
-            value.put(MoviesContract.VideoEntry.COLUMN_NAME, videoModel.mName);
-            value.put(MoviesContract.VideoEntry.COLUMN_PATH, videoModel.mPath);
-            value.put(MoviesContract.VideoEntry.COLUMN_TYPE, videoModel.mType);
+            value.put(MoviesContract.VideoEntry.COLUMN_NAME, videoModel.getName());
+            value.put(MoviesContract.VideoEntry.COLUMN_PATH, videoModel.getPath());
+            value.put(MoviesContract.VideoEntry.COLUMN_TYPE, videoModel.getType());
             videoValues.add(value);
         }
 

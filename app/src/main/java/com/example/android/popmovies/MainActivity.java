@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.android.popmovies.data.MoviesContract;
+import com.example.android.popmovies.model.MovieModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;

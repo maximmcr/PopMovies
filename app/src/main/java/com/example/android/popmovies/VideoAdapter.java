@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.example.android.popmovies.model.VideoModel;
+
 import java.util.ArrayList;
 
 /**
@@ -51,15 +53,15 @@ public class VideoAdapter extends ArrayAdapter<VideoModel> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.type.setText(videoModel.mType);
-        viewHolder.name.setText(videoModel.mName);
+        viewHolder.type.setText(videoModel.getType());
+        viewHolder.name.setText(videoModel.getName());
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (Utility.isOnline(mContext)) {
                     Uri uri = Uri.parse(YOUTUBE_REQUEST_BASE)
                             .buildUpon()
-                            .appendQueryParameter("v", videoModel.mPath)
+                            .appendQueryParameter("v", videoModel.getPath())
                             .build();
                     Intent playVideo = new Intent(Intent.ACTION_VIEW, uri);
                     if (playVideo.resolveActivity(mContext.getPackageManager()) != null) {

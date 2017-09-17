@@ -1,7 +1,9 @@
-package com.example.android.popmovies;
+package com.example.android.popmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Frei on 13.09.2017.
@@ -9,9 +11,12 @@ import android.os.Parcelable;
 
 public class VideoModel implements Parcelable {
 
-    String mPath;
-    String mName;
-    String mType;
+    @SerializedName("key")
+    private String mPath;
+    @SerializedName("name")
+    private String mName;
+    @SerializedName("type")
+    private String mType;
 
     public VideoModel(String path, String name, String type) {
         mName = name;
@@ -23,6 +28,30 @@ public class VideoModel implements Parcelable {
         mPath = in.readString();
         mName = in.readString();
         mType = in.readString();
+    }
+
+    public String getPath() {
+        return mPath;
+    }
+
+    public void setPath(String path) {
+        this.mPath = path;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public void setName(String name) {
+        this.mName = name;
+    }
+
+    public String getType() {
+        return mType;
+    }
+
+    public void setType(String type) {
+        this.mType = type;
     }
 
     public static final Creator<VideoModel> CREATOR = new Creator<VideoModel>() {
