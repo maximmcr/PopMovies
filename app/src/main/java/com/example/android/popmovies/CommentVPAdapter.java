@@ -24,7 +24,7 @@ import static com.example.android.popmovies.Utility.isOnline;
 public class CommentVPAdapter extends PagerAdapter {
 
     ArrayList<CommentModel> mCommentModel;
-    Context mContext;
+    private Context mContext;
 
     public CommentVPAdapter(Context context, ArrayList<CommentModel> commentModel) {
         mContext = context;

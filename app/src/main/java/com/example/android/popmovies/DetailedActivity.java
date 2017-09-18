@@ -5,10 +5,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ListViewCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,11 +36,17 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
+import butterknife.BindView;
+import butterknife.BindViews;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.example.android.popmovies.R.id.detail_fab_favourite;
 
 public class DetailedActivity extends AppCompatActivity {
 
@@ -89,29 +97,47 @@ public class DetailedActivity extends AppCompatActivity {
 
     private static final String SAVE_MOVIE_TAG = "movie";
 
-    private MovieModel movieModel;
+    private MovieModel mMovieModel;
 
-    private NestedScrollView scrollView;
+    @BindView(R.id.detail_scrollview) NestedScrollView scrollView;
+
+    @BindView(R.id.detail_image) ImageView mPoster;
+
+    @BindView(R.id.detail_title) TextView mTitle;
+    @BindView(R.id.detail_tagline) TextView mTagline;
+    @BindView(R.id.detail_date) TextView mReleaseDate;
+    @BindView(R.id.detail_runtime) TextView mRuntime;
+    @BindView(R.id.detail_popularity) TextView mPopularity;
+    @BindView(R.id.detail_rating) TextView mRating;
+    @BindView(R.id.detail_overview) TextView mOverview;
+
+    @BindView(R.id.detail_comment_viewpager) CommentViewPager mCommentViewPager;
+    @BindView(R.id.detail_video_listview) ListViewCompat mVideoListView;
+
+    // элементы, которые появляются при доступности раздела (обзоры или видео)
+    @BindViews({R.id.detail_review_header, R.id.detail_review_divider})
+    List<View> mReviewElements;
+    @BindViews({R.id.detail_video_header, R.id.detail_video_divider})
+    List<View> mVideoElements;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
+        ButterKnife.bind(this);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movie")) {
-            scrollView = (NestedScrollView) findViewById(R.id.detail_scrollview);
             String id = getIntent().getStringExtra("id");
             if (Utility.isOptionSaved(getApplicationContext())) {
                 getMovieFromDB(Long.parseLong(id));
-                initializeAndUpdateInfo();
+                updateInfoOnScreen();
             } else {
                 //new FetchDetailedMovieInfo().execute(id);
                 getMovie(id);
-                //initializeAndUpdateInfo();
             }
         }
         else {
-            movieModel = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
-            initializeAndUpdateInfo();
+            mMovieModel = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
+            updateInfoOnScreen();
         }
     }
 
@@ -120,66 +146,80 @@ public class DetailedActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    private void initializeAndUpdateInfo() {
-        ImageView img = (ImageView) findViewById(R.id.detail_image);
+    private void updateInfoOnScreen() {
+        updateMovieInfo();
+        updateCommentInfo();
+        updateVideoInfo();
+        initializeFAB();
+    }
+    private void updateMovieInfo() {
         if (Utility.isOptionSaved(getApplicationContext())) {
-            img.setImageBitmap(Utility.stringToBitmap(movieModel.getPosterPath()));
+            mPoster.setImageBitmap(Utility.stringToBitmap(mMovieModel.getPosterPath()));
         } else {
             Picasso.with(getApplicationContext())
-                    .load("http://image.tmdb.org/t/p/w342/" + movieModel.getPosterPath())
-                    .into(img);
+                    .load("http://image.tmdb.org/t/p/w342/" + mMovieModel.getPosterPath())
+                    .into(mPoster);
         }
-
-        TextView title = (TextView) findViewById(R.id.detail_title);
-        title.setText(movieModel.getTitle());
-
-        TextView tagline = (TextView) findViewById(R.id.detail_tagline);
-        tagline.setText(movieModel.getTitle());
-
-        TextView releaseDate = (TextView) findViewById(R.id.detail_date);
-        releaseDate.setText(getString(
+        mTitle.setText(mMovieModel.getTitle());
+        mTagline.setText(mMovieModel.getTitle());
+        mReleaseDate.setText(getString(
                 R.string.format_release_date,
-                Utility.formatDate(movieModel.getReleaseDate())));
-
-        TextView runtime = (TextView) findViewById(R.id.detail_runtime);
-        runtime.setText(getString(R.string.format_runtime, movieModel.getRuntime()));
-
-        TextView popularity = (TextView) findViewById(R.id.detail_popularity);
-        popularity.setText(getString(R.string.format_popular, movieModel.getPopularity()));
-
-        TextView rating = (TextView) findViewById(R.id.detail_rating);
-        rating.setText(getString(R.string.format_rating, movieModel.getRating()));
-
-        TextView overview = (TextView) findViewById(R.id.detail_overview);
-        overview.setText(movieModel.getOverview());
-
-        CommentViewPager vp = (CommentViewPager) findViewById(R.id.detail_comment_viewpager);
-        CommentVPAdapter vpAdapter =
-                new CommentVPAdapter(getApplicationContext(), movieModel.getComments());
-        vp.setAdapter(vpAdapter);
-
-
-        ListView lv = (ListView) findViewById(R.id.detail_video_listview);
-        VideoAdapter videoAdapter =
-                new VideoAdapter(getApplicationContext(), movieModel.getVideos());
-        lv.setAdapter(videoAdapter);
-        setListViewHeightBasedOnChildren(lv);
-
-        final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(R.id.detail_fab_favourite);
-        if (isMovieInDB(movieModel.getId())) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
+                Utility.formatDate(mMovieModel.getReleaseDate())));
+        mRuntime.setText(getString(R.string.format_runtime, mMovieModel.getRuntime()));
+        mPopularity.setText(getString(R.string.format_popular, mMovieModel.getPopularity()));
+        mRating.setText(getString(R.string.format_rating, mMovieModel.getRating()));
+        mOverview.setText(mMovieModel.getOverview());
+    }
+    private void updateCommentInfo() {
+        if (mCommentViewPager.getAdapter() == null) {
+            mCommentViewPager.setAdapter(new CommentVPAdapter(getApplicationContext(), mMovieModel.getComments()));
+        } else {
+            CommentVPAdapter ca = (CommentVPAdapter) mCommentViewPager.getAdapter();
+            ca.mCommentModel.clear();
+            ca.mCommentModel.addAll(mMovieModel.getComments());
+            ca.notifyDataSetChanged();
+        }
+        if (mCommentViewPager.getAdapter().getCount() == 0 ||
+                mCommentViewPager.getAdapter() == null) {
+//            findViewById(R.id.detail_review_header).setVisibility(View.GONE);
+//            findViewById(R.id.detail_review_divider).setVisibility(View.GONE);
+            ButterKnife.apply(mReviewElements, GONE);
+        }
+    }
+    private void updateVideoInfo() {
+        if (mVideoListView.getAdapter() == null)
+        {
+            mVideoListView.setAdapter(new VideoAdapter(getApplicationContext(), mMovieModel.getVideos()));
+            setListViewHeightBasedOnChildren(mVideoListView);
+        } else {
+            VideoAdapter va = (VideoAdapter) mVideoListView.getAdapter();
+            va.clear();
+            va.addAll(mMovieModel.getVideos());
+            va.notifyDataSetChanged();
+        }
+        if (mVideoListView.getAdapter().getCount() == 0 ||
+                mVideoListView.getAdapter() == null) {
+//            findViewById(R.id.detail_video_header).setVisibility(View.GONE);
+//            findViewById(R.id.detail_video_divider).setVisibility(View.GONE);
+            ButterKnife.apply(mVideoElements, GONE);
+        }
+    }
+    private void initializeFAB() {
+        final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(detail_fab_favourite);
+        if (isMovieInDB(mMovieModel.getId())) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
         else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
         // TODO: 04.08.2017 refactor onClick for delete action
         fabFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int movieId = movieModel.getId();
+                int movieId = mMovieModel.getId();
                 boolean isMovieInDB = isMovieInDB(movieId);
                 if (!isMovieInDB) {
                     insertMovieToDB(movieId);
                     fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
                     Snackbar.make(findViewById(R.id.activity_detailed),
                             R.string.snackbar_movie_added, Snackbar.LENGTH_SHORT)
-                    .show();
+                            .show();
                 } else {
                     deleteMovieFromDB(movieId);
                     if (Utility.isOptionSaved(getApplicationContext())) {
@@ -189,19 +229,10 @@ public class DetailedActivity extends AppCompatActivity {
                     fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
                     Snackbar.make(findViewById(R.id.activity_detailed),
                             R.string.snackbar_movie_removed, Snackbar.LENGTH_SHORT)
-                    .show();
+                            .show();
                 }
             }
         });
-
-        if (vpAdapter.getCount() == 0 || vpAdapter == null) {
-            findViewById(R.id.detail_review_header).setVisibility(View.GONE);
-            findViewById(R.id.detail_review_divider).setVisibility(View.GONE);
-        }
-        if (videoAdapter.getCount() == 0 || videoAdapter == null) {
-            findViewById(R.id.detail_video_header).setVisibility(View.GONE);
-            findViewById(R.id.detail_video_divider).setVisibility(View.GONE);
-        }
     }
     private void setListViewHeightBasedOnChildren(ListView lv) {
         ListAdapter adapter = lv.getAdapter();
@@ -241,50 +272,54 @@ public class DetailedActivity extends AppCompatActivity {
         //inserting base movie info
         ContentValues movieValues = new ContentValues();
         movieValues.put(MoviesContract.MovieEntry._ID, id);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, movieModel.getTitle());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, movieModel.getTagline());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, mMovieModel.getTitle());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, mMovieModel.getTagline());
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         movieValues.put(MoviesContract.MovieEntry.COLUMN_POSTER,
                 Utility.drawableToByteArray(img.getDrawable()));
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, movieModel.getReleaseDate());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, movieModel.getRuntime());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, movieModel.getRating());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, movieModel.getPopularity());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, movieModel.getOverview());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, mMovieModel.getReleaseDate());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, mMovieModel.getRuntime());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, mMovieModel.getRating());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, mMovieModel.getPopularity());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, mMovieModel.getOverview());
 
         getContentResolver().insert(
                 MoviesContract.MovieEntry.buildMovieUri(id),
                 movieValues);
 
         //inserting comments
-        Vector<ContentValues> commentValues = new Vector<>();
-        for (CommentModel commentModel : movieModel.getComments()) {
-            ContentValues value = new ContentValues();
-            value.put(MoviesContract.CommentEntry.COLUMN_MOVIE_KEY, id);
-            value.put(MoviesContract.CommentEntry.COLUMN_AUTHOR, commentModel.getAuthor());
-            value.put(MoviesContract.CommentEntry.COLUMN_CONTENT, commentModel.getContent());
-            value.put(MoviesContract.CommentEntry.COLUMN_URL, commentModel.getUrl());
-            commentValues.add(value);
-        }
+        if (mMovieModel.getComments() != null) {
+            Vector<ContentValues> commentValues = new Vector<>();
+            for (CommentModel commentModel : mMovieModel.getComments()) {
+                ContentValues value = new ContentValues();
+                value.put(MoviesContract.CommentEntry.COLUMN_MOVIE_KEY, id);
+                value.put(MoviesContract.CommentEntry.COLUMN_AUTHOR, commentModel.getAuthor());
+                value.put(MoviesContract.CommentEntry.COLUMN_CONTENT, commentModel.getContent());
+                value.put(MoviesContract.CommentEntry.COLUMN_URL, commentModel.getUrl());
+                commentValues.add(value);
+            }
 
-        getContentResolver().bulkInsert(
-                MoviesContract.CommentEntry.buildMovieUri(id),
-                commentValues.toArray(new ContentValues[commentValues.size()]));
+            getContentResolver().bulkInsert(
+                    MoviesContract.CommentEntry.buildMovieUri(id),
+                    commentValues.toArray(new ContentValues[commentValues.size()]));
+        }
 
         //inserting videos
-        Vector<ContentValues> videoValues = new Vector<>();
-        for (VideoModel videoModel : movieModel.getVideos()) {
-            ContentValues value = new ContentValues();
-            value.put(MoviesContract.VideoEntry.COLUMN_MOVIE_KEY, id);
-            value.put(MoviesContract.VideoEntry.COLUMN_NAME, videoModel.getName());
-            value.put(MoviesContract.VideoEntry.COLUMN_PATH, videoModel.getPath());
-            value.put(MoviesContract.VideoEntry.COLUMN_TYPE, videoModel.getType());
-            videoValues.add(value);
-        }
+        if (mMovieModel.getVideos() != null) {
+            Vector<ContentValues> videoValues = new Vector<>();
+            for (VideoModel videoModel : mMovieModel.getVideos()) {
+                ContentValues value = new ContentValues();
+                value.put(MoviesContract.VideoEntry.COLUMN_MOVIE_KEY, id);
+                value.put(MoviesContract.VideoEntry.COLUMN_NAME, videoModel.getName());
+                value.put(MoviesContract.VideoEntry.COLUMN_PATH, videoModel.getPath());
+                value.put(MoviesContract.VideoEntry.COLUMN_TYPE, videoModel.getType());
+                videoValues.add(value);
+            }
 
-        getContentResolver().bulkInsert(
-                MoviesContract.VideoEntry.buildMovieUri(id),
-                videoValues.toArray(new ContentValues[videoValues.size()]));
+            getContentResolver().bulkInsert(
+                    MoviesContract.VideoEntry.buildMovieUri(id),
+                    videoValues.toArray(new ContentValues[videoValues.size()]));
+        }
     }
     private void deleteMovieFromDB(long id) {
         int count = getContentResolver().delete(
@@ -302,19 +337,22 @@ public class DetailedActivity extends AppCompatActivity {
                 null,
                 null
         );
-        commentCursor.moveToFirst();
         ArrayList<CommentModel> commentModels = new ArrayList<>();
-        for (int i = 0; i < commentCursor.getCount(); i++) {
-            String author = commentCursor.getString(COLUMN_COMMENT_AUTHOR);
-            String content = commentCursor.getString(COLUMN_COMMENT_CONTENT);
-            String url = commentCursor.getString(COLUMN_COMMENT_URL);
-            CommentModel commentModel = new CommentModel(
-                    author,
-                    content,
-                    url
-            );
-            commentModels.add(commentModel);
-            commentCursor.moveToNext();
+        if (commentCursor.getCount() > 0)
+        {
+            commentCursor.moveToFirst();
+            for (int i = 0; i < commentCursor.getCount(); i++) {
+                String author = commentCursor.getString(COLUMN_COMMENT_AUTHOR);
+                String content = commentCursor.getString(COLUMN_COMMENT_CONTENT);
+                String url = commentCursor.getString(COLUMN_COMMENT_URL);
+                CommentModel commentModel = new CommentModel(
+                        author,
+                        content,
+                        url
+                );
+                commentModels.add(commentModel);
+                commentCursor.moveToNext();
+            }
         }
         commentCursor.close();
 
@@ -325,19 +363,21 @@ public class DetailedActivity extends AppCompatActivity {
                 null,
                 null
         );
-        videoCursor.moveToFirst();
         ArrayList<VideoModel> videoModels = new ArrayList<>();
-        for (int i = 0; i < videoCursor.getCount(); i++) {
-            String path = videoCursor.getString(COLUMN_VIDEO_PATH);
-            String name = videoCursor.getString(COLUMN_VIDEO_NAME);
-            String type = videoCursor.getString(COLUMN_VIDEO_TYPE);
-            VideoModel videoModel = new VideoModel(
-                    path,
-                    name,
-                    type
-            );
-            videoModels.add(videoModel);
-            videoCursor.moveToNext();
+        if (videoCursor.getCount() > 0) {
+            videoCursor.moveToFirst();
+            for (int i = 0; i < videoCursor.getCount(); i++) {
+                String path = videoCursor.getString(COLUMN_VIDEO_PATH);
+                String name = videoCursor.getString(COLUMN_VIDEO_NAME);
+                String type = videoCursor.getString(COLUMN_VIDEO_TYPE);
+                VideoModel videoModel = new VideoModel(
+                        path,
+                        name,
+                        type
+                );
+                videoModels.add(videoModel);
+                videoCursor.moveToNext();
+            }
         }
         videoCursor.close();
 
@@ -350,7 +390,7 @@ public class DetailedActivity extends AppCompatActivity {
         );
         movieCursor.moveToFirst();
 
-        movieModel = new MovieModel(
+        mMovieModel = new MovieModel(
                 movieCursor.getInt(COLUMN_MOVIE_ID),
                 movieCursor.getString(COLUMN_MOVIE_TITLE),
                 movieCursor.getString(COLUMN_MOVIE_TAGLINE),
@@ -363,28 +403,31 @@ public class DetailedActivity extends AppCompatActivity {
                 commentModels,
                 videoModels
         );
-
         movieCursor.close();
-
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(SAVE_MOVIE_TAG, movieModel);
+        outState.putParcelable(SAVE_MOVIE_TAG, mMovieModel);
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        //movieModel = savedInstanceState.getParcelable("movie");
+        //mMovieModel = savedInstanceState.getParcelable("movie");
     }
 
+    // TODO: 18.09.2017 fix bug: NullPointerException appear sometimes 
     private void getMovie(String id) {
         final String API_KEY = BuildConfig.API_KEY_TMDB;
         PopMoviesApplication.getTmdbApi().getMovie(id, API_KEY).enqueue(new Callback<MovieModel>() {
             @Override
             public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
-                movieModel = response.body();
+                if (response.isSuccessful()) {
+                    mMovieModel = response.body();
+                    updateMovieInfo();
+                    initializeFAB();
+                }
             }
 
             @Override
@@ -395,7 +438,10 @@ public class DetailedActivity extends AppCompatActivity {
         PopMoviesApplication.getTmdbApi().getReviewList(id, API_KEY).enqueue(new Callback<CommentModel.Response>() {
             @Override
             public void onResponse(Call<CommentModel.Response> call, Response<CommentModel.Response> response) {
-                movieModel.setComments(response.body().comments);
+                if (response.isSuccessful()) {
+                    mMovieModel.setComments(response.body().comments);
+                    updateCommentInfo();
+                }
             }
 
             @Override
@@ -406,7 +452,10 @@ public class DetailedActivity extends AppCompatActivity {
         PopMoviesApplication.getTmdbApi().getVideoList(id, API_KEY).enqueue(new Callback<VideoModel.Response>() {
             @Override
             public void onResponse(Call<VideoModel.Response> call, Response<VideoModel.Response> response) {
-                movieModel.setVideos(response.body().videos);
+                if (response.isSuccessful()) {
+                    mMovieModel.setVideos(response.body().videos);
+                    updateVideoInfo();
+                }
             }
 
             @Override
@@ -414,7 +463,6 @@ public class DetailedActivity extends AppCompatActivity {
 
             }
         });
-        //initializeAndUpdateInfo();
     }
 
     private class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
@@ -533,7 +581,7 @@ public class DetailedActivity extends AppCompatActivity {
                     youtubeAdresses.add(videoModel);
                 }
 
-                movieModel = new MovieModel(
+                mMovieModel = new MovieModel(
                         movie.getInt("id"),
                         movie.getString("title"),
                         movie.getString("tagline"),
@@ -548,7 +596,7 @@ public class DetailedActivity extends AppCompatActivity {
                         );
 
                 Log.i("onPostExecute", movie.getString("tagline"));
-                initializeAndUpdateInfo();
+                updateInfoOnScreen();
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -559,4 +607,11 @@ public class DetailedActivity extends AppCompatActivity {
     interface CallbackMovieRemoved {
         void removeMovie(int id);
     }
+
+    static final ButterKnife.Action<View> GONE = new ButterKnife.Action<View>() {
+        @Override
+        public void apply(@NonNull View view, int index) {
+            view.setVisibility(View.GONE);
+        }
+    };
 }
