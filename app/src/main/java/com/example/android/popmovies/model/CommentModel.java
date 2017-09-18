@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 /**
  * Created by Frei on 13.09.2017.
  */
@@ -76,4 +78,9 @@ public class CommentModel implements Parcelable {
             return new CommentModel[size];
         }
     };
+
+    public static final class Response {
+        @SerializedName("results")
+        public ArrayList<CommentModel> comments = new ArrayList<>();
+    }
 }

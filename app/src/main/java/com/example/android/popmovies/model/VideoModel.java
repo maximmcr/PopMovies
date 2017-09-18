@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 /**
  * Created by Frei on 13.09.2017.
  */
@@ -76,5 +78,10 @@ public class VideoModel implements Parcelable {
         dest.writeString(mPath);
         dest.writeString(mName);
         dest.writeString(mType);
+    }
+
+    public static final class Response {
+        @SerializedName("results")
+        public ArrayList<VideoModel> videos = new ArrayList<>();
     }
 }

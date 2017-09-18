@@ -36,6 +36,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class DetailedActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = DetailedActivity.class.getSimpleName();
@@ -84,7 +88,6 @@ public class DetailedActivity extends AppCompatActivity {
     private static final int COLUMN_VIDEO_TYPE = 3;
 
     private static final String SAVE_MOVIE_TAG = "movie";
-    private static final String SAVE_SCROLLVIEW_TAG = "scrollview";
 
     private MovieModel movieModel;
 
@@ -98,10 +101,12 @@ public class DetailedActivity extends AppCompatActivity {
             scrollView = (NestedScrollView) findViewById(R.id.detail_scrollview);
             String id = getIntent().getStringExtra("id");
             if (Utility.isOptionSaved(getApplicationContext())) {
-                fetchMovieInfoFromDB(Long.parseLong(id));
+                getMovieFromDB(Long.parseLong(id));
                 initializeAndUpdateInfo();
             } else {
-                new FetchDetailedMovieInfo().execute(id);
+                //new FetchDetailedMovieInfo().execute(id);
+                getMovie(id);
+                //initializeAndUpdateInfo();
             }
         }
         else {
@@ -288,7 +293,7 @@ public class DetailedActivity extends AppCompatActivity {
                 null);
         Log.d(LOG_TAG, "Deleted " + count + "rows from db");
     }
-    private void fetchMovieInfoFromDB(long id) {
+    private void getMovieFromDB(long id) {
 
         Cursor commentCursor = getContentResolver().query(
                 MoviesContract.CommentEntry.buildMovieUri(id),
@@ -372,6 +377,44 @@ public class DetailedActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         //movieModel = savedInstanceState.getParcelable("movie");
+    }
+
+    private void getMovie(String id) {
+        final String API_KEY = BuildConfig.API_KEY_TMDB;
+        PopMoviesApplication.getTmdbApi().getMovie(id, API_KEY).enqueue(new Callback<MovieModel>() {
+            @Override
+            public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
+                movieModel = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<MovieModel> call, Throwable t) {
+
+            }
+        });
+        PopMoviesApplication.getTmdbApi().getReviewList(id, API_KEY).enqueue(new Callback<CommentModel.Response>() {
+            @Override
+            public void onResponse(Call<CommentModel.Response> call, Response<CommentModel.Response> response) {
+                movieModel.setComments(response.body().comments);
+            }
+
+            @Override
+            public void onFailure(Call<CommentModel.Response> call, Throwable t) {
+
+            }
+        });
+        PopMoviesApplication.getTmdbApi().getVideoList(id, API_KEY).enqueue(new Callback<VideoModel.Response>() {
+            @Override
+            public void onResponse(Call<VideoModel.Response> call, Response<VideoModel.Response> response) {
+                movieModel.setVideos(response.body().videos);
+            }
+
+            @Override
+            public void onFailure(Call<VideoModel.Response> call, Throwable t) {
+
+            }
+        });
+        //initializeAndUpdateInfo();
     }
 
     private class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
