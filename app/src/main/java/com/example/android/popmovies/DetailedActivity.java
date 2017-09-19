@@ -99,20 +99,31 @@ public class DetailedActivity extends AppCompatActivity {
 
     private MovieModel mMovieModel;
 
-    @BindView(R.id.detail_scrollview) NestedScrollView scrollView;
+    @BindView(R.id.detail_scrollview)
+    NestedScrollView scrollView;
 
-    @BindView(R.id.detail_image) ImageView mPoster;
+    @BindView(R.id.detail_image)
+    ImageView mPoster;
 
-    @BindView(R.id.detail_title) TextView mTitle;
-    @BindView(R.id.detail_tagline) TextView mTagline;
-    @BindView(R.id.detail_date) TextView mReleaseDate;
-    @BindView(R.id.detail_runtime) TextView mRuntime;
-    @BindView(R.id.detail_popularity) TextView mPopularity;
-    @BindView(R.id.detail_rating) TextView mRating;
-    @BindView(R.id.detail_overview) TextView mOverview;
+    @BindView(R.id.detail_title)
+    TextView mTitle;
+    @BindView(R.id.detail_tagline)
+    TextView mTagline;
+    @BindView(R.id.detail_date)
+    TextView mReleaseDate;
+    @BindView(R.id.detail_runtime)
+    TextView mRuntime;
+    @BindView(R.id.detail_popularity)
+    TextView mPopularity;
+    @BindView(R.id.detail_rating)
+    TextView mRating;
+    @BindView(R.id.detail_overview)
+    TextView mOverview;
 
-    @BindView(R.id.detail_comment_viewpager) CommentViewPager mCommentViewPager;
-    @BindView(R.id.detail_video_listview) ListViewCompat mVideoListView;
+    @BindView(R.id.detail_comment_viewpager)
+    CommentViewPager mCommentViewPager;
+    @BindView(R.id.detail_video_listview)
+    ListViewCompat mVideoListView;
 
     // элементы, которые появляются при доступности раздела (обзоры или видео)
     @BindViews({R.id.detail_review_header, R.id.detail_review_divider})
@@ -134,8 +145,7 @@ public class DetailedActivity extends AppCompatActivity {
                 //new FetchDetailedMovieInfo().execute(id);
                 getMovie(id);
             }
-        }
-        else {
+        } else {
             mMovieModel = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
             updateInfoOnScreen();
         }
@@ -152,12 +162,13 @@ public class DetailedActivity extends AppCompatActivity {
         updateVideoInfo();
         initializeFAB();
     }
+
     private void updateMovieInfo() {
         if (Utility.isOptionSaved(getApplicationContext())) {
             mPoster.setImageBitmap(Utility.stringToBitmap(mMovieModel.getPosterPath()));
         } else {
             Picasso.with(getApplicationContext())
-                    .load("http://image.tmdb.org/t/p/w342/" + mMovieModel.getPosterPath())
+                    .load("http://image.tmdb.org/t/p/w185/" + mMovieModel.getPosterPath())
                     .into(mPoster);
         }
         mTitle.setText(mMovieModel.getTitle());
@@ -170,6 +181,7 @@ public class DetailedActivity extends AppCompatActivity {
         mRating.setText(getString(R.string.format_rating, mMovieModel.getRating()));
         mOverview.setText(mMovieModel.getOverview());
     }
+
     private void updateCommentInfo() {
         if (mCommentViewPager.getAdapter() == null) {
             mCommentViewPager.setAdapter(new CommentVPAdapter(getApplicationContext(), mMovieModel.getComments()));
@@ -186,9 +198,9 @@ public class DetailedActivity extends AppCompatActivity {
             ButterKnife.apply(mReviewElements, GONE);
         }
     }
+
     private void updateVideoInfo() {
-        if (mVideoListView.getAdapter() == null)
-        {
+        if (mVideoListView.getAdapter() == null) {
             mVideoListView.setAdapter(new VideoAdapter(getApplicationContext(), mMovieModel.getVideos()));
             setListViewHeightBasedOnChildren(mVideoListView);
         } else {
@@ -204,9 +216,11 @@ public class DetailedActivity extends AppCompatActivity {
             ButterKnife.apply(mVideoElements, GONE);
         }
     }
+
     private void initializeFAB() {
         final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(detail_fab_favourite);
-        if (isMovieInDB(mMovieModel.getId())) fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
+        if (isMovieInDB(mMovieModel.getId()))
+            fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
         else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
         // TODO: 04.08.2017 refactor onClick for delete action
         fabFavourites.setOnClickListener(new View.OnClickListener() {
@@ -234,6 +248,7 @@ public class DetailedActivity extends AppCompatActivity {
             }
         });
     }
+
     private void setListViewHeightBasedOnChildren(ListView lv) {
         ListAdapter adapter = lv.getAdapter();
         if (adapter == null) {
@@ -268,6 +283,7 @@ public class DetailedActivity extends AppCompatActivity {
         cursor.close();
         return result;
     }
+
     private void insertMovieToDB(long id) {
         //inserting base movie info
         ContentValues movieValues = new ContentValues();
@@ -321,6 +337,7 @@ public class DetailedActivity extends AppCompatActivity {
                     videoValues.toArray(new ContentValues[videoValues.size()]));
         }
     }
+
     private void deleteMovieFromDB(long id) {
         int count = getContentResolver().delete(
                 MoviesContract.MovieEntry.buildMovieUri(id),
@@ -328,6 +345,7 @@ public class DetailedActivity extends AppCompatActivity {
                 null);
         Log.d(LOG_TAG, "Deleted " + count + "rows from db");
     }
+
     private void getMovieFromDB(long id) {
 
         Cursor commentCursor = getContentResolver().query(
@@ -338,8 +356,7 @@ public class DetailedActivity extends AppCompatActivity {
                 null
         );
         ArrayList<CommentModel> commentModels = new ArrayList<>();
-        if (commentCursor.getCount() > 0)
-        {
+        if (commentCursor.getCount() > 0) {
             commentCursor.moveToFirst();
             for (int i = 0; i < commentCursor.getCount(); i++) {
                 String author = commentCursor.getString(COLUMN_COMMENT_AUTHOR);
@@ -411,20 +428,21 @@ public class DetailedActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putParcelable(SAVE_MOVIE_TAG, mMovieModel);
     }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         //mMovieModel = savedInstanceState.getParcelable("movie");
     }
 
-    // TODO: 18.09.2017 fix bug: NullPointerException appear sometimes 
     private void getMovie(String id) {
         final String API_KEY = BuildConfig.API_KEY_TMDB;
+        mMovieModel = new MovieModel();
         PopMoviesApplication.getTmdbApi().getMovie(id, API_KEY).enqueue(new Callback<MovieModel>() {
             @Override
             public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
                 if (response.isSuccessful()) {
-                    mMovieModel = response.body();
+                    mMovieModel.fetchBaseInfo(response.body());
                     updateMovieInfo();
                     initializeFAB();
                 }
@@ -468,6 +486,7 @@ public class DetailedActivity extends AppCompatActivity {
     private class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
 
         private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
+
         @Override
         protected String[] doInBackground(String... params) {
             final String API_KEY = BuildConfig.API_KEY_TMDB;
@@ -593,9 +612,8 @@ public class DetailedActivity extends AppCompatActivity {
                         movie.getString("overview"),
                         commentModels,
                         youtubeAdresses
-                        );
+                );
 
-                Log.i("onPostExecute", movie.getString("tagline"));
                 updateInfoOnScreen();
 
             } catch (JSONException e) {

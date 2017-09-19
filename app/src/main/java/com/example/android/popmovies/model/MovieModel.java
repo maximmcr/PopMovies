@@ -63,6 +63,10 @@ public class MovieModel implements Parcelable {
         this.mPosterPath = posterId;
         this.mId = id;
     }
+    public MovieModel() {
+        mComments = new ArrayList<>();
+        mYoutubeAddresses = new ArrayList<>();
+    }
     private MovieModel(Parcel in) {
         mId = in.readInt();
         mTitle = in.readString();
@@ -155,6 +159,17 @@ public class MovieModel implements Parcelable {
         mYoutubeAddresses = videos;
     }
 
+    public void fetchBaseInfo (MovieModel movie) {
+        mId = movie.mId;
+        mTitle = movie.mTitle;
+        mTagline = movie.mTagline;
+        mPosterPath = movie.mPosterPath;
+        mReleaseDate = movie.mReleaseDate;
+        mRuntime = movie.mRuntime;
+        mRating = movie.mRating;
+        mPopularity = movie.mPopularity;
+        mOverview = movie.mOverview;
+    }
 
     @Override
     public int describeContents() {
