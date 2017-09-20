@@ -3,7 +3,6 @@ package com.example.android.popmovies;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -25,16 +24,6 @@ import com.example.android.popmovies.model.MovieModel;
 import com.example.android.popmovies.model.VideoModel;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -104,7 +93,6 @@ public class DetailedActivity extends AppCompatActivity {
 
     @BindView(R.id.detail_image)
     ImageView mPoster;
-
     @BindView(R.id.detail_title)
     TextView mTitle;
     @BindView(R.id.detail_tagline)
@@ -142,7 +130,6 @@ public class DetailedActivity extends AppCompatActivity {
                 getMovieFromDB(Long.parseLong(id));
                 updateInfoOnScreen();
             } else {
-                //new FetchDetailedMovieInfo().execute(id);
                 getMovie(id);
             }
         } else {
@@ -211,8 +198,6 @@ public class DetailedActivity extends AppCompatActivity {
         }
         if (mVideoListView.getAdapter().getCount() == 0 ||
                 mVideoListView.getAdapter() == null) {
-//            findViewById(R.id.detail_video_header).setVisibility(View.GONE);
-//            findViewById(R.id.detail_video_divider).setVisibility(View.GONE);
             ButterKnife.apply(mVideoElements, GONE);
         }
     }
@@ -432,7 +417,6 @@ public class DetailedActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        //mMovieModel = savedInstanceState.getParcelable("movie");
     }
 
     private void getMovie(String id) {
@@ -481,145 +465,6 @@ public class DetailedActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private class FetchDetailedMovieInfo extends AsyncTask<String, Void, String[]> {
-
-        private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
-
-        @Override
-        protected String[] doInBackground(String... params) {
-            final String API_KEY = BuildConfig.API_KEY_TMDB;
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String[] jsonData = null;
-            try {
-                jsonData = new String[3];
-
-                //Request for movie's details
-                Uri request = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
-                        .appendPath(params[0])
-                        .appendQueryParameter("api_key", API_KEY)
-                        .build();
-                URL url = new URL(request.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                InputStream stream = urlConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                jsonData[0] = reader.readLine();
-
-                urlConnection.disconnect();
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                //Request for movie's reviews
-                request = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
-                        .appendPath(params[0])
-                        .appendPath("reviews")
-                        .appendQueryParameter("api_key", API_KEY)
-                        .build();
-                url = new URL(request.toString());
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                stream = urlConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                jsonData[1] = reader.readLine();
-
-                urlConnection.disconnect();
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                //Request for movie's video materials(trailers, teasers etc.)
-                request = Uri.parse(TMDB_REQUEST_BASE).buildUpon()
-                        .appendPath(params[0])
-                        .appendPath("videos")
-                        .appendQueryParameter("api_key", API_KEY)
-                        .build();
-                url = new URL(request.toString());
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                stream = urlConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                jsonData[2] = reader.readLine();
-            } catch (IOException e) {
-                Log.e(DetailedActivity.class.getSimpleName(), "Class haven't get info", e);
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return jsonData;
-        }
-
-        @Override
-        protected void onPostExecute(String s[]) {
-            super.onPostExecute(s);
-            try {
-                JSONObject movie = new JSONObject(s[0]);
-
-                JSONArray jComments = new JSONObject(s[1]).getJSONArray("results");
-                ArrayList<CommentModel> commentModels = new ArrayList<>();
-                for (int i = 0; i < jComments.length(); i++) {
-                    JSONObject obj = jComments.getJSONObject(i);
-                    CommentModel commentModel = new CommentModel(
-                            obj.getString("author"),
-                            obj.getString("content"),
-                            obj.getString("url")
-                    );
-                    commentModels.add(commentModel);
-                }
-
-                ArrayList<VideoModel> youtubeAdresses = new ArrayList<>();
-                JSONArray jVideos = new JSONObject(s[2]).getJSONArray("results");
-                for (int i = 0; i < jVideos.length(); i++) {
-                    JSONObject obj = jVideos.getJSONObject(i);
-                    VideoModel videoModel = new VideoModel(
-                            obj.getString("key"),
-                            obj.getString("name"),
-                            obj.getString("type")
-                    );
-                    youtubeAdresses.add(videoModel);
-                }
-
-                mMovieModel = new MovieModel(
-                        movie.getInt("id"),
-                        movie.getString("title"),
-                        movie.getString("tagline"),
-                        movie.getString("poster_path"),
-                        movie.getString("release_date"),
-                        movie.getInt("runtime"),
-                        movie.getDouble("vote_average"),
-                        movie.getDouble("popularity"),
-                        movie.getString("overview"),
-                        commentModels,
-                        youtubeAdresses
-                );
-
-                updateInfoOnScreen();
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     interface CallbackMovieRemoved {

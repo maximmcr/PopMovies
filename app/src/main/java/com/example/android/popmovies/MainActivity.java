@@ -18,6 +18,8 @@ import com.example.android.popmovies.model.MovieModel;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     static MovieInfoAdapter mMovieInfoAdapter;
     private ArrayList<MovieModel> mMovies;
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.activity_main)
+    RecyclerView mRecyclerView;
 
     private String mSortingType;
 
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(LOG_TAG, "onCreate");
+        ButterKnife.bind(this);
         if (savedInstanceState != null) {
             mMovies = savedInstanceState.getParcelableArrayList(SAVED_MOVIE_TAG);
             mMovieInfoAdapter = new MovieInfoAdapter(mMovies, this);
@@ -59,17 +62,10 @@ public class MainActivity extends AppCompatActivity {
                     .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
             updateMovieInfo();
         }
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.activity_main);
         mRecyclerView.setLayoutManager(new WrappedGLM(getApplicationContext(), 2));
         mRecyclerView.setAdapter(mMovieInfoAdapter);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(LOG_TAG, "onStart");
-    }
     @Override
     public void onResume() {
         super.onResume();
@@ -91,18 +87,13 @@ public class MainActivity extends AppCompatActivity {
         outState.putParcelableArrayList(SAVED_MOVIE_TAG, mMovies);
         outState.putString(SAVED_SORTING_TAG, mSortingType);
     }
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.d(LOG_TAG, "onRestoreInstanceState");
-        //mMovies = savedInstanceState.getParcelableArrayList("mMovies");
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
@@ -112,8 +103,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ArrayList<MovieModel> getMovieListFromDB() {
-        Log.d(LOG_TAG, "query to db started");
-
         Cursor c = getContentResolver().query(
                 MoviesContract.MovieEntry.CONTENT_URI,
                 MOVIE_COLUMNS,
@@ -121,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 null
         );
-        
+
         ArrayList<MovieModel> result = new ArrayList<>();
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
@@ -130,16 +119,15 @@ public class MainActivity extends AppCompatActivity {
             result.add(new MovieModel(poster, id));
             c.moveToNext();
         }
-
-        Log.d(LOG_TAG, "query to db ended");
         return result;
     }
 
     private void updateMovieInfo() {
+        mMovies.clear();
         if (Utility.isOptionSaved(this)) {
-            mMovieInfoAdapter.addAll(getMovieListFromDB());
+            mMovies.addAll(getMovieListFromDB());
+            mMovieInfoAdapter.notifyDataSetChanged();
         } else if (Utility.isOnline(this)) {
-            //new FetchMovieInfo().execute(mSortingType);
             getMovieList(mSortingType);
         } else {
             Snackbar.make(findViewById(R.id.activity_main), R.string.snackbar_no_internet, Snackbar.LENGTH_LONG)
@@ -155,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<MovieModel.Response> call, Response<MovieModel.Response> response) {
                         mMovies.addAll(response.body().movies);
-                        mRecyclerView.getAdapter().notifyDataSetChanged();
+                        mMovieInfoAdapter.notifyDataSetChanged();
                     }
 
                     @Override
