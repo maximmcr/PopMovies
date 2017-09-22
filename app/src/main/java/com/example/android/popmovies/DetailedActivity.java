@@ -119,6 +119,7 @@ public class DetailedActivity extends AppCompatActivity {
     @BindViews({R.id.detail_video_header, R.id.detail_video_divider})
     List<View> mVideoElements;
 
+    // TODO: 21.09.2017 hide button before all data will be loaded
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -180,8 +181,6 @@ public class DetailedActivity extends AppCompatActivity {
         }
         if (mCommentViewPager.getAdapter().getCount() == 0 ||
                 mCommentViewPager.getAdapter() == null) {
-//            findViewById(R.id.detail_review_header).setVisibility(View.GONE);
-//            findViewById(R.id.detail_review_divider).setVisibility(View.GONE);
             ButterKnife.apply(mReviewElements, GONE);
         }
     }
@@ -406,6 +405,20 @@ public class DetailedActivity extends AppCompatActivity {
                 videoModels
         );
         movieCursor.close();
+    }
+
+    private String getPosterFromDB (long id) {
+        final String[] COLUMN_POSTER = {MoviesContract.MovieEntry.COLUMN_POSTER };
+        final int COLUMN_MOVIE_POSTER = 0;
+        Cursor movieCursor = getContentResolver().query(
+                MoviesContract.MovieEntry.buildMovieUri(id),
+                COLUMN_POSTER,
+                null,
+                null,
+                null
+        );
+        movieCursor.moveToFirst();
+        return Utility.byteArrayToString(movieCursor.getBlob(COLUMN_MOVIE_POSTER));
     }
 
     @Override

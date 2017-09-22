@@ -44,12 +44,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVED_MOVIE_TAG = "mMovies";
     private static final String SAVED_SORTING_TAG = "sorting";
 
+    // TODO: 21.09.2017 add loading circle to show data is loading
+    // TODO: 21.09.2017 add ability to refresh page 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(SAVED_MOVIE_TAG)) {
             mMovies = savedInstanceState.getParcelableArrayList(SAVED_MOVIE_TAG);
             mMovieInfoAdapter = new MovieInfoAdapter(mMovies, this);
             mSortingType = savedInstanceState.getString(SAVED_SORTING_TAG);
@@ -75,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
                 .getString(getString(R.string.pref_list_key), getString(R.string.pref_list_default));
         if (!newOption.equals(mSortingType)) {
             mSortingType = newOption;
-            mMovieInfoAdapter.clearAll();
             updateMovieInfo();
         }
     }
@@ -84,8 +85,10 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.d(LOG_TAG, "onSaveInstanceState");
-        outState.putParcelableArrayList(SAVED_MOVIE_TAG, mMovies);
-        outState.putString(SAVED_SORTING_TAG, mSortingType);
+        if (!Utility.isOptionSaved(this)) {
+            outState.putParcelableArrayList(SAVED_MOVIE_TAG, mMovies);
+            outState.putString(SAVED_SORTING_TAG, mSortingType);
+        }
     }
 
     @Override
@@ -124,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateMovieInfo() {
         mMovies.clear();
+        mMovieInfoAdapter.notifyDataSetChanged();
         if (Utility.isOptionSaved(this)) {
             mMovies.addAll(getMovieListFromDB());
             mMovieInfoAdapter.notifyDataSetChanged();
