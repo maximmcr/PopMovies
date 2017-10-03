@@ -1,47 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.popmovies">
+    package="com.maximmcr.android.popmovies">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name="com.maximmcr.android.popmovies.PopMoviesApplication"
         android:allowBackup="true"
-        android:name=".PopMoviesApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        
-        <activity android:name=".MainActivity">
+
+        <activity android:name="com.maximmcr.android.popmovies.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.maximmcr.android.popmovies.SettingsActivity"
             android:label="@string/label_settings_activity"
-            android:parentActivityName=".MainActivity">
+            android:theme="@style/SettingsTheme"
+            android:parentActivityName="com.maximmcr.android.popmovies.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.maximmcr.android.popmovies.MainActivity" />
         </activity>
-        
+
         <activity
-            android:name=".DetailedActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="Details">
+            android:name="com.maximmcr.android.popmovies.DetailedActivity"
+            android:label="Details"
+            android:parentActivityName="com.maximmcr.android.popmovies.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.maximmcr.android.popmovies.MainActivity" />
         </activity>
-        
+
         <provider
-            android:authorities="com.example.android.popmovies"
-            android:name=".data.MoviesProvider"
+            android:name="com.maximmcr.android.popmovies.data.MoviesProvider"
+            android:authorities="com.maximmcr.android.popmovies"
             android:exported="false" />
 
     </application>

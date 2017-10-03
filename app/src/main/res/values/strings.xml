@@ -11,7 +11,7 @@
         <item>sorted by users\' popularity</item>
         <item>saved by you</item>
     </string-array>
-    <string-array name="sysVal">
+    <string-array name="sysVal" translatable="false">
         <item>top_rated</item>
         <item>popular</item>
         <item>saved</item>
