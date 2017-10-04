@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies.data;
+package com.maximmcr.android.popmovies.data.source.local;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -36,9 +36,9 @@ public class MoviesProvider extends ContentProvider {
         sMovieWithDataQueryBuilder.setTables(
                 MoviesContract.MovieEntry.TABLE_NAME +
 
-                        " INNER JOIN " + MoviesContract.CommentEntry.TABLE_NAME +
-                        " ON " + MoviesContract.CommentEntry.TABLE_NAME +
-                        "." + MoviesContract.CommentEntry.COLUMN_MOVIE_KEY +
+                        " INNER JOIN " + MoviesContract.ReviewEntry.TABLE_NAME +
+                        " ON " + MoviesContract.ReviewEntry.TABLE_NAME +
+                        "." + MoviesContract.ReviewEntry.COLUMN_MOVIE_KEY +
                         " = " + MoviesContract.MovieEntry.TABLE_NAME +
                         "." + MoviesContract.MovieEntry._ID +
 
@@ -57,7 +57,7 @@ public class MoviesProvider extends ContentProvider {
 
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIES);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_WITH_DATA);
-        matcher.addURI(authority, MoviesContract.PATH_COMMENTS + "/#", COMMENTS);
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", COMMENTS);
         matcher.addURI(authority, MoviesContract.PATH_VIDEOS + "/#", VIDEOS);
 
         return matcher;
@@ -108,9 +108,9 @@ public class MoviesProvider extends ContentProvider {
                 String id = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
 
                 result = mOpenHelper.getReadableDatabase().query(
-                        MoviesContract.CommentEntry.TABLE_NAME,
+                        MoviesContract.ReviewEntry.TABLE_NAME,
                         projection,
-                        MoviesContract.CommentEntry.COLUMN_MOVIE_KEY + " = " + id,
+                        MoviesContract.ReviewEntry.COLUMN_MOVIE_KEY + " = " + id,
                         null,
                         null,
                         null,
@@ -171,9 +171,9 @@ public class MoviesProvider extends ContentProvider {
             }
 
             case COMMENTS: {
-                id = db.insert(MoviesContract.CommentEntry.TABLE_NAME, null, values);
+                id = db.insert(MoviesContract.ReviewEntry.TABLE_NAME, null, values);
                 if (id > 0) {
-                    returnUri = MoviesContract.CommentEntry.buildMovieUri(id);
+                    returnUri = MoviesContract.ReviewEntry.buildMovieUri(id);
                 } else
                     throw new SQLException("Failed to insert row (comment) into " + uri);
                 break;
@@ -203,8 +203,8 @@ public class MoviesProvider extends ContentProvider {
         switch (match) {
             case MOVIE_WITH_DATA: {
                 result += db.delete(
-                        MoviesContract.CommentEntry.TABLE_NAME,
-                        MoviesContract.CommentEntry.COLUMN_MOVIE_KEY + " = " + id,
+                        MoviesContract.ReviewEntry.TABLE_NAME,
+                        MoviesContract.ReviewEntry.COLUMN_MOVIE_KEY + " = " + id,
                         null);
                 result += db.delete(
                         MoviesContract.VideoEntry.TABLE_NAME,
@@ -240,7 +240,7 @@ public class MoviesProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        long id = db.insert(MoviesContract.CommentEntry.TABLE_NAME, null, value);
+                        long id = db.insert(MoviesContract.ReviewEntry.TABLE_NAME, null, value);
                         if (id != -1) returnCount++;
                     }
                     db.setTransactionSuccessful();

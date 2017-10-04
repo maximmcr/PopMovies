@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies.model;
+package com.maximmcr.android.popmovies.data.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * Created by Frei on 13.09.2017.
  */
 
-public class VideoModel implements Parcelable {
+public class Video implements Parcelable {
 
     @SerializedName("key")
     private String mPath;
@@ -20,13 +20,13 @@ public class VideoModel implements Parcelable {
     @SerializedName("type")
     private String mType;
 
-    public VideoModel(String path, String name, String type) {
+    public Video(String path, String name, String type) {
         mName = name;
         mPath = path;
         mType = type;
     }
 
-    protected VideoModel(Parcel in) {
+    protected Video(Parcel in) {
         mPath = in.readString();
         mName = in.readString();
         mType = in.readString();
@@ -56,15 +56,15 @@ public class VideoModel implements Parcelable {
         this.mType = type;
     }
 
-    public static final Creator<VideoModel> CREATOR = new Creator<VideoModel>() {
+    public static final Creator<Video> CREATOR = new Creator<Video>() {
         @Override
-        public VideoModel createFromParcel(Parcel in) {
-            return new VideoModel(in);
+        public Video createFromParcel(Parcel in) {
+            return new Video(in);
         }
 
         @Override
-        public VideoModel[] newArray(int size) {
-            return new VideoModel[size];
+        public Video[] newArray(int size) {
+            return new Video[size];
         }
     };
 
@@ -82,6 +82,6 @@ public class VideoModel implements Parcelable {
 
     public static final class Response {
         @SerializedName("results")
-        public ArrayList<VideoModel> videos = new ArrayList<>();
+        public ArrayList<Video> videos = new ArrayList<>();
     }
 }

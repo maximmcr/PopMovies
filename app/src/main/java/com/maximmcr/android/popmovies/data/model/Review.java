@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies.model;
+package com.maximmcr.android.popmovies.data.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * Created by Frei on 13.09.2017.
  */
 
-public class CommentModel implements Parcelable {
+public class Review implements Parcelable {
     @SerializedName("author")
     private String mAuthor;
     @SerializedName("content")
@@ -19,13 +19,13 @@ public class CommentModel implements Parcelable {
     @SerializedName("url")
     private String mUrl;
 
-    public CommentModel(String author, String content, String url) {
+    public Review(String author, String content, String url) {
         mAuthor = author;
         mContent = content;
         mUrl = url;
     }
 
-    protected CommentModel(Parcel in) {
+    protected Review(Parcel in) {
         mAuthor = in.readString();
         mContent = in.readString();
         mUrl = in.readString();
@@ -67,20 +67,20 @@ public class CommentModel implements Parcelable {
         return 0;
     }
 
-    public static final Creator<CommentModel> CREATOR = new Creator<CommentModel>() {
+    public static final Creator<Review> CREATOR = new Creator<Review>() {
         @Override
-        public CommentModel createFromParcel(Parcel in) {
-            return new CommentModel(in);
+        public Review createFromParcel(Parcel in) {
+            return new Review(in);
         }
 
         @Override
-        public CommentModel[] newArray(int size) {
-            return new CommentModel[size];
+        public Review[] newArray(int size) {
+            return new Review[size];
         }
     };
 
     public static final class Response {
         @SerializedName("results")
-        public ArrayList<CommentModel> comments = new ArrayList<>();
+        public ArrayList<Review> reviews = new ArrayList<>();
     }
 }

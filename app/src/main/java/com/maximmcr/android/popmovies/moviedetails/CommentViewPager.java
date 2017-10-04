@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.moviedetails;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

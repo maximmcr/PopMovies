@@ -125,7 +125,7 @@
                 android:layout_height="3dp" />
 
 
-            <com.maximmcr.android.popmovies.CommentViewPager
+            <com.maximmcr.android.popmovies.moviedetails.CommentViewPager
                 android:id="@+id/detail_comment_viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="100dp" />

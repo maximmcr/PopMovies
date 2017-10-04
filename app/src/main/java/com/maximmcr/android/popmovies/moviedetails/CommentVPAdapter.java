@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.moviedetails;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.maximmcr.android.popmovies.model.CommentModel;
+import com.maximmcr.android.popmovies.R;
+import com.maximmcr.android.popmovies.data.model.Review;
 
 import java.util.ArrayList;
 
@@ -23,12 +24,12 @@ import static com.maximmcr.android.popmovies.Utility.isOnline;
 
 public class CommentVPAdapter extends PagerAdapter {
 
-    ArrayList<CommentModel> mCommentModel;
+    ArrayList<Review> mReview;
     private Context mContext;
 
-    public CommentVPAdapter(Context context, ArrayList<CommentModel> commentModel) {
+    public CommentVPAdapter(Context context, ArrayList<Review> review) {
         mContext = context;
-        mCommentModel = commentModel;
+        mReview = review;
     }
 
     @Override
@@ -37,16 +38,16 @@ public class CommentVPAdapter extends PagerAdapter {
         ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.list_item_comment, container, false);
 
         TextView authorTV = (TextView) layout.findViewById(R.id.comment_author);
-        authorTV.setText(mCommentModel.get(position).getAuthor());
+        authorTV.setText(mReview.get(position).getAuthor());
 
         TextView contentTV = (TextView) layout.findViewById(R.id.comment_content);
-        contentTV.setText(getShortComment(mCommentModel.get(position).getContent()));
+        contentTV.setText(getShortComment(mReview.get(position).getContent()));
 
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isOnline(mContext)) {
-                    Uri uri = Uri.parse(mCommentModel.get(position).getUrl());
+                    Uri uri = Uri.parse(mReview.get(position).getUrl());
                     Intent openComment = new Intent(Intent.ACTION_VIEW, uri);
                     openComment.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(openComment);
@@ -67,7 +68,7 @@ public class CommentVPAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mCommentModel.size();
+        return mReview.size();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.moviedetails;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -18,10 +18,15 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.maximmcr.android.popmovies.data.MoviesContract;
-import com.maximmcr.android.popmovies.model.CommentModel;
-import com.maximmcr.android.popmovies.model.MovieModel;
-import com.maximmcr.android.popmovies.model.VideoModel;
+import com.maximmcr.android.popmovies.BuildConfig;
+import com.maximmcr.android.popmovies.PopMoviesApplication;
+import com.maximmcr.android.popmovies.R;
+import com.maximmcr.android.popmovies.Utility;
+import com.maximmcr.android.popmovies.data.model.Review;
+import com.maximmcr.android.popmovies.data.source.local.MoviesContract;
+import com.maximmcr.android.popmovies.data.model.Movie;
+import com.maximmcr.android.popmovies.data.model.Video;
+import com.maximmcr.android.popmovies.movies.MainActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -63,10 +68,10 @@ public class DetailedActivity extends AppCompatActivity {
     private static final int COLUMN_MOVIE_OVERVIEW = 8;
 
     private static final String[] COMMENT_COLUMNS = {
-            MoviesContract.CommentEntry.COLUMN_MOVIE_KEY,
-            MoviesContract.CommentEntry.COLUMN_URL,
-            MoviesContract.CommentEntry.COLUMN_CONTENT,
-            MoviesContract.CommentEntry.COLUMN_AUTHOR
+            MoviesContract.ReviewEntry.COLUMN_MOVIE_KEY,
+            MoviesContract.ReviewEntry.COLUMN_URL,
+            MoviesContract.ReviewEntry.COLUMN_CONTENT,
+            MoviesContract.ReviewEntry.COLUMN_AUTHOR
     };
     private static final int COLUMN_COMMENT_KEY = 0;
     private static final int COLUMN_COMMENT_URL = 1;
@@ -86,7 +91,7 @@ public class DetailedActivity extends AppCompatActivity {
 
     private static final String SAVE_MOVIE_TAG = "movie";
 
-    private MovieModel mMovieModel;
+    private Movie mMovie;
 
     @BindView(R.id.detail_scrollview)
     NestedScrollView scrollView;
@@ -134,7 +139,7 @@ public class DetailedActivity extends AppCompatActivity {
                 getMovie(id);
             }
         } else {
-            mMovieModel = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
+            mMovie = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
             updateInfoOnScreen();
         }
     }
@@ -153,30 +158,30 @@ public class DetailedActivity extends AppCompatActivity {
 
     private void updateMovieInfo() {
         if (Utility.isOptionSaved(getApplicationContext())) {
-            mPoster.setImageBitmap(Utility.stringToBitmap(mMovieModel.getPosterPath()));
+            mPoster.setImageBitmap(Utility.stringToBitmap(mMovie.getPosterPath()));
         } else {
             Picasso.with(getApplicationContext())
-                    .load("http://image.tmdb.org/t/p/w185/" + mMovieModel.getPosterPath())
+                    .load("http://image.tmdb.org/t/p/w185/" + mMovie.getPosterPath())
                     .into(mPoster);
         }
-        mTitle.setText(mMovieModel.getTitle());
-        mTagline.setText(mMovieModel.getTitle());
+        mTitle.setText(mMovie.getTitle());
+        mTagline.setText(mMovie.getTitle());
         mReleaseDate.setText(getString(
                 R.string.format_release_date,
-                Utility.formatDate(mMovieModel.getReleaseDate())));
-        mRuntime.setText(getString(R.string.format_runtime, mMovieModel.getRuntime()));
-        mPopularity.setText(getString(R.string.format_popular, mMovieModel.getPopularity()));
-        mRating.setText(getString(R.string.format_rating, mMovieModel.getRating()));
-        mOverview.setText(mMovieModel.getOverview());
+                Utility.formatDate(mMovie.getReleaseDate())));
+        mRuntime.setText(getString(R.string.format_runtime, mMovie.getRuntime()));
+        mPopularity.setText(getString(R.string.format_popular, mMovie.getPopularity()));
+        mRating.setText(getString(R.string.format_rating, mMovie.getRating()));
+        mOverview.setText(mMovie.getOverview());
     }
 
     private void updateCommentInfo() {
         if (mCommentViewPager.getAdapter() == null) {
-            mCommentViewPager.setAdapter(new CommentVPAdapter(getApplicationContext(), mMovieModel.getComments()));
+            mCommentViewPager.setAdapter(new CommentVPAdapter(getApplicationContext(), mMovie.getReviews()));
         } else {
             CommentVPAdapter ca = (CommentVPAdapter) mCommentViewPager.getAdapter();
-            ca.mCommentModel.clear();
-            ca.mCommentModel.addAll(mMovieModel.getComments());
+            ca.mReview.clear();
+            ca.mReview.addAll(mMovie.getReviews());
             ca.notifyDataSetChanged();
         }
         if (mCommentViewPager.getAdapter().getCount() == 0 ||
@@ -187,12 +192,12 @@ public class DetailedActivity extends AppCompatActivity {
 
     private void updateVideoInfo() {
         if (mVideoListView.getAdapter() == null) {
-            mVideoListView.setAdapter(new VideoAdapter(getApplicationContext(), mMovieModel.getVideos()));
+            mVideoListView.setAdapter(new VideoAdapter(getApplicationContext(), mMovie.getVideos()));
             setListViewHeightBasedOnChildren(mVideoListView);
         } else {
             VideoAdapter va = (VideoAdapter) mVideoListView.getAdapter();
             va.clear();
-            va.addAll(mMovieModel.getVideos());
+            va.addAll(mMovie.getVideos());
             va.notifyDataSetChanged();
         }
         if (mVideoListView.getAdapter().getCount() == 0 ||
@@ -203,14 +208,14 @@ public class DetailedActivity extends AppCompatActivity {
 
     private void initializeFAB() {
         final FloatingActionButton fabFavourites = (FloatingActionButton) findViewById(detail_fab_favourite);
-        if (isMovieInDB(mMovieModel.getId()))
+        if (isMovieInDB(mMovie.getId()))
             fabFavourites.setImageResource(R.drawable.ic_favorite_white_24dp);
         else fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
         // TODO: 04.08.2017 refactor onClick for delete action
         fabFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int movieId = mMovieModel.getId();
+                int movieId = mMovie.getId();
                 boolean isMovieInDB = isMovieInDB(movieId);
                 if (!isMovieInDB) {
                     insertMovieToDB(movieId);
@@ -272,47 +277,47 @@ public class DetailedActivity extends AppCompatActivity {
         //inserting base movie info
         ContentValues movieValues = new ContentValues();
         movieValues.put(MoviesContract.MovieEntry._ID, id);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, mMovieModel.getTitle());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, mMovieModel.getTagline());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, mMovie.getTitle());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_TAGLINE, mMovie.getTagline());
         ImageView img = (ImageView) findViewById(R.id.detail_image);
         movieValues.put(MoviesContract.MovieEntry.COLUMN_POSTER,
                 Utility.drawableToByteArray(img.getDrawable()));
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, mMovieModel.getReleaseDate());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, mMovieModel.getRuntime());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, mMovieModel.getRating());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, mMovieModel.getPopularity());
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, mMovieModel.getOverview());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_DATE, mMovie.getReleaseDate());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RUNTIME, mMovie.getRuntime());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_RATING, mMovie.getRating());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_POPULARITY, mMovie.getPopularity());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_OVERVIEW, mMovie.getOverview());
 
         getContentResolver().insert(
                 MoviesContract.MovieEntry.buildMovieUri(id),
                 movieValues);
 
-        //inserting comments
-        if (mMovieModel.getComments() != null) {
+        //inserting reviews
+        if (mMovie.getReviews() != null) {
             Vector<ContentValues> commentValues = new Vector<>();
-            for (CommentModel commentModel : mMovieModel.getComments()) {
+            for (Review review : mMovie.getReviews()) {
                 ContentValues value = new ContentValues();
-                value.put(MoviesContract.CommentEntry.COLUMN_MOVIE_KEY, id);
-                value.put(MoviesContract.CommentEntry.COLUMN_AUTHOR, commentModel.getAuthor());
-                value.put(MoviesContract.CommentEntry.COLUMN_CONTENT, commentModel.getContent());
-                value.put(MoviesContract.CommentEntry.COLUMN_URL, commentModel.getUrl());
+                value.put(MoviesContract.ReviewEntry.COLUMN_MOVIE_KEY, id);
+                value.put(MoviesContract.ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
+                value.put(MoviesContract.ReviewEntry.COLUMN_CONTENT, review.getContent());
+                value.put(MoviesContract.ReviewEntry.COLUMN_URL, review.getUrl());
                 commentValues.add(value);
             }
 
             getContentResolver().bulkInsert(
-                    MoviesContract.CommentEntry.buildMovieUri(id),
+                    MoviesContract.ReviewEntry.buildMovieUri(id),
                     commentValues.toArray(new ContentValues[commentValues.size()]));
         }
 
         //inserting videos
-        if (mMovieModel.getVideos() != null) {
+        if (mMovie.getVideos() != null) {
             Vector<ContentValues> videoValues = new Vector<>();
-            for (VideoModel videoModel : mMovieModel.getVideos()) {
+            for (Video video : mMovie.getVideos()) {
                 ContentValues value = new ContentValues();
                 value.put(MoviesContract.VideoEntry.COLUMN_MOVIE_KEY, id);
-                value.put(MoviesContract.VideoEntry.COLUMN_NAME, videoModel.getName());
-                value.put(MoviesContract.VideoEntry.COLUMN_PATH, videoModel.getPath());
-                value.put(MoviesContract.VideoEntry.COLUMN_TYPE, videoModel.getType());
+                value.put(MoviesContract.VideoEntry.COLUMN_NAME, video.getName());
+                value.put(MoviesContract.VideoEntry.COLUMN_PATH, video.getPath());
+                value.put(MoviesContract.VideoEntry.COLUMN_TYPE, video.getType());
                 videoValues.add(value);
             }
 
@@ -333,25 +338,25 @@ public class DetailedActivity extends AppCompatActivity {
     private void getMovieFromDB(long id) {
 
         Cursor commentCursor = getContentResolver().query(
-                MoviesContract.CommentEntry.buildMovieUri(id),
+                MoviesContract.ReviewEntry.buildMovieUri(id),
                 COMMENT_COLUMNS,
                 null,
                 null,
                 null
         );
-        ArrayList<CommentModel> commentModels = new ArrayList<>();
+        ArrayList<Review> reviews = new ArrayList<>();
         if (commentCursor.getCount() > 0) {
             commentCursor.moveToFirst();
             for (int i = 0; i < commentCursor.getCount(); i++) {
                 String author = commentCursor.getString(COLUMN_COMMENT_AUTHOR);
                 String content = commentCursor.getString(COLUMN_COMMENT_CONTENT);
                 String url = commentCursor.getString(COLUMN_COMMENT_URL);
-                CommentModel commentModel = new CommentModel(
+                Review review = new Review(
                         author,
                         content,
                         url
                 );
-                commentModels.add(commentModel);
+                reviews.add(review);
                 commentCursor.moveToNext();
             }
         }
@@ -364,19 +369,19 @@ public class DetailedActivity extends AppCompatActivity {
                 null,
                 null
         );
-        ArrayList<VideoModel> videoModels = new ArrayList<>();
+        ArrayList<Video> videos = new ArrayList<>();
         if (videoCursor.getCount() > 0) {
             videoCursor.moveToFirst();
             for (int i = 0; i < videoCursor.getCount(); i++) {
                 String path = videoCursor.getString(COLUMN_VIDEO_PATH);
                 String name = videoCursor.getString(COLUMN_VIDEO_NAME);
                 String type = videoCursor.getString(COLUMN_VIDEO_TYPE);
-                VideoModel videoModel = new VideoModel(
+                Video video = new Video(
                         path,
                         name,
                         type
                 );
-                videoModels.add(videoModel);
+                videos.add(video);
                 videoCursor.moveToNext();
             }
         }
@@ -391,7 +396,7 @@ public class DetailedActivity extends AppCompatActivity {
         );
         movieCursor.moveToFirst();
 
-        mMovieModel = new MovieModel(
+        mMovie = new Movie(
                 movieCursor.getInt(COLUMN_MOVIE_ID),
                 movieCursor.getString(COLUMN_MOVIE_TITLE),
                 movieCursor.getString(COLUMN_MOVIE_TAGLINE),
@@ -401,8 +406,8 @@ public class DetailedActivity extends AppCompatActivity {
                 movieCursor.getDouble(COLUMN_MOVIE_RATING),
                 movieCursor.getDouble(COLUMN_MOVIE_POPULARITY),
                 movieCursor.getString(COLUMN_MOVIE_OVERVIEW),
-                commentModels,
-                videoModels
+                reviews,
+                videos
         );
         movieCursor.close();
     }
@@ -424,7 +429,7 @@ public class DetailedActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(SAVE_MOVIE_TAG, mMovieModel);
+        outState.putParcelable(SAVE_MOVIE_TAG, mMovie);
     }
 
     @Override
@@ -434,47 +439,47 @@ public class DetailedActivity extends AppCompatActivity {
 
     private void getMovie(String id) {
         final String API_KEY = BuildConfig.API_KEY_TMDB;
-        mMovieModel = new MovieModel();
-        PopMoviesApplication.getTmdbApi().getMovie(id, API_KEY).enqueue(new Callback<MovieModel>() {
+        mMovie = new Movie();
+        PopMoviesApplication.getTmdbApi().getMovie(id, API_KEY).enqueue(new Callback<Movie>() {
             @Override
-            public void onResponse(Call<MovieModel> call, Response<MovieModel> response) {
+            public void onResponse(Call<Movie> call, Response<Movie> response) {
                 if (response.isSuccessful()) {
-                    mMovieModel.fetchBaseInfo(response.body());
+                    mMovie.fetchBaseInfo(response.body());
                     updateMovieInfo();
                     initializeFAB();
                 }
             }
 
             @Override
-            public void onFailure(Call<MovieModel> call, Throwable t) {
+            public void onFailure(Call<Movie> call, Throwable t) {
 
             }
         });
-        PopMoviesApplication.getTmdbApi().getReviewList(id, API_KEY).enqueue(new Callback<CommentModel.Response>() {
+        PopMoviesApplication.getTmdbApi().getReviewList(id, API_KEY).enqueue(new Callback<Review.Response>() {
             @Override
-            public void onResponse(Call<CommentModel.Response> call, Response<CommentModel.Response> response) {
+            public void onResponse(Call<Review.Response> call, Response<Review.Response> response) {
                 if (response.isSuccessful()) {
-                    mMovieModel.setComments(response.body().comments);
+                    mMovie.setReviews(response.body().reviews);
                     updateCommentInfo();
                 }
             }
 
             @Override
-            public void onFailure(Call<CommentModel.Response> call, Throwable t) {
+            public void onFailure(Call<Review.Response> call, Throwable t) {
 
             }
         });
-        PopMoviesApplication.getTmdbApi().getVideoList(id, API_KEY).enqueue(new Callback<VideoModel.Response>() {
+        PopMoviesApplication.getTmdbApi().getVideoList(id, API_KEY).enqueue(new Callback<Video.Response>() {
             @Override
-            public void onResponse(Call<VideoModel.Response> call, Response<VideoModel.Response> response) {
+            public void onResponse(Call<Video.Response> call, Response<Video.Response> response) {
                 if (response.isSuccessful()) {
-                    mMovieModel.setVideos(response.body().videos);
+                    mMovie.setVideos(response.body().videos);
                     updateVideoInfo();
                 }
             }
 
             @Override
-            public void onFailure(Call<VideoModel.Response> call, Throwable t) {
+            public void onFailure(Call<Video.Response> call, Throwable t) {
 
             }
         });

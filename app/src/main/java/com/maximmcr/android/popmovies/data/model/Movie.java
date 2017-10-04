@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies.model;
+package com.maximmcr.android.popmovies.data.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,7 +12,7 @@ import java.util.List;
  * Created by Frei on 24.01.2017.
  */
 
-public class MovieModel implements Parcelable {
+public class Movie implements Parcelable {
     @SerializedName("id")
     private int mId;
 
@@ -40,12 +40,12 @@ public class MovieModel implements Parcelable {
     @SerializedName("overview")
     private String mOverview;
 
-    private ArrayList<CommentModel> mComments;
-    private ArrayList<VideoModel> mYoutubeAddresses;
+    private ArrayList<Review> mReviews;
+    private ArrayList<Video> mYoutubeAddresses;
 
-    public MovieModel(int id, String title, String tagline, String poster, String releaseDate,
-                      int runtime, double rating, double popularity, String overview,
-                      ArrayList<CommentModel> comments, ArrayList<VideoModel> youtubeAdresses) {
+    public Movie(int id, String title, String tagline, String poster, String releaseDate,
+                 int runtime, double rating, double popularity, String overview,
+                 ArrayList<Review> reviews, ArrayList<Video> youtubeAdresses) {
         mId = id;
         mTitle = title;
         mTagline = tagline;
@@ -56,18 +56,18 @@ public class MovieModel implements Parcelable {
         mPopularity = popularity;
         mOverview = overview;
 
-        mComments = comments;
+        mReviews = reviews;
         mYoutubeAddresses = youtubeAdresses;
     }
-    public MovieModel(String posterId, int id) {
+    public Movie(String posterId, int id) {
         this.mPosterPath = posterId;
         this.mId = id;
     }
-    public MovieModel() {
-        mComments = new ArrayList<>();
+    public Movie() {
+        mReviews = new ArrayList<>();
         mYoutubeAddresses = new ArrayList<>();
     }
-    private MovieModel(Parcel in) {
+    private Movie(Parcel in) {
         mId = in.readInt();
         mTitle = in.readString();
         mTagline = in.readString();
@@ -78,8 +78,8 @@ public class MovieModel implements Parcelable {
         mPopularity = in.readDouble();
         mOverview = in.readString();
 
-        in.readTypedList(mComments, CommentModel.CREATOR);
-        in.readTypedList(mYoutubeAddresses, VideoModel.CREATOR);
+        in.readTypedList(mReviews, Review.CREATOR);
+        in.readTypedList(mYoutubeAddresses, Video.CREATOR);
     }
 
     public Integer getId() {
@@ -145,21 +145,21 @@ public class MovieModel implements Parcelable {
         this.mRating = rating;
     }
 
-    public ArrayList<CommentModel> getComments() {
-        return mComments;
+    public ArrayList<Review> getReviews() {
+        return mReviews;
     }
-    public void setComments(ArrayList<CommentModel> comments) {
-        mComments = comments;
+    public void setReviews(ArrayList<Review> reviews) {
+        mReviews = reviews;
     }
 
-    public ArrayList<VideoModel> getVideos() {
+    public ArrayList<Video> getVideos() {
         return mYoutubeAddresses;
     }
-    public void setVideos(ArrayList<VideoModel> videos) {
+    public void setVideos(ArrayList<Video> videos) {
         mYoutubeAddresses = videos;
     }
 
-    public void fetchBaseInfo (MovieModel movie) {
+    public void fetchBaseInfo (Movie movie) {
         mId = movie.mId;
         mTitle = movie.mTitle;
         mTagline = movie.mTagline;
@@ -188,26 +188,26 @@ public class MovieModel implements Parcelable {
         dest.writeDouble(mPopularity);
         dest.writeString(mOverview);
 
-        dest.writeTypedList(mComments);
+        dest.writeTypedList(mReviews);
         dest.writeTypedList(mYoutubeAddresses);
     }
 
-    public static final Parcelable.Creator<MovieModel> CREATOR =
-            new Creator<MovieModel>() {
+    public static final Parcelable.Creator<Movie> CREATOR =
+            new Creator<Movie>() {
 
                 @Override
-                public MovieModel createFromParcel(Parcel source) {
-                    return new MovieModel(source);
+                public Movie createFromParcel(Parcel source) {
+                    return new Movie(source);
                 }
 
                 @Override
-                public MovieModel[] newArray(int size) {
-                    return new MovieModel[size];
+                public Movie[] newArray(int size) {
+                    return new Movie[size];
                 }
             };
 
     public static final class Response {
         @SerializedName("results")
-        public List<MovieModel> movies = new ArrayList<>();
+        public List<Movie> movies = new ArrayList<>();
     }
 }

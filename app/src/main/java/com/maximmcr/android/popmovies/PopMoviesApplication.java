@@ -2,7 +2,7 @@ package com.maximmcr.android.popmovies;
 
 import android.content.Context;
 
-import com.maximmcr.android.popmovies.api.TmdbApi;
+import com.maximmcr.android.popmovies.data.source.remote.TmdbApi;
 import com.facebook.stetho.Stetho;
 
 import retrofit2.Retrofit;

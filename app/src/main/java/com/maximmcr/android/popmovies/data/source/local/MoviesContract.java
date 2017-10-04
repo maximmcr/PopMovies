@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies.data;
+package com.maximmcr.android.popmovies.data.source.local;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -15,13 +15,13 @@ public class MoviesContract {
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
-    public static final String PATH_COMMENTS = "comment";
+    public static final String PATH_REVIEWS = "comment";
     public static final String PATH_VIDEOS= "video";
     public static final String PATH_MOVIES = "movie";
 
-    public static final class CommentEntry implements BaseColumns {
+    public static final class ReviewEntry implements BaseColumns {
 
-        public static final String TABLE_NAME = "comment";
+        public static final String TABLE_NAME = "review";
 
         public static final String COLUMN_MOVIE_KEY = "movie_id";
 
@@ -33,9 +33,9 @@ public class MoviesContract {
                 .appendPath(TABLE_NAME).build();
 
         public static final String CONTENT_DIR_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_COMMENTS;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
         public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_COMMENTS;
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

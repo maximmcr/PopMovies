@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.movies;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,8 +13,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.maximmcr.android.popmovies.data.MoviesContract;
-import com.maximmcr.android.popmovies.model.MovieModel;
+import com.maximmcr.android.popmovies.BuildConfig;
+import com.maximmcr.android.popmovies.PopMoviesApplication;
+import com.maximmcr.android.popmovies.R;
+import com.maximmcr.android.popmovies.SettingsActivity;
+import com.maximmcr.android.popmovies.Utility;
+import com.maximmcr.android.popmovies.data.source.local.MoviesContract;
+import com.maximmcr.android.popmovies.data.model.Movie;
 
 import java.util.ArrayList;
 
@@ -28,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     static MovieInfoAdapter mMovieInfoAdapter;
-    private ArrayList<MovieModel> mMovies;
+    private ArrayList<Movie> mMovies;
     @BindView(R.id.activity_main)
     RecyclerView mRecyclerView;
 
@@ -105,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private ArrayList<MovieModel> getMovieListFromDB() {
+    private ArrayList<Movie> getMovieListFromDB() {
         Cursor c = getContentResolver().query(
                 MoviesContract.MovieEntry.CONTENT_URI,
                 MOVIE_COLUMNS,
@@ -114,12 +119,12 @@ public class MainActivity extends AppCompatActivity {
                 null
         );
 
-        ArrayList<MovieModel> result = new ArrayList<>();
+        ArrayList<Movie> result = new ArrayList<>();
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
             int id = c.getInt(COLUMN_ID);
             String poster = Utility.byteArrayToString(c.getBlob(COLUMN_POSTER));
-            result.add(new MovieModel(poster, id));
+            result.add(new Movie(poster, id));
             c.moveToNext();
         }
         return result;
@@ -143,15 +148,15 @@ public class MainActivity extends AppCompatActivity {
         final String API_KEY = BuildConfig.API_KEY_TMDB;
         PopMoviesApplication.getTmdbApi()
                 .getMovieList(sortingType, API_KEY)
-                .enqueue(new Callback<MovieModel.Response>() {
+                .enqueue(new Callback<Movie.Response>() {
                     @Override
-                    public void onResponse(Call<MovieModel.Response> call, Response<MovieModel.Response> response) {
+                    public void onResponse(Call<Movie.Response> call, Response<Movie.Response> response) {
                         mMovies.addAll(response.body().movies);
                         mMovieInfoAdapter.notifyDataSetChanged();
                     }
 
                     @Override
-                    public void onFailure(Call<MovieModel.Response> call, Throwable t) {
+                    public void onFailure(Call<Movie.Response> call, Throwable t) {
                         Snackbar.make(
                                 findViewById(R.id.activity_main),
                                 R.string.snackbar_no_internet,

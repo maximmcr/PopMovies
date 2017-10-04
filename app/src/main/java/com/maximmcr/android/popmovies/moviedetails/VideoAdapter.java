@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.moviedetails;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +12,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.maximmcr.android.popmovies.model.VideoModel;
+import com.maximmcr.android.popmovies.R;
+import com.maximmcr.android.popmovies.Utility;
+import com.maximmcr.android.popmovies.data.model.Video;
 
 import java.util.ArrayList;
 
@@ -20,7 +22,7 @@ import java.util.ArrayList;
  * Created by Frei on 10.07.2017.
  */
 
-public class VideoAdapter extends ArrayAdapter<VideoModel> {
+public class VideoAdapter extends ArrayAdapter<Video> {
 
     private static final String YOUTUBE_REQUEST_BASE = "https://www.youtube.com/watch";
 
@@ -31,15 +33,15 @@ public class VideoAdapter extends ArrayAdapter<VideoModel> {
         TextView name;
     }
 
-    public VideoAdapter(Context context, ArrayList<VideoModel> videoModels) {
-        super(context, R.layout.list_item_video, videoModels);
+    public VideoAdapter(Context context, ArrayList<Video> videos) {
+        super(context, R.layout.list_item_video, videos);
         mContext = context;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        final VideoModel videoModel = getItem(position);
+        final Video video = getItem(position);
 
         ViewHolder viewHolder;
         if (convertView == null) {
@@ -53,15 +55,15 @@ public class VideoAdapter extends ArrayAdapter<VideoModel> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.type.setText(videoModel.getType());
-        viewHolder.name.setText(videoModel.getName());
+        viewHolder.type.setText(video.getType());
+        viewHolder.name.setText(video.getName());
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (Utility.isOnline(mContext)) {
                     Uri uri = Uri.parse(YOUTUBE_REQUEST_BASE)
                             .buildUpon()
-                            .appendQueryParameter("v", videoModel.getPath())
+                            .appendQueryParameter("v", video.getPath())
                             .build();
                     Intent playVideo = new Intent(Intent.ACTION_VIEW, uri);
                     if (playVideo.resolveActivity(mContext.getPackageManager()) != null) {

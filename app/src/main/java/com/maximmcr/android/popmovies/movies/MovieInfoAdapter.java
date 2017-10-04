@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.movies;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,7 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.maximmcr.android.popmovies.model.MovieModel;
+import com.maximmcr.android.popmovies.moviedetails.DetailedActivity;
+import com.maximmcr.android.popmovies.R;
+import com.maximmcr.android.popmovies.Utility;
+import com.maximmcr.android.popmovies.data.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ import java.util.ArrayList;
  */
 
 public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.MovieViewHolder>
-        implements DetailedActivity.CallbackMovieRemoved{
+        implements DetailedActivity.CallbackMovieRemoved {
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView poster;
@@ -34,10 +37,10 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
     }
 
     Context context;
-    ArrayList<MovieModel> moviesInfo;
+    ArrayList<Movie> moviesInfo;
     Activity main;
 
-    public MovieInfoAdapter(ArrayList<MovieModel> moviesInfo, Activity activity) {
+    public MovieInfoAdapter(ArrayList<Movie> moviesInfo, Activity activity) {
         this.moviesInfo = moviesInfo;
         main = activity;
     }
@@ -56,7 +59,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
 
     @Override
     public void onBindViewHolder(final MovieViewHolder viewHolder, final int position) {
-        final MovieModel movie = moviesInfo.get(position);
+        final Movie movie = moviesInfo.get(position);
         if (Utility.isOptionSaved(context)) {
             viewHolder.poster.setImageBitmap(Utility.stringToBitmap(movie.getPosterPath()));
         } else {
@@ -111,7 +114,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
         notifyItemRangeChanged(position, moviesInfo.size() - position);
     }
 
-    public void addAll(ArrayList<MovieModel> movies) {
+    public void addAll(ArrayList<Movie> movies) {
         for (int i = 0; i < movies.size(); i++) {
             moviesInfo.add(movies.get(i));
         }
