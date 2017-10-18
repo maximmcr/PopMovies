@@ -18,8 +18,10 @@
     </string-array>
     <string name="action_settings">Settings</string>
 
+    <!--Transitions' strings-->
     <string name="transition_poster" translatable="false">poster</string>
 
+    <!--Fromats' strings-->
     <string name="format_popular">Users\' popularity: <xliff:g id="popularity">%1.0f</xliff:g>
     </string>
     <string name="format_rating">Rating: <xliff:g id="rating">%1.0f</xliff:g>/10
@@ -28,6 +30,11 @@
     </string>
     <string name="format_release_date">Release date: <xliff:g id="date">%1s</xliff:g></string>
 
+    <!--Snackbars' strings-->
+    <string name="snackbar_movie_added">The movie have been added to favourites.</string>
+    <string name="snackbar_movie_removed">The movie have been removed from favourites.</string>
+    <string name="snackbar_no_internet">There is no internet connection!</string>
+
     <string name="detail_btn_favourites_add">Add to favourites</string>
     <string name="detail_btn_favourites_remove">Remove from favourites</string>
     <string name="detail_text_reviews">Users\' reviews</string>
@@ -35,7 +42,6 @@
 
     <string name="text_nomovies">There are no saved movies.</string>
 
-    <string name="snackbar_movie_added">The movie have been added to favourites.</string>
-    <string name="snackbar_movie_removed">The movie have been removed from favourites.</string>
-    <string name="snackbar_no_internet">There is no internet connection!</string>
+    <string name="poster_base_path" translatable="false">http://image.tmdb.org/t/p/w185</string>
+    <string name="poster_dir_name" translatable="false">posters</string>
 </resources>

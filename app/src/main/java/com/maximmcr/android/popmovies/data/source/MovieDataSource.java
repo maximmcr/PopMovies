@@ -1,5 +1,7 @@
 package com.maximmcr.android.popmovies.data.source;
 
+import android.content.Context;
+
 import com.maximmcr.android.popmovies.data.model.Movie;
 
 import java.util.List;
@@ -30,8 +32,10 @@ public interface MovieDataSource {
 
     void getMovieList(LoadMovieListCallback callback, String filterType);
 
-    void insertMovie(int id);
+    void insertMovie(Movie movie);
 
     void deleteMovie(int id);
+
+    void setContext(Context context);
 
 }

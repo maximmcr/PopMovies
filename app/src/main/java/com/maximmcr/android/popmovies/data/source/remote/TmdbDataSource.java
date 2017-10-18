@@ -1,5 +1,6 @@
 package com.maximmcr.android.popmovies.data.source.remote;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -27,8 +28,15 @@ public class TmdbDataSource implements MovieDataSource{
 
     private static final String API_KEY = BuildConfig.API_KEY_TMDB;
 
+    private Context mContext;
+
     public TmdbDataSource() {
 
+    }
+
+    @Override
+    public void setContext(Context context) {
+        mContext = context;
     }
 
     @Override
@@ -67,7 +75,7 @@ public class TmdbDataSource implements MovieDataSource{
     }
 
     @Override
-    public void insertMovie(int id) { }
+    public void insertMovie(Movie movie) { }
 
     @Override
     public void deleteMovie(int id) { }

@@ -64,7 +64,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.Movi
             viewHolder.poster.setImageBitmap(Utility.stringToBitmap(movie.getPosterPath()));
         } else {
             Picasso.with(context)
-                    .load("http://image.tmdb.org/t/p/w185" + String.valueOf(movie.getPosterPath()))
+                    .load(context.getString(R.string.poster_base_path) + String.valueOf(movie.getPosterPath()))
                     .error(R.drawable.image_not_loaded)
                     .placeholder(R.drawable.progress_animation)
                     .into(viewHolder.poster);
