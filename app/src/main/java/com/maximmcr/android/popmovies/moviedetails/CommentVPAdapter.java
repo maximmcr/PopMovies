@@ -15,8 +15,8 @@ import com.maximmcr.android.popmovies.data.model.Review;
 
 import java.util.ArrayList;
 
-import static com.maximmcr.android.popmovies.Utility.getShortComment;
-import static com.maximmcr.android.popmovies.Utility.isOnline;
+import static com.maximmcr.android.popmovies.utils.Utility.getShortComment;
+import static com.maximmcr.android.popmovies.utils.Utility.isOnline;
 
 /**
  * Created by Frei on 08.07.2017.

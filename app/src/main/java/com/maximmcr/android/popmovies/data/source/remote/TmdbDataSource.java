@@ -1,6 +1,5 @@
 package com.maximmcr.android.popmovies.data.source.remote;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -15,8 +14,8 @@ import java.io.IOException;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.maximmcr.android.popmovies.PopMoviesApplication.getTmdbApi;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Frei on 04.10.2017.
@@ -24,19 +23,27 @@ import static com.maximmcr.android.popmovies.PopMoviesApplication.getTmdbApi;
 
 public class TmdbDataSource implements MovieDataSource{
 
+    private static TmdbDataSource INSTANCE = null;
+
     private static final String LOG_TAG = TmdbDataSource.class.getSimpleName();
 
     private static final String API_KEY = BuildConfig.API_KEY_TMDB;
+    private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
+    private static TmdbApi tmdbApi;
 
-    private Context mContext;
-
-    public TmdbDataSource() {
-
+    private TmdbDataSource() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(TMDB_REQUEST_BASE)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        tmdbApi = retrofit.create(TmdbApi.class);
     }
 
-    @Override
-    public void setContext(Context context) {
-        mContext = context;
+    public static TmdbDataSource getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new TmdbDataSource();
+        }
+        return INSTANCE;
     }
 
     @Override
@@ -58,7 +65,7 @@ public class TmdbDataSource implements MovieDataSource{
 
     @Override
     public void getMovieList(final LoadMovieListCallback callback, String filterType) {
-        getTmdbApi()
+        tmdbApi
                 .getMovieList(filterType, API_KEY)
                 .enqueue(new Callback<Movie.Response>() {
                     @Override
@@ -93,7 +100,7 @@ public class TmdbDataSource implements MovieDataSource{
             int id = params[0];
             Movie movie = new Movie();
             try {
-                Response<Movie> movieResponse = getTmdbApi()
+                Response<Movie> movieResponse = tmdbApi
                         .getMovie(id, API_KEY)
                         .execute();
                 if (movieResponse.isSuccessful()) movie.fetchBaseInfo(movieResponse.body());
@@ -103,7 +110,7 @@ public class TmdbDataSource implements MovieDataSource{
             }
 
             try {
-                Response<Video.Response> videoResponse = getTmdbApi()
+                Response<Video.Response> videoResponse = tmdbApi
                         .getVideoList(id, API_KEY)
                         .execute();
                 if (videoResponse.isSuccessful()) movie.setVideos(videoResponse.body().videos);
@@ -113,7 +120,7 @@ public class TmdbDataSource implements MovieDataSource{
             }
 
             try {
-                Response<Review.Response> reviewResponse = getTmdbApi()
+                Response<Review.Response> reviewResponse = tmdbApi
                         .getReviewList(id, API_KEY)
                         .execute();
                 if (reviewResponse.isSuccessful()) movie.setReviews(reviewResponse.body().reviews);

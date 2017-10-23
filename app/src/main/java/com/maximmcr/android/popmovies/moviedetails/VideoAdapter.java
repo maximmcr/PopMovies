@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.maximmcr.android.popmovies.R;
-import com.maximmcr.android.popmovies.Utility;
+import com.maximmcr.android.popmovies.utils.Utility;
 import com.maximmcr.android.popmovies.data.model.Video;
 
 import java.util.ArrayList;

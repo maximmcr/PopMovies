@@ -80,6 +80,25 @@ public class Video implements Parcelable {
         dest.writeString(mType);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+
+        if (!(getClass() == obj.getClass())) return false;
+        else {
+            Video video = (Video) obj;
+            if (
+                    !mName.equals(video.mName) ||
+                    !mPath.equals(video.mPath) ||
+                    !mType.equals(video.mType)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
     public static final class Response {
         @SerializedName("results")
         public ArrayList<Video> videos = new ArrayList<>();

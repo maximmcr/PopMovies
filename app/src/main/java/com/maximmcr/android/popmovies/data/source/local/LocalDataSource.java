@@ -29,6 +29,8 @@ import static android.R.attr.id;
 
 public class LocalDataSource implements MovieDataSource {
 
+    private static LocalDataSource INSTANCE = null;
+
     private static final String LOG_TAG = LocalDataSource.class.getSimpleName();
 
     //Strings for access to list of movies in DB
@@ -87,7 +89,15 @@ public class LocalDataSource implements MovieDataSource {
 
     private Context mContext;
 
-    public LocalDataSource() {
+    private LocalDataSource(Context context) {
+        mContext = context;
+    }
+
+    public static LocalDataSource getInstance(Context context) {
+        if (INSTANCE == null) {
+            INSTANCE = new LocalDataSource(context);
+        }
+        return INSTANCE;
     }
 
     @Override
@@ -207,11 +217,6 @@ public class LocalDataSource implements MovieDataSource {
             c.close();
             callback.onMovieListLoaded(result);
         }
-    }
-
-    @Override
-    public void setContext(Context context) {
-        mContext = context;
     }
 
     // TODO: 18.10.2017 make saving poster from imageView to db

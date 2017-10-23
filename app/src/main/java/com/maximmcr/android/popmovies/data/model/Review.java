@@ -79,6 +79,26 @@ public class Review implements Parcelable {
         }
     };
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+
+        if (!(getClass() == obj.getClass())) return false;
+        else {
+            Review review = (Review) obj;
+            if (
+                    !mAuthor.equals(review.mAuthor) ||
+                    !mContent.equals(review.mContent) ||
+                    !mUrl.equals(review.mUrl)
+                    ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
     public static final class Response {
         @SerializedName("results")
         public ArrayList<Review> reviews = new ArrayList<>();

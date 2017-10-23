@@ -43,6 +43,46 @@ public class Movie implements Parcelable {
     private ArrayList<Review> mReviews;
     private ArrayList<Video> mYoutubeAddresses;
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+
+        if (!(getClass() == obj.getClass())) return false;
+        else {
+            Movie movie = (Movie) obj;
+
+            ArrayList<Video> videos = movie.mYoutubeAddresses;
+            ArrayList<Review> reviews = movie.mReviews;
+            if (!(videos.size() == mYoutubeAddresses.size()) ||
+                    !(reviews.size() == mReviews.size())) {
+                return false;
+            }
+            for (int i = 0; i < mYoutubeAddresses.size(); i++) {
+                if (!mYoutubeAddresses.get(i).equals(videos.get(i))) return false;
+            }
+            for (int i = 0; i < mReviews.size(); i++) {
+                if (!mReviews.get(i).equals(reviews.get(i))) return false;
+            }
+
+            if (
+                    mId != movie.mId ||
+                    !mTitle.equals(movie.mTitle) ||
+                    !mTagline.equals(movie.mTagline) ||
+                    !mPosterPath.equals(movie.mPosterPath) ||
+                    !mReleaseDate.equals(movie.mReleaseDate) ||
+                    mRuntime != movie.mRuntime ||
+                    mRating != movie.mRating ||
+                    mPopularity != movie.mPopularity ||
+                    !mOverview.equals(movie.mOverview)
+                    ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
     public Movie(int id, String title, String tagline, String poster, String releaseDate,
                  int runtime, double rating, double popularity, String overview,
                  ArrayList<Review> reviews, ArrayList<Video> youtubeAdresses) {

@@ -17,7 +17,7 @@ import com.maximmcr.android.popmovies.BuildConfig;
 import com.maximmcr.android.popmovies.PopMoviesApplication;
 import com.maximmcr.android.popmovies.R;
 import com.maximmcr.android.popmovies.SettingsActivity;
-import com.maximmcr.android.popmovies.Utility;
+import com.maximmcr.android.popmovies.utils.Utility;
 import com.maximmcr.android.popmovies.data.source.local.MoviesContract;
 import com.maximmcr.android.popmovies.data.model.Movie;
 

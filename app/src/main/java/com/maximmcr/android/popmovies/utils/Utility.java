@@ -1,4 +1,4 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -7,7 +7,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 
@@ -38,14 +37,7 @@ public class Utility {
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
-    public static boolean isOptionSaved(Context context) {
-        String option = PreferenceManager
-                .getDefaultSharedPreferences(context)
-                .getString(context.getString(R.string.pref_list_key), context.getString(R.string.pref_list_default));
-        String saved = context.getResources().getStringArray(R.array.sysVal)[2];
-        if (option.equals(saved)) return true;
-        else return false;
-    }
+
 
     public static String formatDate(String filmDate) {
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy-MM-dd");
