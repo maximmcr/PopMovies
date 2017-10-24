@@ -1,10 +1,12 @@
-package com.maximmcr.android.popmovies;
+package com.maximmcr.android.popmovies.settings;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+
+import com.maximmcr.android.popmovies.R;
 
 /**
  * Created by Frei on 28.01.2017.

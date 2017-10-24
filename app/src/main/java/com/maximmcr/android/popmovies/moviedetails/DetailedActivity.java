@@ -26,7 +26,7 @@ import com.maximmcr.android.popmovies.data.model.Review;
 import com.maximmcr.android.popmovies.data.source.local.MoviesContract;
 import com.maximmcr.android.popmovies.data.model.Movie;
 import com.maximmcr.android.popmovies.data.model.Video;
-import com.maximmcr.android.popmovies.movies.MainActivity;
+import com.maximmcr.android.popmovies.movies.MoviesActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -226,7 +226,7 @@ public class DetailedActivity extends AppCompatActivity {
                 } else {
                     deleteMovieFromDB(movieId);
                     if (Utility.isOptionSaved(getApplicationContext())) {
-                        CallbackMovieRemoved callback = MainActivity.mMovieInfoAdapter;
+                        CallbackMovieRemoved callback = MoviesActivity.mMovieInfoAdapter;
                         callback.removeMovie(movieId);
                     }
                     fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);

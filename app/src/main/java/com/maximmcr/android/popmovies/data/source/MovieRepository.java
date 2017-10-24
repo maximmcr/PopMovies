@@ -2,10 +2,10 @@ package com.maximmcr.android.popmovies.data.source;
 
 import android.content.Context;
 
-import com.maximmcr.android.popmovies.utils.DbUtility;
 import com.maximmcr.android.popmovies.data.model.Movie;
 import com.maximmcr.android.popmovies.data.source.local.LocalDataSource;
 import com.maximmcr.android.popmovies.data.source.remote.TmdbDataSource;
+import com.maximmcr.android.popmovies.settings.SharedPrefsRepoImpl;
 
 /**
  * Created by Frei on 04.10.2017.
@@ -33,20 +33,20 @@ public class MovieRepository implements MovieDataSource {
     }
 
     @Override
-    public void getMovie(LoadMovieCallback callback, int id) {
-        if (DbUtility.isOptionSaved(mContext)) {
-            localStorage.getMovie(callback, id);
+    public void getMovie(int id, LoadMovieCallback callback) {
+        if (SharedPrefsRepoImpl.getInstance(mContext).isOptionSaved()) {
+            localStorage.getMovie(id, callback);
         } else {
-            remoteStorage.getMovie(callback, id);
+            remoteStorage.getMovie(id, callback);
         }
     }
 
     @Override
-    public void getMovieList(LoadMovieListCallback callback, String filterType) {
-        if (DbUtility.isOptionSaved(mContext)) {
-            localStorage.getMovieList(callback, filterType);
+    public void getMovieList(String filterType, LoadMovieListCallback callback) {
+        if (SharedPrefsRepoImpl.getInstance(mContext).isOptionSaved()) {
+            localStorage.getMovieList(filterType, callback);
         } else {
-            remoteStorage.getMovieList(callback, filterType);
+            remoteStorage.getMovieList(filterType, callback);
         }
     }
 

@@ -10,6 +10,7 @@ import com.maximmcr.android.popmovies.data.model.Video;
 import com.maximmcr.android.popmovies.data.source.MovieDataSource;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,6 +30,7 @@ public class TmdbDataSource implements MovieDataSource{
 
     private static final String API_KEY = BuildConfig.API_KEY_TMDB;
     private static final String TMDB_REQUEST_BASE = "http://api.themoviedb.org/3/movie/";
+    private static final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p/w185";
     private static TmdbApi tmdbApi;
 
     private TmdbDataSource() {
@@ -47,7 +49,7 @@ public class TmdbDataSource implements MovieDataSource{
     }
 
     @Override
-    public void getMovie(final LoadMovieCallback callback, int id) {
+    public void getMovie(int id, final LoadMovieCallback callback) {
 
         new getMovieAsync(new LoadMovieCallback() {
             @Override
@@ -64,13 +66,13 @@ public class TmdbDataSource implements MovieDataSource{
     }
 
     @Override
-    public void getMovieList(final LoadMovieListCallback callback, String filterType) {
+    public void getMovieList(String filterType, final LoadMovieListCallback callback) {
         tmdbApi
                 .getMovieList(filterType, API_KEY)
                 .enqueue(new Callback<Movie.Response>() {
                     @Override
                     public void onResponse(Call<Movie.Response> call, Response<Movie.Response> response) {
-                        callback.onMovieListLoaded(response.body().movies);
+                        callback.onMovieListLoaded((ArrayList<Movie>) response.body().movies);
                     }
 
                     @Override
@@ -103,7 +105,11 @@ public class TmdbDataSource implements MovieDataSource{
                 Response<Movie> movieResponse = tmdbApi
                         .getMovie(id, API_KEY)
                         .execute();
-                if (movieResponse.isSuccessful()) movie.fetchBaseInfo(movieResponse.body());
+                if (movieResponse.isSuccessful()) {
+                    movieResponse.body().setPosterPath(
+                            POSTER_BASE_PATH + movieResponse.body().getPosterPath());
+                    movie.fetchBaseInfo(movieResponse.body());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(LOG_TAG, "Crash on movie loading");

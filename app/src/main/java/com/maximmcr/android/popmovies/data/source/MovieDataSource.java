@@ -2,7 +2,7 @@ package com.maximmcr.android.popmovies.data.source;
 
 import com.maximmcr.android.popmovies.data.model.Movie;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by Frei on 04.10.2017.
@@ -20,15 +20,15 @@ public interface MovieDataSource {
 
     interface LoadMovieListCallback {
 
-        void onMovieListLoaded(List<Movie> movie);
+        void onMovieListLoaded(ArrayList<Movie> movies);
 
         void onLoadFailed();
 
     }
 
-    void getMovie(LoadMovieCallback callback, int id);
+    void getMovie(int id, LoadMovieCallback callback);
 
-    void getMovieList(LoadMovieListCallback callback, String filterType);
+    void getMovieList(String filterType, LoadMovieListCallback callback);
 
     void insertMovie(Movie movie);
 

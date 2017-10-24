@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="com.maximmcr.android.popmovies.movies.MainActivity">
+        <activity android:name="com.maximmcr.android.popmovies.movies.MoviesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,22 +23,22 @@
         </activity>
 
         <activity
-            android:name="com.maximmcr.android.popmovies.SettingsActivity"
+            android:name="com.maximmcr.android.popmovies.settings.SettingsActivity"
             android:label="@string/label_settings_activity"
             android:theme="@style/SettingsTheme"
-            android:parentActivityName="com.maximmcr.android.popmovies.movies.MainActivity">
+            android:parentActivityName="com.maximmcr.android.popmovies.movies.MoviesActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.maximmcr.android.popmovies.movies.MainActivity" />
+                android:value="com.maximmcr.android.popmovies.movies.MoviesActivity" />
         </activity>
 
         <activity
             android:name="com.maximmcr.android.popmovies.moviedetails.DetailedActivity"
             android:label="Details"
-            android:parentActivityName="com.maximmcr.android.popmovies.movies.MainActivity">
+            android:parentActivityName="com.maximmcr.android.popmovies.movies.MoviesActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.maximmcr.android.popmovies.movies.MainActivity" />
+                android:value="com.maximmcr.android.popmovies.movies.MoviesActivity" />
         </activity>
 
         <provider

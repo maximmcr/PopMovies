@@ -101,7 +101,7 @@ public class LocalDataSource implements MovieDataSource {
     }
 
     @Override
-    public void getMovie(LoadMovieCallback callback, int id) {
+    public void getMovie(int id, LoadMovieCallback callback) {
         Cursor reviewCursor = mContext.getContentResolver().query(
                 MoviesContract.ReviewEntry.buildMovieUri(id),
                 REVIEW_COLUMNS,
@@ -192,7 +192,7 @@ public class LocalDataSource implements MovieDataSource {
     }
 
     @Override
-    public void getMovieList(LoadMovieListCallback callback, String filterType) {
+    public void getMovieList(String filterType, LoadMovieListCallback callback) {
         Cursor c = mContext.getContentResolver().query(
                 MoviesContract.MovieEntry.CONTENT_URI,
                 MOVIE_LIST_COLUMNS,

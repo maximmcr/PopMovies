@@ -2,9 +2,7 @@ package com.maximmcr.android.popmovies.utils;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.preference.PreferenceManager;
 
-import com.maximmcr.android.popmovies.R;
 import com.maximmcr.android.popmovies.data.source.local.MoviesContract;
 
 /**
@@ -17,15 +15,6 @@ public class DbUtility {
             MoviesContract.MovieEntry.TABLE_NAME + "." + MoviesContract.MovieEntry._ID
     };
     private static final int COLUMN_LIST_ID = 0;
-
-    public static boolean isOptionSaved(Context context) {
-        String option = PreferenceManager
-                .getDefaultSharedPreferences(context)
-                .getString(context.getString(R.string.pref_list_key), context.getString(R.string.pref_list_default));
-        String saved = context.getResources().getStringArray(R.array.sysVal)[2];
-        if (option.equals(saved)) return true;
-        else return false;
-    }
 
     public static boolean isMovieInDb(Context context, int id) {
         String[] selectionArgs = { Integer.toString(id) };

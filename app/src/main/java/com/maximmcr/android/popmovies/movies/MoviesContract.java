@@ -2,18 +2,21 @@ package com.maximmcr.android.popmovies.movies;
 
 import com.maximmcr.android.popmovies.BasePresenter;
 import com.maximmcr.android.popmovies.BaseView;
+import com.maximmcr.android.popmovies.data.model.Movie;
+
+import java.util.ArrayList;
 
 /**
  * Created by Frei on 03.10.2017.
  */
 
-public interface TasksContract {
+public interface MoviesContract {
 
     public interface View extends BaseView<Presenter> {
 
-        void showMovieList();
+        void showMovieList(ArrayList<Movie> movies);
 
-        void showMovieDetails();
+        void showMovieDetails(int id);
 
         void showNoMoviesInDb();
 
@@ -27,7 +30,12 @@ public interface TasksContract {
 
         void loadMovies();
 
-        void openMovieDetails(long id);
+        void openMovieDetails(Movie selectedMovie);
 
+        //void setFiltering(String filtering);
+
+        String getFiltering();
+
+        boolean isOptionSaved();
     }
 }
