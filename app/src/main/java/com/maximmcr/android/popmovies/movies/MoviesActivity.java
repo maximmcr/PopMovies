@@ -23,12 +23,8 @@ public class MoviesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies);
 
-        MoviesFragment moviesFragment = (MoviesFragment)
-                getSupportFragmentManager().findFragmentById(R.id.frag_movies);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.frag_movies, moviesFragment)
-                .commit();
+        MoviesFragment moviesFragment =
+                (MoviesFragment) getSupportFragmentManager().findFragmentById(R.id.movies_fragment);
 
         mPresenter = new MoviesPresenter(
                 moviesFragment,

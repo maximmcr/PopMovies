@@ -8,11 +8,11 @@
     android:orientation="vertical"
     tools:context="com.maximmcr.android.popmovies.movies.MoviesActivity">
 
-
     <fragment
         android:id="@+id/movies_fragment"
         android:name="com.maximmcr.android.popmovies.movies.MoviesFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:layout="@layout/frag_movies" />
+
 </LinearLayout>

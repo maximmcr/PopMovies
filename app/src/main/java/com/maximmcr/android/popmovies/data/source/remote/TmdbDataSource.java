@@ -72,7 +72,12 @@ public class TmdbDataSource implements MovieDataSource{
                 .enqueue(new Callback<Movie.Response>() {
                     @Override
                     public void onResponse(Call<Movie.Response> call, Response<Movie.Response> response) {
-                        callback.onMovieListLoaded((ArrayList<Movie>) response.body().movies);
+                        ArrayList<Movie> movies = (ArrayList<Movie>) response.body().movies;
+                        for (Movie movie:
+                             movies) {
+                            movie.setPosterPath(POSTER_BASE_PATH + movie.getPosterPath());
+                        }
+                        callback.onMovieListLoaded(movies);
                     }
 
                     @Override

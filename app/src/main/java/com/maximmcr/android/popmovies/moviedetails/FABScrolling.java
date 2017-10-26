@@ -1,10 +1,8 @@
 package com.maximmcr.android.popmovies.moviedetails;
 
-import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
-import android.util.AttributeSet;
 import android.view.View;
 
 /**
@@ -12,10 +10,6 @@ import android.view.View;
  */
 
 public class FABScrolling extends FloatingActionButton.Behavior {
-
-    public FABScrolling(Context context, AttributeSet attrs) {
-        super();
-    }
 
     @Override
     public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child,

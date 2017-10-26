@@ -23,6 +23,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
 
     public MoviesPresenter(MoviesContract.View view, MovieRepository data,
                            SharedPreferenceRepository prefs) {
+        Log.d(LOG_TAG, "MoviePresenter constructor");
         mData = data;
         mView = view;
         mPrefs = prefs;
@@ -42,13 +43,22 @@ public class MoviesPresenter implements MoviesContract.Presenter {
         mData.getMovieList(getFiltering(), new MovieDataSource.LoadMovieListCallback() {
             @Override
             public void onMovieListLoaded(ArrayList<Movie> movies) {
-                mView.showMovieList(movies);
+                if (movies.size() > 0) {
+                    mView.showMovieList(movies);
+                } else if (mPrefs.isOptionSaved()) {
+                    mView.showNoMoviesInDb();
+                } else {
+                    mView.showNoInternet();
+                }
+
+                Log.d(LOG_TAG, "Movies downloaded successful");
             }
 
             @Override
             public void onLoadFailed() {
                 if (mPrefs.isOptionSaved()) mView.showNoMoviesInDb();
                 else mView.showNoInternet();
+                Log.d(LOG_TAG, "Movies downloaded unsuccessful");
             }
         });
     }

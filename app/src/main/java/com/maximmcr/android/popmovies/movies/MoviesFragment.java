@@ -64,9 +64,15 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     @BindView(R.id.movies_unavailable_tv)
     TextView mUnavailableTV;
 
+    public MoviesFragment() {}
+
+    public static MoviesFragment newInstance() {
+        return new MoviesFragment();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         mAdapter = new MoviesAdapter(getContext(), new ArrayList<Movie>(), this);
     }
@@ -74,6 +80,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.frag_movies, container, false);
         mUnbinder = ButterKnife.bind(this, rootView);
 
@@ -100,7 +107,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     public void setPresenter(MoviesContract.Presenter presenter) {
         Log.d(LOG_TAG, "setPresenter");
         this.mPresenter = presenter;
-        mPresenter.start();
+        //mPresenter.start();
     }
 
     @Override
@@ -133,6 +140,8 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
 
     @Override
     public void showNoInternet() {
+        ButterKnife.apply(mUnavailableLL, VISIBILITY, false);
+        ButterKnife.apply(mAvailableLL, VISIBILITY, true);
         showMessage(getString(R.string.snackbar_no_internet));
     }
 

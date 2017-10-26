@@ -18,15 +18,13 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.maximmcr.android.popmovies.BuildConfig;
-import com.maximmcr.android.popmovies.PopMoviesApplication;
 import com.maximmcr.android.popmovies.R;
-import com.maximmcr.android.popmovies.utils.Utility;
-import com.maximmcr.android.popmovies.data.model.Review;
-import com.maximmcr.android.popmovies.data.source.local.MoviesContract;
 import com.maximmcr.android.popmovies.data.model.Movie;
+import com.maximmcr.android.popmovies.data.model.Review;
 import com.maximmcr.android.popmovies.data.model.Video;
-import com.maximmcr.android.popmovies.movies.MoviesActivity;
+import com.maximmcr.android.popmovies.data.source.local.MoviesContract;
+import com.maximmcr.android.popmovies.settings.SharedPrefsRepoImpl;
+import com.maximmcr.android.popmovies.utils.Utility;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -36,9 +34,6 @@ import java.util.Vector;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static com.maximmcr.android.popmovies.R.id.detail_fab_favourite;
 
@@ -132,11 +127,11 @@ public class DetailedActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         if (savedInstanceState == null || !savedInstanceState.containsKey("movie")) {
             String id = getIntent().getStringExtra("id");
-            if (Utility.isOptionSaved(getApplicationContext())) {
+            if (SharedPrefsRepoImpl.getInstance(getApplicationContext()).isOptionSaved()) {
                 getMovieFromDB(Long.parseLong(id));
                 updateInfoOnScreen();
             } else {
-                getMovie(id);
+                //getMovie(id);
             }
         } else {
             mMovie = savedInstanceState.getParcelable(SAVE_MOVIE_TAG);
@@ -157,7 +152,7 @@ public class DetailedActivity extends AppCompatActivity {
     }
 
     private void updateMovieInfo() {
-        if (Utility.isOptionSaved(getApplicationContext())) {
+        if (SharedPrefsRepoImpl.getInstance(getApplicationContext()).isOptionSaved()) {
             mPoster.setImageBitmap(Utility.stringToBitmap(mMovie.getPosterPath()));
         } else {
             Picasso.with(getApplicationContext())
@@ -225,10 +220,10 @@ public class DetailedActivity extends AppCompatActivity {
                             .show();
                 } else {
                     deleteMovieFromDB(movieId);
-                    if (Utility.isOptionSaved(getApplicationContext())) {
-                        CallbackMovieRemoved callback = MoviesActivity.mMovieInfoAdapter;
-                        callback.removeMovie(movieId);
-                    }
+//                    if (SharedPrefsRepoImpl.getInstance(getApplicationContext()).isOptionSaved()) {
+//                        CallbackMovieRemoved callback = MoviesActivity.mMovieInfoAdapter;
+//                        callback.removeMovie(movieId);
+//                    }
                     fabFavourites.setImageResource(R.drawable.ic_favorite_border_white_24dp);
                     Snackbar.make(findViewById(R.id.activity_detailed),
                             R.string.snackbar_movie_removed, Snackbar.LENGTH_SHORT)
@@ -437,53 +432,53 @@ public class DetailedActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-    private void getMovie(String id) {
-        final String API_KEY = BuildConfig.API_KEY_TMDB;
-        mMovie = new Movie();
-        PopMoviesApplication.getTmdbApi().getMovie(id, API_KEY).enqueue(new Callback<Movie>() {
-            @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-                if (response.isSuccessful()) {
-                    mMovie.fetchBaseInfo(response.body());
-                    updateMovieInfo();
-                    initializeFAB();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Movie> call, Throwable t) {
-
-            }
-        });
-        PopMoviesApplication.getTmdbApi().getReviewList(id, API_KEY).enqueue(new Callback<Review.Response>() {
-            @Override
-            public void onResponse(Call<Review.Response> call, Response<Review.Response> response) {
-                if (response.isSuccessful()) {
-                    mMovie.setReviews(response.body().reviews);
-                    updateCommentInfo();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Review.Response> call, Throwable t) {
-
-            }
-        });
-        PopMoviesApplication.getTmdbApi().getVideoList(id, API_KEY).enqueue(new Callback<Video.Response>() {
-            @Override
-            public void onResponse(Call<Video.Response> call, Response<Video.Response> response) {
-                if (response.isSuccessful()) {
-                    mMovie.setVideos(response.body().videos);
-                    updateVideoInfo();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Video.Response> call, Throwable t) {
-
-            }
-        });
-    }
+//    private void getMovie(String id) {
+//        final String API_KEY = BuildConfig.API_KEY_TMDB;
+//        mMovie = new Movie();
+//        PopMoviesApplication.getTmdbApi().getMovie(id, API_KEY).enqueue(new Callback<Movie>() {
+//            @Override
+//            public void onResponse(Call<Movie> call, Response<Movie> response) {
+//                if (response.isSuccessful()) {
+//                    mMovie.fetchBaseInfo(response.body());
+//                    updateMovieInfo();
+//                    initializeFAB();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Movie> call, Throwable t) {
+//
+//            }
+//        });
+//        PopMoviesApplication.getTmdbApi().getReviewList(id, API_KEY).enqueue(new Callback<Review.Response>() {
+//            @Override
+//            public void onResponse(Call<Review.Response> call, Response<Review.Response> response) {
+//                if (response.isSuccessful()) {
+//                    mMovie.setReviews(response.body().reviews);
+//                    updateCommentInfo();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Review.Response> call, Throwable t) {
+//
+//            }
+//        });
+//        PopMoviesApplication.getTmdbApi().getVideoList(id, API_KEY).enqueue(new Callback<Video.Response>() {
+//            @Override
+//            public void onResponse(Call<Video.Response> call, Response<Video.Response> response) {
+//                if (response.isSuccessful()) {
+//                    mMovie.setVideos(response.body().videos);
+//                    updateVideoInfo();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Video.Response> call, Throwable t) {
+//
+//            }
+//        });
+//    }
 
     interface CallbackMovieRemoved {
         void removeMovie(int id);
