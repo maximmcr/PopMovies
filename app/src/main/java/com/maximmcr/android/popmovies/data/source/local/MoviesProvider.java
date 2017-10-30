@@ -25,7 +25,7 @@ public class MoviesProvider extends ContentProvider {
     // Codes for Uri matcher
     static final int MOVIES = 100;
     static final int MOVIE_WITH_DATA = 101;
-    static final int COMMENTS = 200;
+    static final int REVIEWS = 200;
     static final int VIDEOS = 300;
 
     private static final SQLiteQueryBuilder sMovieWithDataQueryBuilder;
@@ -57,7 +57,7 @@ public class MoviesProvider extends ContentProvider {
 
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIES);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_WITH_DATA);
-        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", COMMENTS);
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", REVIEWS);
         matcher.addURI(authority, MoviesContract.PATH_VIDEOS + "/#", VIDEOS);
 
         return matcher;
@@ -74,6 +74,7 @@ public class MoviesProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         final int match = sUriMatcher.match(uri);
+        Log.d(LOG_TAG, uri.toString());
         Cursor result;
 
         switch (match) {
@@ -104,7 +105,7 @@ public class MoviesProvider extends ContentProvider {
                 );
                 break;
             }
-            case (COMMENTS): {
+            case (REVIEWS): {
                 String id = MoviesContract.MovieEntry.getMovieIdFromUri(uri);
 
                 result = mOpenHelper.getReadableDatabase().query(
@@ -170,7 +171,7 @@ public class MoviesProvider extends ContentProvider {
                 break;
             }
 
-            case COMMENTS: {
+            case REVIEWS: {
                 id = db.insert(MoviesContract.ReviewEntry.TABLE_NAME, null, values);
                 if (id > 0) {
                     returnUri = MoviesContract.ReviewEntry.buildMovieUri(id);
@@ -235,7 +236,7 @@ public class MoviesProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case COMMENTS: {
+            case REVIEWS: {
                 db.beginTransaction();
                 int returnCount = 0;
                 try {

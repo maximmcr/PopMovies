@@ -1,9 +1,6 @@
 package com.maximmcr.android.popmovies.moviedetails;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,21 +12,22 @@ import com.maximmcr.android.popmovies.data.model.Review;
 
 import java.util.ArrayList;
 
-import static com.maximmcr.android.popmovies.utils.Utility.getShortComment;
-import static com.maximmcr.android.popmovies.utils.Utility.isOnline;
+import static com.maximmcr.android.popmovies.utils.Utility.getShortReview;
 
 /**
  * Created by Frei on 08.07.2017.
  */
 
-public class CommentVPAdapter extends PagerAdapter {
+public class ReviewVPAdapter extends PagerAdapter {
 
     ArrayList<Review> mReview;
     private Context mContext;
+    private OnReviewClickListener mListener;
 
-    public CommentVPAdapter(Context context, ArrayList<Review> review) {
+    public ReviewVPAdapter(Context context, ArrayList<Review> review, OnReviewClickListener listener) {
         mContext = context;
         mReview = review;
+        mListener = listener;
     }
 
     @Override
@@ -41,20 +39,12 @@ public class CommentVPAdapter extends PagerAdapter {
         authorTV.setText(mReview.get(position).getAuthor());
 
         TextView contentTV = (TextView) layout.findViewById(R.id.comment_content);
-        contentTV.setText(getShortComment(mReview.get(position).getContent()));
+        contentTV.setText(getShortReview(mReview.get(position).getContent()));
 
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isOnline(mContext)) {
-                    Uri uri = Uri.parse(mReview.get(position).getUrl());
-                    Intent openComment = new Intent(Intent.ACTION_VIEW, uri);
-                    openComment.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    mContext.startActivity(openComment);
-                } else {
-                    Snackbar.make(v, "There is no internet connection!", Snackbar.LENGTH_LONG)
-                            .show();
-                }
+                if (mListener != null) mListener.onReviewClick(mReview.get(position));
             }
         });
         container.addView(layout);
@@ -74,5 +64,14 @@ public class CommentVPAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
+    }
+
+    public void replace(ArrayList<Review> reviews) {
+        mReview = reviews;
+        notifyDataSetChanged();
+    }
+
+    public interface OnReviewClickListener {
+        void onReviewClick(Review review);
     }
 }

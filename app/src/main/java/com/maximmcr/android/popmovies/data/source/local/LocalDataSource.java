@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import static android.R.attr.id;
-
 /**
  * Created by Frei on 05.10.2017.
  */
@@ -219,16 +217,18 @@ public class LocalDataSource implements MovieDataSource {
         }
     }
 
-    // TODO: 18.10.2017 make saving poster from imageView to db
     @Override
     public void insertMovie(Movie movie) {
+
+        int id = movie.getId();
         //inserting base movie info
         ContentValues movieValues = new ContentValues();
 
         File dir = mContext.getDir(mContext.getString(R.string.poster_dir_name), Context.MODE_PRIVATE);
-        File image = new File(dir, movie.getPosterPath());
+        File image = new File(dir, getPosterName(movie.getPosterPath()));
+//        File image = new File(dir, movie.getPosterPath());
         downloadImage(image);
-        movieValues.put(MoviesContract.MovieEntry.COLUMN_POSTER, image.getAbsolutePath());
+        movieValues.put(MoviesContract.MovieEntry.COLUMN_POSTER, "file://" + image.getAbsolutePath());
 
         movieValues.put(MoviesContract.MovieEntry._ID, id);
         movieValues.put(MoviesContract.MovieEntry.COLUMN_TITLE, movie.getTitle());
@@ -278,36 +278,6 @@ public class LocalDataSource implements MovieDataSource {
         }
     }
 
-    @Override
-    public void deleteMovie(int id) {
-        String[] selectionArgs = { Integer.toString(id) };
-        Cursor poster = mContext.getContentResolver().query(
-                MoviesContract.BASE_CONTENT_URI,
-                MOVIE_LIST_COLUMNS,
-                MOVIE_LIST_COLUMNS[COLUMN_LIST_ID],
-                selectionArgs,
-                null
-        );
-        String posterPath = null;
-        if (poster != null && poster.getCount() != 0) {
-            poster.moveToFirst();
-            posterPath = poster.getString(COLUMN_LIST_POSTER);
-        }
-
-        if (posterPath != null) {
-            File image = new File(posterPath);
-            if (image.delete()) Log.d(LOG_TAG, "image on the disk deleted successfully!");
-        }
-
-        int count = mContext.getContentResolver().delete(
-                MoviesContract.MovieEntry.buildMovieUri(id),
-                null,
-                null);
-        Log.d(LOG_TAG, "Deleted " + count + "rows from db");
-
-
-    }
-
     private void downloadImage(final File image) {
         Target target = new Target() {
             @Override
@@ -339,7 +309,56 @@ public class LocalDataSource implements MovieDataSource {
         };
 
         Picasso.with(mContext)
-                .load(mContext.getString(R.string.poster_base_path) + image.getName())
+                .load(mContext.getString(R.string.poster_base_path) + "/" + getPosterName(image.getName()))
+//                .load(image.getName())
                 .into(target);
+    }
+
+    private String getPosterName(String poster) {
+        String[] pathParts = poster.split("/");
+        return pathParts[pathParts.length - 1];
+    }
+
+    @Override
+    public void deleteMovie(int id) {
+        String[] selectionArgs = { Integer.toString(id) };
+        Cursor poster = mContext.getContentResolver().query(
+                MoviesContract.MovieEntry.buildMovieUri(id),
+                MOVIE_LIST_COLUMNS,
+                MOVIE_LIST_COLUMNS[COLUMN_LIST_ID],
+                selectionArgs,
+                null
+        );
+        String posterPath = null;
+        if (poster != null && poster.getCount() != 0) {
+            poster.moveToFirst();
+            posterPath = poster.getString(COLUMN_LIST_POSTER);
+        }
+
+        if (posterPath != null) {
+            File image = new File(posterPath);
+            if (image.delete()) Log.d(LOG_TAG, "image on the disk deleted successfully!");
+        }
+
+        int count = mContext.getContentResolver().delete(
+                MoviesContract.MovieEntry.buildMovieUri(id),
+                null,
+                null);
+        Log.d(LOG_TAG, "Deleted " + count + "rows from db");
+
+
+    }
+
+    @Override
+    public boolean isMovieInDb(int id) {
+        String[] selectionArgs = { Integer.toString(id) };
+        Cursor poster = mContext.getContentResolver().query(
+                MoviesContract.MovieEntry.buildMovieUri(id),
+                MOVIE_LIST_COLUMNS,
+                MOVIE_LIST_COLUMNS[COLUMN_LIST_ID],
+                selectionArgs,
+                null
+        );
+        return  (poster != null && poster.getCount() != 0);
     }
 }

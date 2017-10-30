@@ -94,6 +94,11 @@ public class TmdbDataSource implements MovieDataSource{
     @Override
     public void deleteMovie(int id) { }
 
+    @Override
+    public boolean isMovieInDb(int id) {
+        return false;
+    }
+
     private class getMovieAsync extends AsyncTask<Integer, Void, Movie> {
 
         private LoadMovieCallback listener;

@@ -9,12 +9,12 @@ import android.view.View;
  * Created by Frei on 31.07.2017.
  */
 
-public class CommentViewPager extends ViewPager {
-    public CommentViewPager(Context context, AttributeSet attrs) {
+public class ReviewViewPager extends ViewPager {
+    public ReviewViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CommentViewPager(Context context) {
+    public ReviewViewPager(Context context) {
         super(context);
     }
 

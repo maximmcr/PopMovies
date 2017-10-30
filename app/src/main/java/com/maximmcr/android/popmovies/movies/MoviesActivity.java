@@ -15,6 +15,7 @@ import com.maximmcr.android.popmovies.settings.SharedPrefsRepoImpl;
 public class MoviesActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = MoviesActivity.class.getSimpleName();
+    public static final String MOVIE_ID_TAG = "movie_id";
 
     private MoviesContract.Presenter mPresenter;
 
@@ -56,7 +57,8 @@ public class MoviesActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
+            return true;
         }
-        return true;
+        return false;
     }
 }

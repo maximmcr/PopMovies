@@ -10,7 +10,6 @@ import com.maximmcr.android.popmovies.settings.SharedPrefsRepoImpl;
 /**
  * Created by Frei on 04.10.2017.
  */
-// TODO: 18.10.2017 code MovieRepo
 public class MovieRepository implements MovieDataSource {
 
     private static MovieRepository INSTANCE = null;
@@ -58,5 +57,10 @@ public class MovieRepository implements MovieDataSource {
     @Override
     public void deleteMovie(int id) {
         localStorage.deleteMovie(id);
+    }
+
+    @Override
+    public boolean isMovieInDb(int id) {
+        return localStorage.isMovieInDb(id);
     }
 }

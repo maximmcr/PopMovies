@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/detail_coordinator_layout"
+    android:id="@+id/detail_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants"
     app:layout_behavior="com.example.android.popmovies.FABScrolling">
+
+    <ProgressBar
+        android:id="@+id/detail_progressbar"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="invisible"
+        android:layout_margin="16dp"/>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/detail_scrollview"
@@ -13,7 +22,6 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/activity_detailed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -125,8 +133,8 @@
                 android:layout_height="3dp" />
 
 
-            <com.maximmcr.android.popmovies.moviedetails.CommentViewPager
-                android:id="@+id/detail_comment_viewpager"
+            <com.maximmcr.android.popmovies.moviedetails.ReviewViewPager
+                android:id="@+id/detail_review_vp"
                 android:layout_width="match_parent"
                 android:layout_height="100dp" />
 
@@ -163,8 +171,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:src="@drawable/ic_favorite_border_white_24dp"
-        app:layout_anchor="@id/activity_detailed"
-        app:layout_anchorGravity="bottom|right|end"/>
-        <!-- app:layout_behavior="com.example.android.popmovies.FABScrolling" -->
+        app:layout_anchor="@id/detail_scrollview"
+        app:layout_anchorGravity="bottom|right|end" />
+    <!--app:layout_behavior="com.example.android.popmovies.FABScrolling" />-->
 
 </android.support.design.widget.CoordinatorLayout>

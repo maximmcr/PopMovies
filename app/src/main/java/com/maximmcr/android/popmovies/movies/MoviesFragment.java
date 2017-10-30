@@ -13,6 +13,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -20,7 +23,7 @@ import android.widget.TextView;
 
 import com.maximmcr.android.popmovies.R;
 import com.maximmcr.android.popmovies.data.model.Movie;
-import com.maximmcr.android.popmovies.moviedetails.DetailedActivity;
+import com.maximmcr.android.popmovies.moviedetails.DetailsActivity;
 
 import java.util.ArrayList;
 
@@ -35,13 +38,10 @@ import butterknife.Unbinder;
 public class MoviesFragment extends Fragment implements MoviesContract.View, MoviesAdapter.OnItemClickListener {
 
     public static final String LOG_TAG = MoviesFragment.class.getSimpleName();
-
     private static final String SAVED_MOVIE_TAG = "movies";
 
     private MoviesContract.Presenter mPresenter;
-
     private MoviesAdapter mAdapter;
-
     private Unbinder mUnbinder;
 
     static final ButterKnife.Setter<LinearLayout, Boolean> VISIBILITY = new ButterKnife.Setter<LinearLayout, Boolean>() {
@@ -73,6 +73,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate");
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
         mAdapter = new MoviesAdapter(getContext(), new ArrayList<Movie>(), this);
     }
@@ -88,6 +89,26 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
         mMoviesRV.setAdapter(mAdapter);
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.movies, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(LOG_TAG, "option handler entry");
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                mPresenter.loadMovies();
+                break;
+            default:
+                super.onOptionsItemSelected(item);
+                break;
+        }
+        return true;
     }
 
     @Override
@@ -119,8 +140,8 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
 
     @Override
     public void showMovieDetails(int id) {
-        Intent intent = new Intent(getContext(), DetailedActivity.class);
-        intent.putExtra("id", id);
+        Intent intent = new Intent(getContext(), DetailsActivity.class);
+        intent.putExtra(MoviesActivity.MOVIE_ID_TAG, id);
 
         Pair<View, String> pairImg = Pair.create(
                 mAdapter.getImageView(), getContext().getText(R.string.transition_poster).toString());

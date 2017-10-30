@@ -19,16 +19,16 @@ import java.text.SimpleDateFormat;
  */
 
 public class Utility {
-    public static String getShortComment(String comment) {
-        if (comment.length() > 400) {
-            comment = comment.substring(0, 200);
-            if (comment.endsWith(" ")) {
-                comment = comment.substring(0, comment.length() - 2);
+    public static String getShortReview(String review) {
+        if (review.length() > 400) {
+            review = review.substring(0, 200);
+            if (review.endsWith(" ")) {
+                review = review.substring(0, review.length() - 2);
             }
-            comment = comment + "...";
+            review = review + "...";
         }
 
-        return comment;
+        return review;
     }
 
     public static boolean isOnline(Context context) {

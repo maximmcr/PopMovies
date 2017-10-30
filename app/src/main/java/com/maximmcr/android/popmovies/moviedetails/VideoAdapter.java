@@ -1,11 +1,8 @@
 package com.maximmcr.android.popmovies.moviedetails;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.maximmcr.android.popmovies.R;
-import com.maximmcr.android.popmovies.utils.Utility;
 import com.maximmcr.android.popmovies.data.model.Video;
 
 import java.util.ArrayList;
@@ -24,18 +20,18 @@ import java.util.ArrayList;
 
 public class VideoAdapter extends ArrayAdapter<Video> {
 
-    private static final String YOUTUBE_REQUEST_BASE = "https://www.youtube.com/watch";
-
     private Context mContext;
+    private OnVideoClickListener mListener;
 
     private static class ViewHolder {
         TextView type;
         TextView name;
     }
 
-    public VideoAdapter(Context context, ArrayList<Video> videos) {
+    public VideoAdapter(Context context, ArrayList<Video> videos, OnVideoClickListener listener) {
         super(context, R.layout.list_item_video, videos);
         mContext = context;
+        mListener = listener;
     }
 
     @NonNull
@@ -60,24 +56,20 @@ public class VideoAdapter extends ArrayAdapter<Video> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Utility.isOnline(mContext)) {
-                    Uri uri = Uri.parse(YOUTUBE_REQUEST_BASE)
-                            .buildUpon()
-                            .appendQueryParameter("v", video.getPath())
-                            .build();
-                    Intent playVideo = new Intent(Intent.ACTION_VIEW, uri);
-                    if (playVideo.resolveActivity(mContext.getPackageManager()) != null) {
-                        Intent chooser = Intent.createChooser(playVideo, "Play via");
-                        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        mContext.startActivity(chooser);
-                    }
-                } else {
-                    Snackbar.make(v, "There is no internet connection!", Snackbar.LENGTH_LONG)
-                            .show();
-                }
+                if (mListener != null) mListener.onVideoClick(video);
             }
         });
 
         return convertView;
+    }
+
+    public void replace(ArrayList<Video> videos) {
+        clear();
+        addAll(videos);
+        notifyDataSetChanged();
+    }
+
+    public interface OnVideoClickListener {
+        void onVideoClick(Video video);
     }
 }

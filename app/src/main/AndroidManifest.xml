@@ -33,7 +33,7 @@
         </activity>
 
         <activity
-            android:name="com.maximmcr.android.popmovies.moviedetails.DetailedActivity"
+            android:name="com.maximmcr.android.popmovies.moviedetails.DetailsActivity"
             android:label="Details"
             android:parentActivityName="com.maximmcr.android.popmovies.movies.MoviesActivity">
             <meta-data

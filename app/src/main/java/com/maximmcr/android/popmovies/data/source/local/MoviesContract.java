@@ -15,7 +15,7 @@ public class MoviesContract {
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
-    public static final String PATH_REVIEWS = "comment";
+    public static final String PATH_REVIEWS = "review";
     public static final String PATH_VIDEOS= "video";
     public static final String PATH_MOVIES = "movie";
 
