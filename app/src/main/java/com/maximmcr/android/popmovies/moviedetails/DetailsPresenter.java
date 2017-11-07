@@ -16,7 +16,6 @@ public class DetailsPresenter implements DetailsContract.Presenter {
 
     public static final String LOG_TAG = DetailsPresenter.class.getSimpleName();
 
-    private Movie mMovie;
     private int mId;
     private boolean mFirstLoad;
 
@@ -46,50 +45,42 @@ public class DetailsPresenter implements DetailsContract.Presenter {
         if (mFirstLoad) {
             mView.showLoadingStatus(true);
             mFirstLoad = false;
+            mData.refreshMovie();
         }
-        if (mMovie == null) {
-            mData.getMovie(mId, new MovieDataSource.LoadMovieCallback() {
-                @Override
-                public void onMovieLoaded(Movie movie) {
-                    if (movie != null && movie.getId() > -1) {
-                        mMovie = movie;
-                        showMovie();
-                    } else {
-                        mView.showNoInternet();
-                    }
-                }
 
-                @Override
-                public void onLoadFailed() {
-                    Log.d(LOG_TAG, "onLoadFailed -- movie");
-                }
-            });
-        } else {
-            showMovie();
-        }
-    }
-
-    private void showMovie() {
-        mView.showMovie(mMovie, new DetailsContract.OnPosterLoadedCallback() {
+        mData.getMovie(mId, new MovieDataSource.LoadMovieCallback() {
             @Override
-            public void onSuccess() {
-                mView.showLoadingStatus(false);
+            public void onMovieLoaded(Movie movie) {
+                mView.showMovie(movie, new DetailsContract.OnPosterLoadedCallback() {
+                    @Override
+                    public void onSuccess() {
+                        mView.showLoadingStatus(false);
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        mView.showLoadingStatus(false);
+                    }
+                });
             }
 
             @Override
-            public void onFailure() {
+            public void onLoadFailed() {
                 mView.showLoadingStatus(false);
+                mView.showNoInternet();
+                Log.d(LOG_TAG, "onLoadFailed -- movie");
             }
         });
     }
 
     @Override
     public void saveMovie() {
-        if (mData.isMovieInDb(mMovie.getId())) {
-            mData.deleteMovie(mMovie.getId());
+        if (mData.isMovieInDb(mId)) {
+            mData.deleteMovie(mId);
             mView.showMovieRemoved();
         } else {
-            mData.insertMovie(mMovie);
+            //repo have cached movie, it don't need movie as parameter
+            mData.insertMovie(null);
             mView.showMovieAdded();
         }
     }

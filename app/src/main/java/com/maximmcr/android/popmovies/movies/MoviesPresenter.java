@@ -20,27 +20,17 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     private MovieRepository mData;
     private MoviesContract.View mView;
     private SharedPreferenceRepository mPrefs;
-    private ArrayList<Movie> mMovies;
+
     private String mCurrentFilter;
+    private boolean mFirstLoad;
 
     public MoviesPresenter(MovieRepository data,
                            SharedPreferenceRepository prefs) {
         Log.d(LOG_TAG, "MoviePresenter constructor");
         mData = data;
-        mData.addMovieDeletedListener(new MovieDataSource.MovieDeleteCallback() {
-            @Override
-            public void onMovieDeleted(int id) {
-                for (Movie movie:
-                        mMovies) {
-                    if (movie.getId() == id) {
-                        mMovies.remove(movie);
-                        return;
-                    }
-                }
-            }
-        });
         mPrefs = prefs;
         mCurrentFilter = "";
+        mFirstLoad = true;
     }
 
     @Override
@@ -58,42 +48,31 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     @Override
     public void updateView() {
         Log.d(LOG_TAG, "updateView");
-        if (mMovies == null || !mCurrentFilter.equals(mPrefs.getCurrentFiltering())) {
-            if (mMovies != null) mMovies.clear();
-            else mMovies = new ArrayList<>();
-            mData.getMovieList(getFiltering(), new MovieDataSource.LoadMovieListCallback() {
-                @Override
-                public void onMovieListLoaded(ArrayList<Movie> movies) {
-                    if (movies.size() > 0) {
-                        mMovies = movies;
-                        mView.showMovieList(mMovies);
-                        mCurrentFilter = mPrefs.getCurrentFiltering();
-                    } else if (mPrefs.isOptionSaved()) {
-                        mView.showNoMoviesInDb();
-                        mCurrentFilter = mPrefs.getCurrentFiltering();
-                    } else {
-                        mView.showMovieList(mMovies);
-                        mView.showNoInternet();
-                    }
-                    Log.d(LOG_TAG, "Movies downloaded successful");
-                }
-
-                @Override
-                public void onLoadFailed() {
-                    if (mPrefs.isOptionSaved()) {
-                        mCurrentFilter = mPrefs.getCurrentFiltering();
-                        mView.showNoMoviesInDb();
-                    }
-                    else {
-                        mView.showMovieList(mMovies);
-                        mView.showNoInternet();
-                    }
-                    Log.d(LOG_TAG, "Movies downloaded unsuccessful");
-                }
-            });
-        } else {
-            mView.showMovieList(mMovies);
+        if (!mCurrentFilter.equals(mPrefs.getCurrentFiltering()) || mFirstLoad){
+            mData.refreshMovieList();
+            mCurrentFilter = mPrefs.getCurrentFiltering();
+            mFirstLoad = false;
         }
+
+        mData.getMovieList(mCurrentFilter, new MovieDataSource.LoadMovieListCallback() {
+            @Override
+            public void onMovieListLoaded(ArrayList<Movie> movies) {
+                mView.showMovieList(movies);
+                Log.d(LOG_TAG, "Movies downloaded successful");
+            }
+
+            @Override
+            public void onLoadFailed() {
+                if (mPrefs.isOptionSaved()) {
+                    mView.showNoMoviesInDb();
+                }
+                else {
+                    mView.showMovieList(new ArrayList<Movie>());
+                    mView.showNoInternet();
+                }
+                Log.d(LOG_TAG, "Movies downloaded unsuccessful");
+            }
+        });
     }
 
     @Override

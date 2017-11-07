@@ -88,22 +88,6 @@ public class TmdbDataSource implements MovieDataSource{
                 });
     }
 
-    @Override
-    public void insertMovie(Movie movie) { }
-
-    @Override
-    public void deleteMovie(int id) { }
-
-    @Override
-    public boolean isMovieInDb(int id) {
-        return false;
-    }
-
-    @Override
-    public void addMovieDeletedListener(MovieDeleteCallback listener) {
-
-    }
-
     private class getMovieAsync extends AsyncTask<Integer, Void, Movie> {
 
         private LoadMovieCallback listener;
@@ -163,4 +147,27 @@ public class TmdbDataSource implements MovieDataSource{
             else listener.onLoadFailed();
         }
     }
+
+    //not required because of repo and db impl.
+    @Override
+    public void insertMovie(Movie movie) { }
+
+    @Override
+    public void deleteMovie(int id) { }
+
+    @Override
+    public boolean isMovieInDb(int id) {
+        return false;
+    }
+
+    @Override
+    public void refreshMovie() {
+
+    }
+
+    @Override
+    public void refreshMovieList() {
+
+    }
+
 }

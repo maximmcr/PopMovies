@@ -10,17 +10,22 @@ import java.util.ArrayList;
 
 public interface MovieDataSource {
 
+    //common
     void getMovie(int id, LoadMovieCallback callback);
 
     void getMovieList(String filterType, LoadMovieListCallback callback);
 
+    //only for local db and repo
     void insertMovie(Movie movie);
 
     void deleteMovie(int id);
 
     boolean isMovieInDb(int id);
 
-    void addMovieDeletedListener(MovieDeleteCallback listener);
+    //only for repo
+    void refreshMovie();
+
+    void refreshMovieList();
 
     interface LoadMovieCallback {
 
@@ -37,11 +42,4 @@ public interface MovieDataSource {
         void onLoadFailed();
 
     }
-
-    interface MovieDeleteCallback {
-
-        void onMovieDeleted(int id);
-
-    }
-
 }

@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -88,11 +87,8 @@ public class LocalDataSource implements MovieDataSource {
 
     private Context mContext;
 
-    private List<MovieDeleteCallback> mMovieDeletedListeners;
-
     private LocalDataSource(Context context) {
         mContext = context;
-        mMovieDeletedListeners = new ArrayList<>();
     }
 
     public static LocalDataSource getInstance(Context context) {
@@ -203,18 +199,16 @@ public class LocalDataSource implements MovieDataSource {
                 null
         );
 
-        if (c == null) {
+        if (c == null || c.getCount() < 1) {
             callback.onLoadFailed();
         } else {
             ArrayList<Movie> result = new ArrayList<>();
-            if (c.getCount() > 0) {
-                c.moveToFirst();
-                for (int i = 0; i < c.getCount(); i++) {
-                    int id = c.getInt(COLUMN_LIST_ID);
-                    String poster = c.getString(COLUMN_LIST_POSTER);
-                    result.add(new Movie(poster, id));
-                    c.moveToNext();
-                }
+            c.moveToFirst();
+            for (int i = 0; i < c.getCount(); i++) {
+                int id = c.getInt(COLUMN_LIST_ID);
+                String poster = c.getString(COLUMN_LIST_POSTER);
+                result.add(new Movie(poster, id));
+                c.moveToNext();
             }
             c.close();
             callback.onMovieListLoaded(result);
@@ -350,11 +344,6 @@ public class LocalDataSource implements MovieDataSource {
                 null,
                 null);
         Log.d(LOG_TAG, "Deleted " + count + "rows from db");
-
-        for (MovieDeleteCallback callback:
-             mMovieDeletedListeners) {
-            callback.onMovieDeleted(id);
-        }
     }
 
     @Override
@@ -372,8 +361,14 @@ public class LocalDataSource implements MovieDataSource {
         return result;
     }
 
+    //not required because of repo impl.
     @Override
-    public void addMovieDeletedListener(MovieDeleteCallback listener) {
-        mMovieDeletedListeners.add(listener);
+    public void refreshMovie() {
+
+    }
+
+    @Override
+    public void refreshMovieList() {
+
     }
 }

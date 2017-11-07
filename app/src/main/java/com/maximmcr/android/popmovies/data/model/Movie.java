@@ -87,17 +87,22 @@ public class Movie implements Parcelable {
                  int runtime, double rating, double popularity, String overview,
                  ArrayList<Review> reviews, ArrayList<Video> youtubeAdresses) {
         mId = id;
-        mTitle = title;
-        mTagline = tagline;
-        mPosterPath = poster;
-        mReleaseDate = releaseDate;
+        mTitle = new String(new StringBuffer(title));
+        mTagline = new String(new StringBuffer(tagline));
+        mPosterPath = new String(new StringBuffer(poster));
+        mReleaseDate = new String(new StringBuffer(releaseDate));
         mRuntime = runtime;
         mRating = rating;
         mPopularity = popularity;
-        mOverview = overview;
+        mOverview = new String(new StringBuffer(overview));
 
-        mReviews = reviews;
-        mYoutubeAddresses = youtubeAdresses;
+        mReviews = new ArrayList<>(reviews);
+        mYoutubeAddresses = new ArrayList<>(youtubeAdresses);
+    }
+    public Movie(Movie other) {
+        this(other.mId, other.mTitle, other.mTagline, other.mPosterPath, other.mReleaseDate,
+                other.mRuntime, other.mRating, other.mPopularity, other.mOverview,
+                other.mReviews, other.mYoutubeAddresses);
     }
     public Movie(String posterId, int id) {
         this.mPosterPath = posterId;
