@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public interface MoviesContract {
 
-    public interface View extends BaseView<Presenter> {
+    interface View extends BaseView<Presenter> {
 
         void showMovieList(ArrayList<Movie> movies);
 
@@ -24,15 +24,15 @@ public interface MoviesContract {
 
         void showLoadingIndicator(boolean status);
 
+        boolean isOnline();
+
     }
 
-    public interface Presenter extends BasePresenter {
+    interface Presenter extends BasePresenter<View> {
 
-        void loadMovies();
+        void updateView();
 
         void openMovieDetails(Movie selectedMovie);
-
-        //void setFiltering(String filtering);
 
         String getFiltering();
 

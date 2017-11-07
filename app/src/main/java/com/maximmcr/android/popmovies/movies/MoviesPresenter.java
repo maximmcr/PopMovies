@@ -20,52 +20,86 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     private MovieRepository mData;
     private MoviesContract.View mView;
     private SharedPreferenceRepository mPrefs;
+    private ArrayList<Movie> mMovies;
+    private String mCurrentFilter;
 
-    public MoviesPresenter(MoviesContract.View view, MovieRepository data,
+    public MoviesPresenter(MovieRepository data,
                            SharedPreferenceRepository prefs) {
         Log.d(LOG_TAG, "MoviePresenter constructor");
         mData = data;
-        mView = view;
-        mPrefs = prefs;
-
-        mView.setPresenter(this);
-    }
-
-    @Override
-    public void start() {
-        Log.d(LOG_TAG, "start");
-        loadMovies();
-    }
-
-    @Override
-    public void loadMovies() {
-        Log.d(LOG_TAG, "loadMovies");
-        mData.getMovieList(getFiltering(), new MovieDataSource.LoadMovieListCallback() {
+        mData.addMovieDeletedListener(new MovieDataSource.MovieDeleteCallback() {
             @Override
-            public void onMovieListLoaded(ArrayList<Movie> movies) {
-                if (movies.size() > 0) {
-                    mView.showMovieList(movies);
-                } else if (mPrefs.isOptionSaved()) {
-                    mView.showNoMoviesInDb();
-                } else {
-                    mView.showNoInternet();
+            public void onMovieDeleted(int id) {
+                for (Movie movie:
+                        mMovies) {
+                    if (movie.getId() == id) {
+                        mMovies.remove(movie);
+                        return;
+                    }
                 }
-
-                Log.d(LOG_TAG, "Movies downloaded successful");
-            }
-
-            @Override
-            public void onLoadFailed() {
-                if (mPrefs.isOptionSaved()) mView.showNoMoviesInDb();
-                else mView.showNoInternet();
-                Log.d(LOG_TAG, "Movies downloaded unsuccessful");
             }
         });
+        mPrefs = prefs;
+        mCurrentFilter = "";
+    }
+
+    @Override
+    public void attachView(MoviesContract.View view) {
+        mView = view;
+        mView.setPresenter(this);
+        updateView();
+    }
+
+    @Override
+    public void detachView() {
+        mView = null;
+    }
+
+    @Override
+    public void updateView() {
+        Log.d(LOG_TAG, "updateView");
+        if (mMovies == null || !mCurrentFilter.equals(mPrefs.getCurrentFiltering())) {
+            if (mMovies != null) mMovies.clear();
+            else mMovies = new ArrayList<>();
+            mData.getMovieList(getFiltering(), new MovieDataSource.LoadMovieListCallback() {
+                @Override
+                public void onMovieListLoaded(ArrayList<Movie> movies) {
+                    if (movies.size() > 0) {
+                        mMovies = movies;
+                        mView.showMovieList(mMovies);
+                        mCurrentFilter = mPrefs.getCurrentFiltering();
+                    } else if (mPrefs.isOptionSaved()) {
+                        mView.showNoMoviesInDb();
+                        mCurrentFilter = mPrefs.getCurrentFiltering();
+                    } else {
+                        mView.showMovieList(mMovies);
+                        mView.showNoInternet();
+                    }
+                    Log.d(LOG_TAG, "Movies downloaded successful");
+                }
+
+                @Override
+                public void onLoadFailed() {
+                    if (mPrefs.isOptionSaved()) {
+                        mCurrentFilter = mPrefs.getCurrentFiltering();
+                        mView.showNoMoviesInDb();
+                    }
+                    else {
+                        mView.showMovieList(mMovies);
+                        mView.showNoInternet();
+                    }
+                    Log.d(LOG_TAG, "Movies downloaded unsuccessful");
+                }
+            });
+        } else {
+            mView.showMovieList(mMovies);
+        }
     }
 
     @Override
     public void openMovieDetails(Movie selectedMovie) {
-        mView.showMovieDetails(selectedMovie.getId());
+        if (mView.isOnline() || isOptionSaved()) mView.showMovieDetails(selectedMovie.getId());
+        else mView.showNoInternet();
     }
 
     @Override

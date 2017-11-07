@@ -59,26 +59,13 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> 
         viewHolder.poster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mImageView = (View) viewHolder.poster;
+                mImageView = viewHolder.poster;
                 if (mListener != null) {
                     mListener.onItemClick(movie);
                 }
             }
         });
     }
-
-//    void removeMovie(int id) {
-//        int position = 0;
-//        for (int i = 0; i < mMovies.size(); i++) {
-//            if (mMovies.get(i).getId() == id) {
-//                mMovies.remove(i);
-//                position = i;
-//                break;
-//            }
-//        }
-//        notifyItemRemoved(position);
-//        notifyItemRangeChanged(position, mMovies.size() - position);
-//    }
 
     void replaceMovies(ArrayList<Movie> movies) {
         mMovies = movies;

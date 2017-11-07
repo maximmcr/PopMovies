@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.maximmcr.android.popmovies.R;
 import com.maximmcr.android.popmovies.data.source.MovieRepository;
+import com.maximmcr.android.popmovies.movies.MoviesActivity;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -18,21 +19,26 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-//        Intent comingIntent = getIntent();
-//        int id = comingIntent.getIntExtra(MoviesActivity.MOVIE_ID_TAG, 0);
 
         DetailsFragment detailsFragment =
                 (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
+        attachPresenter(detailsFragment);
+    }
 
-        mPresenter = new DetailsPresenter(
-                MovieRepository.getInstance(getApplicationContext()),
-                detailsFragment
-        );
+    private void attachPresenter(DetailsContract.View view) {
+        if (getLastNonConfigurationInstance() == null) {
+            mPresenter = new DetailsPresenter(
+                    MovieRepository.getInstance(getApplicationContext()),
+                    getIntent().getIntExtra(MoviesActivity.MOVIE_ID_TAG, 0)
+            );
+        } else {
+            mPresenter = (DetailsContract.Presenter) getLastCustomNonConfigurationInstance();
+        }
+        mPresenter.attachView(view);
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    public Object onRetainCustomNonConfigurationInstance() {
+        return mPresenter;
     }
-
 }

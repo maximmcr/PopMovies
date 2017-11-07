@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -87,8 +88,11 @@ public class LocalDataSource implements MovieDataSource {
 
     private Context mContext;
 
+    private List<MovieDeleteCallback> mMovieDeletedListeners;
+
     private LocalDataSource(Context context) {
         mContext = context;
+        mMovieDeletedListeners = new ArrayList<>();
     }
 
     public static LocalDataSource getInstance(Context context) {
@@ -334,6 +338,7 @@ public class LocalDataSource implements MovieDataSource {
             poster.moveToFirst();
             posterPath = poster.getString(COLUMN_LIST_POSTER);
         }
+        if (poster != null) poster.close();
 
         if (posterPath != null) {
             File image = new File(posterPath);
@@ -346,7 +351,10 @@ public class LocalDataSource implements MovieDataSource {
                 null);
         Log.d(LOG_TAG, "Deleted " + count + "rows from db");
 
-
+        for (MovieDeleteCallback callback:
+             mMovieDeletedListeners) {
+            callback.onMovieDeleted(id);
+        }
     }
 
     @Override
@@ -359,6 +367,13 @@ public class LocalDataSource implements MovieDataSource {
                 selectionArgs,
                 null
         );
-        return  (poster != null && poster.getCount() != 0);
+        boolean result = (poster != null && poster.getCount() != 0);
+        if (poster != null) poster.close();
+        return result;
+    }
+
+    @Override
+    public void addMovieDeletedListener(MovieDeleteCallback listener) {
+        mMovieDeletedListeners.add(listener);
     }
 }

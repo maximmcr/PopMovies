@@ -3,7 +3,6 @@ package com.maximmcr.android.popmovies.movies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -27,23 +26,24 @@ public class MoviesActivity extends AppCompatActivity {
         MoviesFragment moviesFragment =
                 (MoviesFragment) getSupportFragmentManager().findFragmentById(R.id.movies_fragment);
 
-        mPresenter = new MoviesPresenter(
-                moviesFragment,
-                MovieRepository.getInstance(getApplicationContext()),
-                SharedPrefsRepoImpl.getInstance(getApplicationContext())
-        );
+        attachPresenter(moviesFragment);
+    }
+
+    private void attachPresenter(MoviesContract.View view) {
+        if (getLastCustomNonConfigurationInstance() == null) {
+            mPresenter = new MoviesPresenter(
+                    MovieRepository.getInstance(getApplicationContext()),
+                    SharedPrefsRepoImpl.getInstance(getApplicationContext())
+            );
+        } else {
+            mPresenter = (MoviesContract.Presenter) getLastCustomNonConfigurationInstance();
+        }
+        mPresenter.attachView(view);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(LOG_TAG, "onResume");
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.d(LOG_TAG, "onSaveInstanceState");
+    public Object onRetainCustomNonConfigurationInstance() {
+        return mPresenter;
     }
 
     @Override
@@ -52,7 +52,6 @@ public class MoviesActivity extends AppCompatActivity {
         return true;
     }
 
-    // TODO: 24.10.2017 move menu handler to fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {

@@ -12,7 +12,7 @@ import com.maximmcr.android.popmovies.data.model.Video;
 
 public interface DetailsContract {
 
-    public interface View extends BaseView<Presenter> {
+    interface View extends BaseView<Presenter> {
 
         void showMovie(Movie movie, OnPosterLoadedCallback callback);
 
@@ -31,11 +31,9 @@ public interface DetailsContract {
         boolean isOnline();
     }
 
-    public interface Presenter extends BasePresenter {
+    interface Presenter extends BasePresenter<View> {
 
-        void setId(int id);
-
-        void loadMovie();
+        void updateView();
 
         void saveMovie();
 
@@ -47,7 +45,7 @@ public interface DetailsContract {
 
     }
 
-    public interface OnPosterLoadedCallback {
+    interface OnPosterLoadedCallback {
 
         void onSuccess();
 

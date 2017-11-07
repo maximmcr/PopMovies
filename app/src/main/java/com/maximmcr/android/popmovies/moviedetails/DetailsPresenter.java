@@ -18,55 +18,67 @@ public class DetailsPresenter implements DetailsContract.Presenter {
 
     private Movie mMovie;
     private int mId;
+    private boolean mFirstLoad;
 
     private MovieRepository mData;
     private DetailsContract.View mView;
 
-    public DetailsPresenter(MovieRepository data, DetailsContract.View view) {
+    public DetailsPresenter(MovieRepository data, int id) {
         mData = data;
-        mView = view;
-        //mId = id;
-
-        mView.setPresenter(this);
-    }
-
-    @Override
-    public void setId(int id) {
         mId = id;
+        mFirstLoad = true;
     }
 
     @Override
-    public void start() {
-
+    public void attachView(DetailsContract.View view) {
+        mView = view;
+        mView.setPresenter(this);
+        updateView();
     }
 
     @Override
-    public void loadMovie() {
-        mView.showLoadingStatus(true);
-        mData.getMovie(mId, new MovieDataSource.LoadMovieCallback() {
-            @Override
-            public void onMovieLoaded(Movie movie) {
-                if (movie != null && movie.getId() > -1) {
-                    mMovie = movie;
-                    mView.showMovie(mMovie, new DetailsContract.OnPosterLoadedCallback() {
-                        @Override
-                        public void onSuccess() {
-                            mView.showLoadingStatus(false);
-                        }
+    public void detachView() {
+        mView = null;
+    }
 
-                        @Override
-                        public void onFailure() {
-                            mView.showLoadingStatus(false);
-                        }
-                    });
-                } else {
-                    mView.showNoInternet();
+    @Override
+    public void updateView() {
+        if (mFirstLoad) {
+            mView.showLoadingStatus(true);
+            mFirstLoad = false;
+        }
+        if (mMovie == null) {
+            mData.getMovie(mId, new MovieDataSource.LoadMovieCallback() {
+                @Override
+                public void onMovieLoaded(Movie movie) {
+                    if (movie != null && movie.getId() > -1) {
+                        mMovie = movie;
+                        showMovie();
+                    } else {
+                        mView.showNoInternet();
+                    }
                 }
+
+                @Override
+                public void onLoadFailed() {
+                    Log.d(LOG_TAG, "onLoadFailed -- movie");
+                }
+            });
+        } else {
+            showMovie();
+        }
+    }
+
+    private void showMovie() {
+        mView.showMovie(mMovie, new DetailsContract.OnPosterLoadedCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showLoadingStatus(false);
             }
 
             @Override
-            public void onLoadFailed() {
-                Log.d(LOG_TAG, "onLoadFailed -- movie");
+            public void onFailure() {
+                mView.showLoadingStatus(false);
             }
         });
     }

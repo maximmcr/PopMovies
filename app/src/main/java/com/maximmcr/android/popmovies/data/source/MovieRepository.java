@@ -15,13 +15,13 @@ public class MovieRepository implements MovieDataSource {
     private static MovieRepository INSTANCE = null;
     private Context mContext;
 
-    private MovieDataSource localStorage;
-    private MovieDataSource remoteStorage;
+    private MovieDataSource mLocalStorage;
+    private MovieDataSource mRemoteStorage;
 
     private MovieRepository(Context context) {
         mContext = context;
-        remoteStorage = TmdbDataSource.getInstance();
-        localStorage = LocalDataSource.getInstance(context);
+        mRemoteStorage = TmdbDataSource.getInstance();
+        mLocalStorage = LocalDataSource.getInstance(context);
     }
 
     public static MovieRepository getInstance(Context context) {
@@ -34,33 +34,38 @@ public class MovieRepository implements MovieDataSource {
     @Override
     public void getMovie(int id, LoadMovieCallback callback) {
         if (SharedPrefsRepoImpl.getInstance(mContext).isOptionSaved()) {
-            localStorage.getMovie(id, callback);
+            mLocalStorage.getMovie(id, callback);
         } else {
-            remoteStorage.getMovie(id, callback);
+            mRemoteStorage.getMovie(id, callback);
         }
     }
 
     @Override
     public void getMovieList(String filterType, LoadMovieListCallback callback) {
         if (SharedPrefsRepoImpl.getInstance(mContext).isOptionSaved()) {
-            localStorage.getMovieList(filterType, callback);
+            mLocalStorage.getMovieList(filterType, callback);
         } else {
-            remoteStorage.getMovieList(filterType, callback);
+            mRemoteStorage.getMovieList(filterType, callback);
         }
     }
 
     @Override
     public void insertMovie(Movie movie) {
-        localStorage.insertMovie(movie);
+        mLocalStorage.insertMovie(movie);
     }
 
     @Override
     public void deleteMovie(int id) {
-        localStorage.deleteMovie(id);
+        mLocalStorage.deleteMovie(id);
     }
 
     @Override
     public boolean isMovieInDb(int id) {
-        return localStorage.isMovieInDb(id);
+        return mLocalStorage.isMovieInDb(id);
+    }
+
+    @Override
+    public void addMovieDeletedListener(MovieDeleteCallback listener) {
+        mLocalStorage.addMovieDeletedListener(listener);
     }
 }

@@ -99,6 +99,11 @@ public class TmdbDataSource implements MovieDataSource{
         return false;
     }
 
+    @Override
+    public void addMovieDeletedListener(MovieDeleteCallback listener) {
+
+    }
+
     private class getMovieAsync extends AsyncTask<Integer, Void, Movie> {
 
         private LoadMovieCallback listener;
@@ -129,7 +134,8 @@ public class TmdbDataSource implements MovieDataSource{
                 Response<Video.Response> videoResponse = tmdbApi
                         .getVideoList(id, API_KEY)
                         .execute();
-                if (videoResponse.isSuccessful()) movie.setVideos(videoResponse.body().videos);
+                if (videoResponse.isSuccessful() && videoResponse.body() != null)
+                    movie.setVideos(videoResponse.body().videos);
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(LOG_TAG, "Crash on video loading");
@@ -139,7 +145,8 @@ public class TmdbDataSource implements MovieDataSource{
                 Response<Review.Response> reviewResponse = tmdbApi
                         .getReviewList(id, API_KEY)
                         .execute();
-                if (reviewResponse.isSuccessful()) movie.setReviews(reviewResponse.body().reviews);
+                if (reviewResponse.isSuccessful() && reviewResponse.body() != null)
+                    movie.setReviews(reviewResponse.body().reviews);
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(LOG_TAG, "Crash on review loading");

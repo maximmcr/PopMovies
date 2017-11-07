@@ -24,7 +24,6 @@ import com.maximmcr.android.popmovies.R;
 import com.maximmcr.android.popmovies.data.model.Movie;
 import com.maximmcr.android.popmovies.data.model.Review;
 import com.maximmcr.android.popmovies.data.model.Video;
-import com.maximmcr.android.popmovies.movies.MoviesActivity;
 import com.maximmcr.android.popmovies.utils.Utility;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -46,6 +45,8 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
     public static final String LOG_TAG = DetailsFragment.class.getSimpleName();
 
     private static final String YOUTUBE_REQUEST_BASE = "https://www.youtube.com/watch";
+
+    private static final String SAVE_TAG = "movie_details";
 
     @BindView(R.id.detail_image)
     ImageView mPoster;
@@ -133,12 +134,6 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
                 });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mPresenter.loadMovie();
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -159,6 +154,22 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+//        if (savedInstanceState == null) {
+//            mPresenter.loadMovie();
+//        } else if (savedInstanceState.containsKey(SAVE_TAG)) {
+//            showMovie((Movie) savedInstanceState.getParcelable(SAVE_TAG), null);
+//        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPresenter.updateView();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         mUnbinder.unbind();
@@ -167,9 +178,6 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
     @Override
     public void setPresenter(DetailsContract.Presenter presenter) {
         mPresenter = presenter;
-        // FIXME: 29.10.2017 refactor it for using dynamic fragments at tablet ui
-        int id = getActivity().getIntent().getIntExtra(MoviesActivity.MOVIE_ID_TAG, 0);
-        mPresenter.setId(id);
     }
 
     @Override

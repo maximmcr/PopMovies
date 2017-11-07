@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.maximmcr.android.popmovies.R;
 import com.maximmcr.android.popmovies.data.model.Movie;
 import com.maximmcr.android.popmovies.moviedetails.DetailsActivity;
+import com.maximmcr.android.popmovies.utils.Utility;
 
 import java.util.ArrayList;
 
@@ -73,8 +74,9 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate");
-        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        //setRetainInstance(true);
         mAdapter = new MoviesAdapter(getContext(), new ArrayList<Movie>(), this);
     }
 
@@ -102,7 +104,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
         Log.d(LOG_TAG, "option handler entry");
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                mPresenter.loadMovies();
+                mPresenter.updateView();
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -121,14 +123,13 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     public void onResume() {
         Log.d(LOG_TAG, "onResume");
         super.onResume();
-        mPresenter.loadMovies();
+        mPresenter.updateView();
     }
 
     @Override
     public void setPresenter(MoviesContract.Presenter presenter) {
         Log.d(LOG_TAG, "setPresenter");
         this.mPresenter = presenter;
-        //mPresenter.start();
     }
 
     @Override
@@ -178,12 +179,17 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     }
 
     @Override
+    public boolean isOnline() {
+        return Utility.isOnline(getContext());
+    }
+
+    @Override
     public void onItemClick(Movie movie) {
         mPresenter.openMovieDetails(movie);
     }
 
-    class WrappedGLM extends GridLayoutManager {
-        public WrappedGLM(Context context, int spanCount) {
+    private class WrappedGLM extends GridLayoutManager {
+        private WrappedGLM(Context context, int spanCount) {
             super(context, spanCount);
         }
 
