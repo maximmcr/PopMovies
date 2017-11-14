@@ -33,10 +33,10 @@ public class ReviewVPAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, final int position) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.list_item_comment, container, false);
+        ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.list_item_review, container, false);
 
         TextView authorTV = (TextView) layout.findViewById(R.id.comment_author);
-        authorTV.setText(mReview.get(position).getAuthor());
+        authorTV.setText(mContext.getString(R.string.format_review_author, mReview.get(position).getAuthor()));
 
         TextView contentTV = (TextView) layout.findViewById(R.id.comment_content);
         contentTV.setText(getShortReview(mReview.get(position).getContent()));

@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.maximmcr.android.popmovies.R;
@@ -45,9 +46,9 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     private MoviesAdapter mAdapter;
     private Unbinder mUnbinder;
 
-    static final ButterKnife.Setter<LinearLayout, Boolean> VISIBILITY = new ButterKnife.Setter<LinearLayout, Boolean>() {
+    static final ButterKnife.Setter<View, Boolean> VISIBILITY = new ButterKnife.Setter<View, Boolean>() {
         @Override
-        public void set(@NonNull LinearLayout ll, Boolean value, int index) {
+        public void set(@NonNull View ll, Boolean value, int index) {
             if (value) ll.setVisibility(View.VISIBLE);
             else ll.setVisibility(View.GONE);
         }
@@ -60,7 +61,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     RecyclerView mMoviesRV;
 
     @BindView(R.id.movies_unavailable_ll)
-    LinearLayout mUnavailableLL;
+    RelativeLayout mUnavailableLL;
 
     @BindView(R.id.movies_unavailable_tv)
     TextView mUnavailableTV;

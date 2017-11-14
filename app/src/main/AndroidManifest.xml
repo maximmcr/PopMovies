@@ -23,19 +23,20 @@
         </activity>
 
         <activity
-            android:name="com.maximmcr.android.popmovies.settings.SettingsActivity"
-            android:label="@string/label_settings_activity"
-            android:theme="@style/SettingsTheme"
-            android:parentActivityName="com.maximmcr.android.popmovies.movies.MoviesActivity">
+            android:name="com.maximmcr.android.popmovies.moviedetails.DetailsActivity"
+            android:parentActivityName="com.maximmcr.android.popmovies.movies.MoviesActivity"
+            android:label=""
+            android:theme="@style/DetailTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.maximmcr.android.popmovies.movies.MoviesActivity" />
         </activity>
 
         <activity
-            android:name="com.maximmcr.android.popmovies.moviedetails.DetailsActivity"
-            android:label="Details"
-            android:parentActivityName="com.maximmcr.android.popmovies.movies.MoviesActivity">
+            android:name="com.maximmcr.android.popmovies.settings.SettingsActivity"
+            android:label="@string/label_settings_activity"
+            android:parentActivityName="com.maximmcr.android.popmovies.movies.MoviesActivity"
+            android:theme="@style/SettingsTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.maximmcr.android.popmovies.movies.MoviesActivity" />
