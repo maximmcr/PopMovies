@@ -1,6 +1,15 @@
 <resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
     <string name="app_name">Pop Movies</string>
-    <string name="label_settings_activity">Settings</string>
+
+    <!--Main screen strings-->
+    <string name="text_nomovies">There are no saved movies.</string>
+
+    <!--Detail screen strings-->
+    <string name="detail_btn_favourites_add">Add to favourites</string>
+    <string name="detail_btn_favourites_remove">Remove from favourites</string>
+    <string name="detail_text_header">Info</string>
+    <string name="detail_review_header">Reviews</string>
+    <string name="detail_video_header">Video materials</string>
 
     <!-- Settings' strings -->
     <string name="pref_list_title">Display movies</string>
@@ -16,13 +25,15 @@
         <item>popular</item>
         <item>saved</item>
     </string-array>
+    <string name="label_settings_activity">Settings</string>
+
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
 
     <!--Transitions' strings-->
     <string name="transition_poster" translatable="false">poster</string>
 
-    <!--Fromats' strings-->
+    <!--Formats' strings-->
     <string name="format_popular">Users\' popularity: <xliff:g id="popularity">%1.0f</xliff:g>
     </string>
     <string name="format_rating">Rating: <xliff:g id="rating">%1.0f</xliff:g>/10
@@ -30,19 +41,14 @@
     <string name="format_runtime">Runtime: <xliff:g id="runtime">%1d</xliff:g>min
     </string>
     <string name="format_release_date">Release date: <xliff:g id="date">%1s</xliff:g></string>
+    <string name="format_review_author">By <xliff:g id="author">%1s</xliff:g></string>
 
     <!--Snackbars' strings-->
     <string name="snackbar_movie_added">The movie has been added to favourites.</string>
     <string name="snackbar_movie_removed">The movie has been removed from favourites.</string>
     <string name="snackbar_no_internet">There is no internet connection!</string>
 
-    <string name="detail_btn_favourites_add">Add to favourites</string>
-    <string name="detail_btn_favourites_remove">Remove from favourites</string>
-    <string name="detail_text_reviews">Users\' reviews</string>
-    <string name="detail_text_videos">Videos, clips, etc.</string>
-
-    <string name="text_nomovies">There are no saved movies.</string>
-
+   <!--System strings-->
     <string name="poster_base_path" translatable="false">http://image.tmdb.org/t/p/w185</string>
     <string name="poster_dir_name" translatable="false">posters</string>
 </resources>

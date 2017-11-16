@@ -1,16 +1,9 @@
 package com.maximmcr.android.popmovies.utils;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Base64;
-import android.util.DisplayMetrics;
 
-import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -52,36 +45,37 @@ public class Utility {
         return result;
     }
 
-    public static String byteArrayToString(byte[] b) {
-        return Base64.encodeToString(b, Base64.DEFAULT);
-    }
-    public static Bitmap stringToBitmap(String s) {
-        try {
-            byte [] encodeByte=Base64.decode(s,Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch(Exception e) {
-            e.getMessage();
-            return null;
-        }
-    }
-    public static byte[] bitmapToByteArray(Bitmap b) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        b.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        return baos.toByteArray();
-    }
-    public static byte[] drawableToByteArray(Drawable drawable) {
-        BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-        Bitmap bitmap = bitmapDrawable.getBitmap();
-        return bitmapToByteArray(bitmap);
-    }
-
-    public static int pxToDp(Context context, int px) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return (int) (px / displayMetrics.density);
-    }
-    public static int dpToPx(Context context, int dp) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return (int) (dp * displayMetrics.density);
-    }
+//    public static byte[] bitmapToByteArray(Bitmap b) {
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        b.compress(Bitmap.CompressFormat.PNG, 100, baos);
+//        return baos.toByteArray();
+//    }
+//    public static byte[] drawableToByteArray(Drawable drawable) {
+//        BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+//        Bitmap bitmap = bitmapDrawable.getBitmap();
+//        return bitmapToByteArray(bitmap);
+//    }
+//
+//    public static String byteArrayToString(byte[] b) {
+//        return Base64.encodeToString(b, Base64.DEFAULT);
+//    }
+//    public static Bitmap stringToBitmap(String s) {
+//        try {
+//            byte [] encodeByte=Base64.decode(s,Base64.DEFAULT);
+//            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+//            return bitmap;
+//        } catch(Exception e) {
+//            e.getMessage();
+//            return null;
+//        }
+//    }
+//
+//    public static int pxToDp(Context context, int px) {
+//        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+//        return (int) (px / displayMetrics.density);
+//    }
+//    public static int dpToPx(Context context, int dp) {
+//        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+//        return (int) (dp * displayMetrics.density);
+//    }
 }

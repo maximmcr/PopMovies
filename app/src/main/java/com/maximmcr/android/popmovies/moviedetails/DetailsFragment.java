@@ -9,7 +9,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.ListViewCompat;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,10 +31,8 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
@@ -50,8 +50,6 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
 
     @BindView(R.id.detail_image)
     ImageView mPoster;
-    @BindView(R.id.detail_title)
-    TextView mTitle;
     @BindView(R.id.detail_tagline)
     TextView mTagline;
     @BindView(R.id.detail_date)
@@ -70,12 +68,6 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
     @BindView(R.id.detail_video_listview)
     ListViewCompat mVideoListView;
 
-    // элементы, которые появляются при доступности раздела (обзоры или видео)
-    @BindViews({R.id.detail_review_header, R.id.detail_review_divider})
-    List<View> mReviewElements;
-    @BindViews({R.id.detail_video_header, R.id.detail_video_divider})
-    List<View> mVideoElements;
-
     @BindView(R.id.detail_progressbar)
     ProgressBar mProgressbar;
 
@@ -84,6 +76,18 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
 
     @BindView(R.id.detail_fab_favourite)
     FloatingActionButton mFabFavourite;
+
+    @BindView(R.id.detail_toolbar)
+    Toolbar mToolbar;
+
+    @BindView(R.id.detail_card_info)
+    CardView mCardInfo;
+
+    @BindView(R.id.detail_card_reviews)
+    CardView mCardReviews;
+
+    @BindView(R.id.detail_card_videos)
+    CardView mCardVideos;
 
     private Unbinder mUnbinder;
 
@@ -185,8 +189,8 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
                         callback.onFailure();
                     }
                 });
-        mTitle.setText(movie.getTitle());
-        mTagline.setText(movie.getTitle());
+        mToolbar.setTitle(movie.getTitle());
+        mTagline.setText(movie.getTagline());
         mReleaseDate.setText(getString(
                 R.string.format_release_date,
                 Utility.formatDate(movie.getReleaseDate())));
@@ -197,16 +201,14 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
 
         ArrayList<Review> reviews = movie.getReviews();
         if (reviews == null || reviews.size() == 0) {
-            ButterKnife.apply(mReviewElements, GONE);
-            ButterKnife.apply(mReviewViewPager, GONE);
+            ButterKnife.apply(mCardReviews, GONE);
         } else {
             mReviewAdapter.replace(reviews);
         }
 
         ArrayList<Video> videos = movie.getVideos();
         if (videos == null || videos.size() == 0) {
-            ButterKnife.apply(mVideoElements, GONE);
-            ButterKnife.apply(mVideoListView, GONE);
+            ButterKnife.apply(mCardVideos, GONE);
         } else {
             mVideoAdapter.replace(videos);
         }

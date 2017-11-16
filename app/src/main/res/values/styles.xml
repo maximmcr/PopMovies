@@ -1,19 +1,35 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/secondaryColor</item>
     </style>
 
-    <style name="SettingsTheme" parent="AppTheme" >
+    <style name="DetailTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/secondaryColor</item>
     </style>
-    
+
+    <style name="SettingsTheme" parent="AppTheme"></style>
+
     <style name="DetailText">
-        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="DetailText.Base">
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="DetailText.Head">
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textAppearance">?android:textAppearanceLarge</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
     <style name="DetailDivider">
@@ -23,13 +39,17 @@
         <item name="android:layout_marginRight">32dp</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
-        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:background">@color/primaryColor</item>
     </style>
-    
+
     <style name="DetailHeader">
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:textAppearance">?android:textAppearance</item>
         <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="DetailCard" parent="CardView.Light">
+        <item name="android:layout_margin">8dp</item>
     </style>
 
 </resources>
