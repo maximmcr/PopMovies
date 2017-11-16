@@ -154,16 +154,6 @@ public class DetailsFragment extends Fragment implements DetailsContract.View {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-//        if (savedInstanceState == null) {
-//            mPresenter.loadMovie();
-//        } else if (savedInstanceState.containsKey(SAVE_TAG)) {
-//            showMovie((Movie) savedInstanceState.getParcelable(SAVE_TAG), null);
-//        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         mPresenter.updateView();

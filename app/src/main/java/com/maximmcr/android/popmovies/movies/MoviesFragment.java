@@ -76,7 +76,6 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
         Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        //setRetainInstance(true);
         mAdapter = new MoviesAdapter(getContext(), new ArrayList<Movie>(), this);
     }
 
@@ -104,7 +103,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
         Log.d(LOG_TAG, "option handler entry");
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                mPresenter.updateView();
+                mPresenter.updateView(true);
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -123,7 +122,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View, Mov
     public void onResume() {
         Log.d(LOG_TAG, "onResume");
         super.onResume();
-        mPresenter.updateView();
+        mPresenter.updateView(false);
     }
 
     @Override

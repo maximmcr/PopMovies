@@ -37,7 +37,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     public void attachView(MoviesContract.View view) {
         mView = view;
         mView.setPresenter(this);
-        updateView();
+        updateView(false);
     }
 
     @Override
@@ -46,9 +46,10 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     }
 
     @Override
-    public void updateView() {
+    public void updateView(boolean forceUpdate) {
         Log.d(LOG_TAG, "updateView");
-        if (!mCurrentFilter.equals(mPrefs.getCurrentFiltering()) || mFirstLoad){
+        if (!mCurrentFilter.equals(mPrefs.getCurrentFiltering()) || mFirstLoad || forceUpdate){
+            mView.showLoadingIndicator(true);
             mData.refreshMovieList();
             mCurrentFilter = mPrefs.getCurrentFiltering();
             mFirstLoad = false;
@@ -58,6 +59,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
             @Override
             public void onMovieListLoaded(ArrayList<Movie> movies) {
                 mView.showMovieList(movies);
+                mView.showLoadingIndicator(false);
                 Log.d(LOG_TAG, "Movies downloaded successful");
             }
 
@@ -70,6 +72,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
                     mView.showMovieList(new ArrayList<Movie>());
                     mView.showNoInternet();
                 }
+                mView.showLoadingIndicator(false);
                 Log.d(LOG_TAG, "Movies downloaded unsuccessful");
             }
         });

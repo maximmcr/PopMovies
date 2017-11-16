@@ -30,7 +30,7 @@ public interface MoviesContract {
 
     interface Presenter extends BasePresenter<View> {
 
-        void updateView();
+        void updateView(boolean forceUpdate);
 
         void openMovieDetails(Movie selectedMovie);
 
