@@ -4,7 +4,6 @@
     android:id="@+id/activity_movies"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primaryLightColor"
     tools:context="com.maximmcr.android.popmovies.movies.MoviesActivity">
 
     <fragment
